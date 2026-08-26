@@ -176,7 +176,7 @@ Errors: 0
 BUILD SUCCESS
 ```
 
-Git: this commit
+Git: `88da522`
 
 Status: COMPLETE
 

@@ -21,7 +21,7 @@ BUILD SUCCESS
 
 Last completed Git checkpoint:
 
-M5 checkpoint: pending
+`88da522` - feat: implement format detection
 
 Pending:
 
@@ -106,7 +106,7 @@ Acceptance criteria:
 - [x] Unknown-format handling
 - [x] JUnit test suite
 
-Git checkpoint: this commit
+Git checkpoint: `88da522`
 
 ## M6 - DICOM Processing
 
