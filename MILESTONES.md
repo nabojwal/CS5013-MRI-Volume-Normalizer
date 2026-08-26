@@ -21,7 +21,7 @@ BUILD SUCCESS
 
 Last completed Git checkpoint:
 
-M4 checkpoint: this commit
+`7e50a9b` - feat: establish core architecture
 
 Pending:
 
@@ -88,7 +88,7 @@ Acceptance criteria:
 - [x] Architecture tests pass
 - [x] Design documented
 
-Git checkpoint: this commit
+Git checkpoint: `7e50a9b`
 
 ## M5 - Format Detection
 

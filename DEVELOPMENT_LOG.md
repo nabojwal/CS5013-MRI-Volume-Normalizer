@@ -129,3 +129,20 @@ Status: COMPLETE
 ---
 
 Current milestone: M5 - Format Detection.
+
+---
+
+## Post-M4 Architecture Review
+
+An independent review was performed after M4 completion.
+
+The architecture test suite contains 7 total tests, including 4 architecture-focused tests. The tests meaningfully protect the currently established domain contracts and presentation boundary.
+
+Known limitation:
+the architecture tests are not repository-wide dependency analysis. They inspect the currently established contract types rather than automatically discovering all future classes.
+
+This limitation is intentional for M4. No architecture-testing dependency or custom bytecode analyzer is introduced.
+
+Future milestones must add boundary-specific tests as new infrastructure, processing, and presentation components are introduced.
+
+M4 remains accepted and complete.
