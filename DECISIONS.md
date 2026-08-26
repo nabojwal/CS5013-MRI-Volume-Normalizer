@@ -13,6 +13,19 @@ Accepted
 
 ---
 
+## ADR-008 - Bounded Detection Budget
+
+Decision:
+Format detection performs bounded inspection. DICOM inputs larger than 1 MiB return `UNKNOWN` with `INPUT_TOO_LARGE`.
+
+Reason:
+Detection must avoid traversing large DICOM objects or series. This is a resource budget, not a statement that large DICOM input is invalid or unsupported; full parsing is deferred to M6 workflows.
+
+Status:
+Accepted
+
+---
+
 ## ADR-006 - Content-Based Format Detection
 
 Decision:

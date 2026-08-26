@@ -183,3 +183,52 @@ Status: COMPLETE
 ---
 
 Current milestone: M6 - DICOM Processing.
+
+---
+
+## 2026-08-26
+
+### M5.1 - Format Detection Hardening
+
+Actions:
+
+- Bounded DICOM inspection to a 1 MiB detection budget.
+- Strengthened NIfTI-1 and NIfTI-2 header invariants and endian handling.
+- Validated gzip streams through EOF while retaining bounded decompressed inspection.
+- Removed weak DICOM tag heuristics and used dcm4che validation for preamble-less input.
+- Deferred NIfTI image-pair headers and added stable invalid-reference and oversized-input diagnostics.
+- Added regression tests for each corrected behavior.
+
+Verification:
+
+```text
+mvn -Dtest=FormatDetectionServiceTest test
+```
+
+Result:
+
+```text
+Tests run: 16
+Failures: 0
+Errors: 0
+BUILD SUCCESS
+```
+
+Full verification:
+
+```text
+mvn clean test
+```
+
+Result:
+
+```text
+Tests run: 23
+Failures: 0
+Errors: 0
+BUILD SUCCESS
+```
+
+Git: this commit
+
+Status: COMPLETE

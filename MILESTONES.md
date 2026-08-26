@@ -23,6 +23,8 @@ Last completed Git checkpoint:
 
 `88da522` - feat: implement format detection
 
+M5.1 corrective checkpoint: pending
+
 Pending:
 
 - Begin M6 DICOM processing
@@ -107,6 +109,8 @@ Acceptance criteria:
 - [x] JUnit test suite
 
 Git checkpoint: `88da522`
+
+M5.1 hardening checkpoint: this commit
 
 ## M6 - DICOM Processing
 

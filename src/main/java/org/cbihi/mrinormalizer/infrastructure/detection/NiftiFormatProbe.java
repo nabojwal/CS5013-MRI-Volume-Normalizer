@@ -19,15 +19,16 @@ public final class NiftiFormatProbe implements FormatProbe {
     private static final int NIFTI_1_HEADER_SIZE = 348;
     private static final int NIFTI_2_HEADER_SIZE = 540;
     private static final int MAX_HEADER_BYTES = 4096;
+    private static final int MAX_DECOMPRESSED_BYTES = 16 * 1024 * 1024;
 
     @Override
     public DetectionResult probe(InputSource input) {
         Path path = Path.of(input.reference());
         try (InputStream raw = Files.newInputStream(path)) {
             if (hasGzipSignature(raw)) {
-                try (InputStream gzip = new GZIPInputStream(Files.newInputStream(path))) {
-                    byte[] header = gzip.readNBytes(MAX_HEADER_BYTES);
-                    return detectHeader(header, true);
+                try (InputStream compressed = Files.newInputStream(path);
+                     InputStream gzip = new GZIPInputStream(compressed)) {
+                    return detectHeader(readBoundedGzip(gzip), true);
                 } catch (IOException exception) {
                     return DetectionResult.corrupt(DetectionDiagnostic.INVALID_GZIP);
                 }
@@ -62,12 +63,18 @@ public final class NiftiFormatProbe implements FormatProbe {
             return DetectionResult.corrupt(DetectionDiagnostic.INVALID_NIFTI);
         }
         if (headerSize == NIFTI_1_HEADER_SIZE) {
-            if (!hasMagic(bytes, 344, "n+1\0", "ni1\0")) {
+            if (hasMagic(bytes, 344, "ni1\0")) {
+                return DetectionResult.unknown(DetectionDiagnostic.UNSUPPORTED_FORMAT);
+            }
+            if (!hasMagic(bytes, 344, "n+1\0")) {
                 return DetectionResult.corrupt(DetectionDiagnostic.INVALID_NIFTI);
             }
             return DetectionResult.identified(gzip ? DetectionOutcome.NIFTI_GZ : DetectionOutcome.NIFTI);
         }
-        if (!hasMagic(bytes, 4, "n+2\0", "ni2\0")) {
+        if (hasMagic(bytes, 4, "ni2\0")) {
+            return DetectionResult.unknown(DetectionDiagnostic.UNSUPPORTED_FORMAT);
+        }
+        if (!hasMagic(bytes, 4, "n+2\0")) {
             return DetectionResult.corrupt(DetectionDiagnostic.INVALID_NIFTI);
         }
         return DetectionResult.identified(gzip ? DetectionOutcome.NIFTI_GZ : DetectionOutcome.NIFTI);
@@ -91,5 +98,71 @@ public final class NiftiFormatProbe implements FormatProbe {
         }
         String magic = new String(bytes, offset, 4, java.nio.charset.StandardCharsets.ISO_8859_1);
         return java.util.Arrays.asList(options).contains(magic);
+    }
+
+    private boolean validNifti1Fields(byte[] bytes) {
+        ByteOrder order = byteOrder(bytes, NIFTI_1_HEADER_SIZE);
+        int dimensions = Short.toUnsignedInt(ByteBuffer.wrap(bytes, 40, 2).order(order).getShort());
+        if (dimensions < 1 || dimensions > 7) {
+            return false;
+        }
+        for (int offset = 42; offset < 42 + dimensions * 2; offset += 2) {
+            if (ByteBuffer.wrap(bytes, offset, 2).order(order).getShort() <= 0) {
+                return false;
+            }
+        }
+        int datatype = Short.toUnsignedInt(ByteBuffer.wrap(bytes, 70, 2).order(order).getShort());
+        int bitpix = Short.toUnsignedInt(ByteBuffer.wrap(bytes, 72, 2).order(order).getShort());
+        return validTypeAndBitpix(datatype, bitpix);
+    }
+
+    private boolean validNifti2Fields(byte[] bytes) {
+        ByteOrder order = byteOrder(bytes, NIFTI_2_HEADER_SIZE);
+        long dimensions = ByteBuffer.wrap(bytes, 16, 8).order(order).getLong();
+        if (dimensions < 1 || dimensions > 7) {
+            return false;
+        }
+        for (int index = 0; index < dimensions; index++) {
+            if (ByteBuffer.wrap(bytes, 24 + index * 8, 8).order(order).getLong() <= 0) {
+                return false;
+            }
+        }
+        int datatype = Short.toUnsignedInt(ByteBuffer.wrap(bytes, 12, 2).order(order).getShort());
+        int bitpix = Short.toUnsignedInt(ByteBuffer.wrap(bytes, 14, 2).order(order).getShort());
+        return validTypeAndBitpix(datatype, bitpix);
+    }
+
+    private boolean validTypeAndBitpix(int datatype, int bitpix) {
+        return switch (datatype) {
+            case 1, 2 -> bitpix == 1 || bitpix == 8;
+            case 4, 8, 256 -> bitpix == 16 || bitpix == 32 || bitpix == 8;
+            case 16, 32, 64, 128, 512, 768 -> bitpix == 32 || bitpix == 64 || bitpix == 128;
+            default -> false;
+        };
+    }
+
+    private ByteOrder byteOrder(byte[] bytes, int headerSize) {
+        int little = ByteBuffer.wrap(bytes, 0, 4).order(ByteOrder.LITTLE_ENDIAN).getInt();
+        return little == headerSize ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN;
+    }
+
+    private byte[] readBoundedGzip(InputStream gzip) throws IOException {
+        byte[] header = new byte[MAX_HEADER_BYTES];
+        int headerLength = 0;
+        int total = 0;
+        byte[] buffer = new byte[1024];
+        int read;
+        while ((read = gzip.read(buffer)) != -1) {
+            if (total + read > MAX_DECOMPRESSED_BYTES) {
+                throw new IOException("gzip decompressed data exceeds detection limit");
+            }
+            int copyLength = Math.min(read, header.length - headerLength);
+            if (copyLength > 0) {
+                System.arraycopy(buffer, 0, header, headerLength, copyLength);
+                headerLength += copyLength;
+            }
+            total += read;
+        }
+        return java.util.Arrays.copyOf(header, headerLength);
     }
 }

@@ -1,6 +1,6 @@
 package org.cbihi.mrinormalizer.infrastructure.detection;
 
-import java.io.FileInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -20,21 +20,23 @@ public final class DicomFormatProbe implements FormatProbe {
     public DetectionResult probe(InputSource input) {
         Path path = Path.of(input.reference());
         try {
-            byte[] prefix = readPrefix(path, DICOM_PREAMBLE_LENGTH);
+            byte[] prefix = readPrefix(path, MAX_DETECTION_BYTES);
             boolean part10 = prefix.length >= DICOM_PREAMBLE_LENGTH
                     && prefix[128] == 'D' && prefix[129] == 'I'
                     && prefix[130] == 'C' && prefix[131] == 'M';
-            boolean datasetEvidence = hasDatasetEvidence(prefix);
-            if (!part10 && !datasetEvidence) {
-                return DetectionResult.unknown(DetectionDiagnostic.UNSUPPORTED_FORMAT);
+            if (Files.size(path) > MAX_DETECTION_BYTES) {
+                return DetectionResult.unknown(DetectionDiagnostic.INPUT_TOO_LARGE);
             }
-            try (DicomInputStream stream = DicomInputStream.createWithLimit(
-                    new FileInputStream(path.toFile()), MAX_DETECTION_BYTES)) {
+            try (var boundedInput = new ByteArrayInputStream(prefix);
+                 DicomInputStream stream = new DicomInputStream(boundedInput)) {
+                stream.setSkipAllDicomInputHandler();
                 stream.readFileMetaInformation();
                 stream.readDataset();
                 return DetectionResult.identified(org.cbihi.mrinormalizer.domain.model.DetectionOutcome.DICOM);
             } catch (IOException | RuntimeException exception) {
-                return DetectionResult.corrupt(DetectionDiagnostic.INVALID_DICOM);
+                return part10
+                        ? DetectionResult.corrupt(DetectionDiagnostic.INVALID_DICOM)
+                        : DetectionResult.unknown(DetectionDiagnostic.UNSUPPORTED_FORMAT);
             }
         } catch (IOException | RuntimeException exception) {
             return DetectionResult.unknown(DetectionDiagnostic.IO_ERROR);
@@ -47,16 +49,4 @@ public final class DicomFormatProbe implements FormatProbe {
         }
     }
 
-    private boolean hasDatasetEvidence(byte[] prefix) {
-        if (prefix.length < 8) {
-            return false;
-        }
-        int group = unsignedShort(prefix[0], prefix[1]);
-        int element = unsignedShort(prefix[2], prefix[3]);
-        return group % 2 == 0 && element > 0 && element < 0x1000;
-    }
-
-    private int unsignedShort(byte high, byte low) {
-        return ((high & 0xff) << 8) | (low & 0xff);
-    }
 }

@@ -9,3 +9,7 @@ Detection outcomes are `DICOM`, `NIFTI`, `NIFTI_GZ`, `UNKNOWN`, and `CORRUPT`. C
 DICOM recognition uses dcm4che-core without metadata extraction for application use, series grouping, slice ordering, volume construction, or conversion. NIfTI recognition uses bounded Java standard-library header inspection for NIfTI-1, NIfTI-2, and gzip-wrapped single-file NIfTI. It does not load voxels, reconstruct affine transforms, or resolve image pairs.
 
 No Swing or GUI behavior belongs to M5.
+
+## Detection Budget
+
+Detection uses bounded inspection. DICOM input larger than 1 MiB is returned as `UNKNOWN` with `INPUT_TOO_LARGE`; this is a detection-budget policy, not a claim that the DICOM object is unsupported or corrupt. Full parsing of large DICOM objects and series is deferred to M6 and later workflows.

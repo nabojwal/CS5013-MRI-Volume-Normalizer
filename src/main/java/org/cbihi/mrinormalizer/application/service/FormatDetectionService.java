@@ -19,7 +19,12 @@ public final class FormatDetectionService {
     }
 
     public DetectionResult detect(InputSource input) {
-        Path path = Path.of(input.reference());
+        final Path path;
+        try {
+            path = Path.of(input.reference());
+        } catch (RuntimeException exception) {
+            return DetectionResult.unknown(DetectionDiagnostic.INVALID_INPUT_REFERENCE);
+        }
         if (!Files.exists(path)) {
             return DetectionResult.unknown(DetectionDiagnostic.INPUT_NOT_FOUND);
         }
