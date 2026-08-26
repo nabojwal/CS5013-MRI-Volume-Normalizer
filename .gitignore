@@ -1,0 +1,20 @@
+# Maven
+target/
+
+# Java
+*.class
+
+# IDE
+.vscode/
+.idea/
+
+# Runtime output
+output/
+logs/
+
+# Generated test data
+test-data/generated/
+
+# OS
+.DS_Store
+Thumbs.db
