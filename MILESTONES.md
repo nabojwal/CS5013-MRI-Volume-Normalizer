@@ -4,7 +4,7 @@ Last updated: 2026-08-26
 
 ## CURRENT STATE
 
-Current milestone: M5 - Format Detection
+Current milestone: M6 - DICOM Processing
 
 Last verified build:
 
@@ -15,19 +15,19 @@ mvn clean test
 Last verified result:
 
 ```text
-7 tests passed, 0 failures, 0 errors
+16 tests passed, 0 failures, 0 errors
 BUILD SUCCESS
 ```
 
 Last completed Git checkpoint:
 
-`7e50a9b` - feat: establish core architecture
+M5 checkpoint: pending
 
 Pending:
 
-- Begin M5 format detection
+- Begin M6 DICOM processing
 
-M4 acceptance criteria are complete. M5 may now begin.
+M5 acceptance criteria are complete. M6 may now begin.
 
 ## M1 - Development Environment
 
@@ -92,22 +92,25 @@ Git checkpoint: `7e50a9b`
 
 ## M5 - Format Detection
 
-Status: NEXT
+Status: COMPLETE
+Completed: 2026-08-26
 
 Acceptance criteria:
 
-- [ ] DICOM detection
-- [ ] NIfTI detection
-- [ ] `.nii.gz` detection
-- [ ] Wrong-extension detection
-- [ ] Missing-extension detection
-- [ ] Corrupt-file handling
-- [ ] Unknown-format handling
-- [ ] JUnit test suite
+- [x] DICOM detection
+- [x] NIfTI detection
+- [x] `.nii.gz` detection
+- [x] Wrong-extension detection
+- [x] Missing-extension detection
+- [x] Corrupt-file handling
+- [x] Unknown-format handling
+- [x] JUnit test suite
+
+Git checkpoint: this commit
 
 ## M6 - DICOM Processing
 
-Status: NOT STARTED
+Status: NEXT
 
 ## M7 - NIfTI Processing
 

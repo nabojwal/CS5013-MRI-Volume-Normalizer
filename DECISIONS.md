@@ -13,6 +13,32 @@ Accepted
 
 ---
 
+## ADR-006 - Content-Based Format Detection
+
+Decision:
+Detect supported formats from bounded content inspection; treat filename extensions as hints and report mismatches separately.
+
+Reason:
+Extensions can be missing or incorrect, while format recognition must be based on file structure.
+
+Status:
+Accepted
+
+---
+
+## ADR-007 - Standard Library NIfTI Detection
+
+Decision:
+Use Java standard-library byte and gzip APIs for M5 NIfTI header recognition rather than adding a NIfTI dependency.
+
+Reason:
+M5 requires header recognition only. A complete NIfTI reader is outside scope and belongs to M7.
+
+Status:
+Accepted
+
+---
+
 ## ADR-004 - Layered Architecture
 
 Decision:

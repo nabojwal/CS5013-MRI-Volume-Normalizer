@@ -122,7 +122,7 @@ Errors: 0
 BUILD SUCCESS
 ```
 
-Git: this commit
+Git: `7e50a9b`
 
 Status: COMPLETE
 
@@ -146,3 +146,40 @@ This limitation is intentional for M4. No architecture-testing dependency or cus
 Future milestones must add boundary-specific tests as new infrastructure, processing, and presentation components are introduced.
 
 M4 remains accepted and complete.
+
+---
+
+## 2026-08-26
+
+### M5 - Format Detection
+
+Actions:
+
+- Added domain detection outcomes, diagnostics, and immutable results.
+- Added the synchronous application `FormatDetectionService` boundary.
+- Added dcm4che-backed DICOM structural probing.
+- Added standard-library NIfTI-1, NIfTI-2, and bounded gzip header probing.
+- Added synthetic temporary-file tests for supported, corrupt, unknown, empty, missing, directory, and extension-hint cases.
+
+Verification:
+
+```text
+mvn clean test
+```
+
+Result:
+
+```text
+Tests run: 16
+Failures: 0
+Errors: 0
+BUILD SUCCESS
+```
+
+Git: this commit
+
+Status: COMPLETE
+
+---
+
+Current milestone: M6 - DICOM Processing.
