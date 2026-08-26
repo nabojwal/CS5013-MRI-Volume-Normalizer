@@ -110,7 +110,7 @@ Acceptance criteria:
 
 Git checkpoint: `88da522`
 
-M5.1 hardening checkpoint: this commit
+M5.1 hardening checkpoint: `1989589`
 
 ## M6 - DICOM Processing
 

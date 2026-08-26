@@ -229,6 +229,6 @@ Errors: 0
 BUILD SUCCESS
 ```
 
-Git: this commit
+Git: `1989589`
 
 Status: COMPLETE
