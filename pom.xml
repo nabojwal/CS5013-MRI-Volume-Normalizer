@@ -38,6 +38,13 @@
 			<version>5.33.0</version>
 		</dependency>
 
+		<!-- FlatLaf Swing look and feel -->
+		<dependency>
+			<groupId>com.formdev</groupId>
+			<artifactId>flatlaf</artifactId>
+			<version>3.6.1</version>
+		</dependency>
+
 		<!-- JUnit 5 -->
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
