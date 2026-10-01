@@ -12,10 +12,8 @@ public final class ImmutableVoxelData implements VoxelData {
 
     public ImmutableVoxelData(int width, int height, int depth,
                               PixelEncoding encoding, long[] values) {
-        if (width <= 0 || height <= 0 || depth <= 0) {
-            throw new IllegalArgumentException("voxel dimensions must be positive");
-        }
-        if (values.length != width * height * depth) {
+        int voxelCount = checkedVoxelCount(width, height, depth);
+        if (values.length != voxelCount) {
             throw new IllegalArgumentException("voxel data length does not match dimensions");
         }
         this.width = width;
@@ -23,6 +21,18 @@ public final class ImmutableVoxelData implements VoxelData {
         this.depth = depth;
         this.encoding = java.util.Objects.requireNonNull(encoding, "encoding");
         this.values = values.clone();
+    }
+
+    private static int checkedVoxelCount(int width, int height, int depth) {
+        if (width <= 0 || height <= 0 || depth <= 0) {
+            throw new IllegalArgumentException("voxel dimensions must be positive");
+        }
+        try {
+            // Positive dimensions make any intermediate overflow exceed array capacity.
+            return Math.multiplyExact(Math.multiplyExact(width, height), depth);
+        } catch (ArithmeticException exception) {
+            throw new IllegalArgumentException("voxel count exceeds Java array capacity", exception);
+        }
     }
 
     @Override

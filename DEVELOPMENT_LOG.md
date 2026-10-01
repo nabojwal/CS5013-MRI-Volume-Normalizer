@@ -266,3 +266,30 @@ Post-fix verification:
 Only the two geometry issues were addressed. Single-slice spacing policy,
 overflow, FrameOfReference/BIPED, detection, provenance, and AR-1 remain deferred.
 M6 overall completion is not claimed. No commit created, as requested.
+
+### M6 - Voxel Allocation Overflow Hardening
+
+Starting checkpoint: `32b4bc1`. Added nine allocation/dimension regression tests
+using only tiny arrays or virtual voxel data.
+
+Pre-fix verification: `mvn -Dtest=ImmutableVoxelDataTest clean test` failed with
+9 tests, 3 failures, 0 errors, 0 skipped. The constructor accepted products that
+wrapped to zero or one, including a shape whose mathematical count exceeds long
+capacity. Existing nonpositive-dimension, array-length, valid-small-volume, and
+service overflow behavior passed.
+
+Replaced unchecked constructor multiplication with a private checkedVoxelCount
+helper in ImmutableVoxelData. It validates positive dimensions and uses checked
+int multiplication to reject counts above Integer.MAX_VALUE before cloning.
+Arithmetic overflow is translated to IllegalArgumentException. The service,
+reader, and NativeVolume required no production changes.
+
+Post-fix verification:
+
+- `mvn -Dtest=ImmutableVoxelDataTest test`: BUILD SUCCESS; 9 tests, 0 failures,
+  0 errors, 0 skipped.
+- `mvn clean test`: BUILD SUCCESS; 48 tests, 0 failures, 0 errors, 0 skipped.
+
+The scoped voxel allocation hardening is complete. Detection, provenance,
+FrameOfReference/BIPED, and AR-1 remain deferred. M6 overall completion is not
+claimed. No commit created, as requested.
