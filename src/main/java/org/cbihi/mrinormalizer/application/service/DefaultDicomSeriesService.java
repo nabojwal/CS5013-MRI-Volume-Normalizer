@@ -20,6 +20,7 @@ import org.cbihi.mrinormalizer.domain.model.DicomInstance;
 import org.cbihi.mrinormalizer.domain.model.GeometryValidationPolicy;
 import org.cbihi.mrinormalizer.domain.model.ImmutableVoxelData;
 import org.cbihi.mrinormalizer.domain.model.NativeVolume;
+import org.cbihi.mrinormalizer.domain.model.SliceGeometry;
 import org.cbihi.mrinormalizer.domain.model.VolumeGeometry;
 import org.cbihi.mrinormalizer.domain.port.DicomInstanceReader;
 
@@ -58,9 +59,8 @@ public final class DefaultDicomSeriesService implements DicomSeriesService {
                 return failure(DicomProcessingError.SERIES_NOT_FOUND, request, 0);
             }
             validateCompatibility(selected);
-            List<DicomInstance> ordered = validateAndOrderGeometry(selected);
-            NativeVolume volume = reconstruct(ordered);
-            return DicomProcessingResult.success(volume, provenance(request, true, ordered.size(), List.of(), volume));
+            NativeVolume volume = validateAndReconstruct(selected);
+            return DicomProcessingResult.success(volume, provenance(request, true, selected.size(), List.of(), volume));
         } catch (DicomProcessingException exception) {
             return failure(exception.error(), request, 0);
         } catch (RuntimeException exception) {
@@ -95,8 +95,10 @@ public final class DefaultDicomSeriesService implements DicomSeriesService {
         }
     }
 
-    private List<DicomInstance> validateAndOrderGeometry(List<DicomInstance> instances) {
-        DicomInstance reference = instances.getFirst();
+    private NativeVolume validateAndReconstruct(List<DicomInstance> instances) {
+        // SOP UIDs are unique after compatibility validation; request order is irrelevant.
+        DicomInstance reference = instances.stream()
+                .min(Comparator.comparing(DicomInstance::sopInstanceUid)).orElseThrow();
         var referenceGeometry = reference.geometry();
         validateOrientation(referenceGeometry);
         for (DicomInstance instance : instances) {
@@ -107,19 +109,23 @@ public final class DefaultDicomSeriesService implements DicomSeriesService {
                     geometry.rowIndexDirection(), policy.directionCosineTolerance())) {
                 fail(DicomProcessingError.INCOMPATIBLE_INSTANCE);
             }
-            double[] delta = subtract(geometry.position(), referenceGeometry.position());
-            double alongNormal = dot(delta, referenceGeometry.sliceDirection());
-            double[] inPlane = subtract(delta, scale(referenceGeometry.sliceDirection(), alongNormal));
+        }
+        double[] referenceNormal = normalizedCross(referenceGeometry.columnIndexDirection(),
+                referenceGeometry.rowIndexDirection());
+        for (DicomInstance instance : instances) {
+            double[] delta = subtract(instance.geometry().position(), referenceGeometry.position());
+            double alongNormal = dot(delta, referenceNormal);
+            double[] inPlane = subtract(delta, scale(referenceNormal, alongNormal));
             if (length(inPlane) > policy.positionToleranceMm()) {
                 fail(DicomProcessingError.INVALID_POSITION);
             }
         }
         List<DicomInstance> ordered = new ArrayList<>(instances);
-        ordered.sort(Comparator.comparingDouble(instance -> instance.geometry().projectedPosition()));
+        ordered.sort(Comparator.comparingDouble(instance -> dot(instance.geometry().position(), referenceNormal)));
         List<Double> spacing = new ArrayList<>();
         for (int index = 1; index < ordered.size(); index++) {
-            double difference = ordered.get(index).geometry().projectedPosition()
-                    - ordered.get(index - 1).geometry().projectedPosition();
+            double difference = dot(ordered.get(index).geometry().position(), referenceNormal)
+                    - dot(ordered.get(index - 1).geometry().position(), referenceNormal);
             if (difference <= policy.duplicatePositionToleranceMm()) {
                 fail(DicomProcessingError.DUPLICATE_SLICE);
             }
@@ -133,10 +139,21 @@ public final class DefaultDicomSeriesService implements DicomSeriesService {
                 }
             }
         }
-        return List.copyOf(ordered);
+        // Keep the existing single-slice policy. For stacks, validate and publish
+        // exactly the grid defined by the first physical gap and first position.
+        double sliceSpacing = spacing.isEmpty() ? 0.0d : spacing.getFirst();
+        double firstProjection = dot(ordered.getFirst().geometry().position(), referenceNormal);
+        for (int index = 0; index < ordered.size(); index++) {
+            double actual = dot(ordered.get(index).geometry().position(), referenceNormal);
+            double expected = firstProjection + index * sliceSpacing;
+            if (!near(actual, expected, policy.positionToleranceMm())) {
+                fail(DicomProcessingError.IRREGULAR_SPACING);
+            }
+        }
+        return reconstruct(ordered, referenceGeometry, referenceNormal, sliceSpacing);
     }
 
-    private void validateOrientation(org.cbihi.mrinormalizer.domain.model.SliceGeometry geometry) {
+    private void validateOrientation(SliceGeometry geometry) {
         double[] column = geometry.columnIndexDirection();
         double[] row = geometry.rowIndexDirection();
         if (!near(length(column), 1.0d, policy.directionCosineTolerance())
@@ -146,7 +163,8 @@ public final class DefaultDicomSeriesService implements DicomSeriesService {
         }
     }
 
-    private NativeVolume reconstruct(List<DicomInstance> ordered) {
+    private NativeVolume reconstruct(List<DicomInstance> ordered, SliceGeometry referenceGeometry,
+                                     double[] referenceNormal, double sliceSpacing) {
         DicomInstance first = ordered.getFirst();
         int width = first.columns();
         int height = first.rows();
@@ -159,12 +177,9 @@ public final class DefaultDicomSeriesService implements DicomSeriesService {
                 }
             }
         }
-        double sliceSpacing = ordered.size() < 2 ? 0.0d
-                : ordered.get(1).geometry().projectedPosition() - ordered.get(0).geometry().projectedPosition();
-        var slice = first.geometry();
         VolumeGeometry geometry = new VolumeGeometry(width, height, ordered.size(), first.rowSpacing(),
-                first.columnSpacing(), sliceSpacing, slice.position(), slice.columnIndexDirection(),
-                slice.rowIndexDirection(), slice.sliceDirection(), CoordinateSystem.DICOM_PATIENT_LPS);
+                first.columnSpacing(), sliceSpacing, first.geometry().position(), referenceGeometry.columnIndexDirection(),
+                referenceGeometry.rowIndexDirection(), referenceNormal, CoordinateSystem.DICOM_PATIENT_LPS);
         return new NativeVolume(geometry, new ImmutableVoxelData(width, height, ordered.size(),
                 first.pixelEncoding(), values), first.rescaleTransform());
     }
@@ -226,6 +241,16 @@ public final class DefaultDicomSeriesService implements DicomSeriesService {
 
     private double length(double[] vector) {
         return Math.sqrt(dot(vector, vector));
+    }
+
+    private double[] normalizedCross(double[] first, double[] second) {
+        double[] cross = new double[] {first[1] * second[2] - first[2] * second[1],
+                first[2] * second[0] - first[0] * second[2], first[0] * second[1] - first[1] * second[0]};
+        double magnitude = length(cross);
+        if (!Double.isFinite(magnitude) || magnitude == 0.0d) {
+            fail(DicomProcessingError.INVALID_ORIENTATION);
+        }
+        return scale(cross, 1.0d / magnitude);
     }
 
     private double dot(double[] first, double[] second) {

@@ -232,3 +232,37 @@ BUILD SUCCESS
 Git: `1989589`
 
 Status: COMPLETE
+
+---
+
+## 2026-10-01
+
+### M6 - Common-Normal Projection and Final-Grid Residual Hardening
+
+Starting checkpoint: `3c3d979` - feat: establish verified M6 reconstruction baseline.
+
+Added four regression tests before changing production geometry logic. The refined
+fixtures were verified with `mvn -Dtest=DicomSeriesServiceTest clean test`:
+15 tests run, 3 failures, 0 errors, 0 skipped. They exposed reversed voxel order,
+input-order-dependent rejection, and acceptance of cumulative grid drift. The
+valid noisy-grid regression passed as intended.
+
+Changes:
+
+- Select reference orientation by lexical SOPInstanceUID order.
+- Derive one reference normal and project all selected positions onto it for
+  physical sorting, duplicate detection, and spacing validation.
+- Retain first-gap spacing and adjacent-gap validation; additionally compare each
+  projected position with the final regular grid using positionToleranceMm.
+- Reject excessive whole-grid residuals with IRREGULAR_SPACING and pass the same
+  validated directions, normal, and spacing into volume assembly.
+
+Post-fix verification:
+
+- `mvn -Dtest=DicomSeriesServiceTest test`: BUILD SUCCESS; 15 tests, 0 failures,
+  0 errors, 0 skipped.
+- `mvn clean test`: BUILD SUCCESS; 39 tests, 0 failures, 0 errors, 0 skipped.
+
+Only the two geometry issues were addressed. Single-slice spacing policy,
+overflow, FrameOfReference/BIPED, detection, provenance, and AR-1 remain deferred.
+M6 overall completion is not claimed. No commit created, as requested.
