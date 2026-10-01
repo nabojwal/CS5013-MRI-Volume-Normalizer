@@ -1,6 +1,6 @@
 # Project Milestones
 
-Last updated: 2026-08-26
+Last updated: 2026-10-01
 
 ## CURRENT STATE
 
@@ -15,21 +15,27 @@ mvn clean test
 Last verified result:
 
 ```text
-16 tests passed, 0 failures, 0 errors
+48 tests passed, 0 failures, 0 errors, 0 skipped
 BUILD SUCCESS
 ```
 
 Last completed Git checkpoint:
 
-`88da522` - feat: implement format detection
+`fc1ad46` - fix: harden voxel allocation validation
 
-M5.1 corrective checkpoint: pending
+M5.1 corrective checkpoint: `1989589`.
 
-Pending:
+Current M6 status: IN PROGRESS.
 
-- Begin M6 DICOM processing
+- Reconstruction baseline: `3c3d979`.
+- Common-normal and whole-grid residual hardening: `32b4bc1`.
+- Voxel allocation overflow hardening: `fc1ad46`.
+- Format-neutral volume and AR-1 remain pending; passing current tests is not M6 acceptance.
 
-M5 acceptance criteria are complete. M6 may now begin.
+The 48-test result is fresh working-tree verification at `fc1ad46` plus documentation
+changes, not a new checkpoint. See [test results](docs/testing/TEST-RESULTS.md).
+Architecture Revision 1.0 supersedes older roadmap scope: M7 is DICOM-to-NIfTI,
+M8 is controlled reverse conversion; intensity normalization is optional.
 
 ## M1 - Development Environment
 
@@ -114,13 +120,19 @@ M5.1 hardening checkpoint: `1989589`
 
 ## M6 - DICOM Processing
 
-Status: NEXT
+Status: IN PROGRESS
 
-## M7 - NIfTI Processing
+The reconstruction baseline and two scoped correctness fixes are complete and
+checkpointed. Overall acceptance follows approved architecture section 24;
+`NativeVolume` is still DICOM-shaped and item 19 (format-neutral `ImageVolume`)
+is unmet. AR-1 and additional coverage/policy work remain deferred.
+See [outstanding gaps](docs/testing/TEST-RESULTS.md#outstanding-test-and-acceptance-gaps).
+
+## M7 - DICOM-to-NIfTI (Architecture 1.0)
 
 Status: NOT STARTED
 
-## M8 - Normalization
+## M8 - Controlled NIfTI-to-DICOM (Architecture 1.0)
 
 Status: NOT STARTED
 

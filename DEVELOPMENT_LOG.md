@@ -1,5 +1,13 @@
 # Development Log
 
+This is the chronological engineering log. Historical entries preserve the state
+and verification recorded at the time; later audit notes explicitly correct stale
+claims without rewriting valid history. Current status is in MILESTONES.md and
+the latest entry below. Prompt/test/implementation/checkpoint links are indexed in
+[PROMPTS.md](PROMPTS.md); fresh results and evidence limits are in
+[TEST-RESULTS.md](docs/testing/TEST-RESULTS.md). A completed task is not necessarily
+a completed milestone.
+
 ## 2026-08-26
 
 ### M1 - Java/Maven/JUnit Baseline
@@ -293,3 +301,73 @@ Post-fix verification:
 The scoped voxel allocation hardening is complete. Detection, provenance,
 FrameOfReference/BIPED, and AR-1 remain deferred. M6 overall completion is not
 claimed. No commit created, as requested.
+
+---
+
+## 2026-10-01 — Documentation and Test-Governance Audit
+
+Starting checkpoint: `fc1ad46` — fix: harden voxel allocation validation.
+Prompt: M6-P04 in PROMPTS.md. Objective: establish evaluator-facing documentation,
+test methodology/inventory and AI traceability through the current M6 stage.
+
+### Historical checkpoint reconciliation
+
+- `eb83cb1` (2026-08-27) preserves versioned AI prompts; `f7e7ea2` (2026-10-01)
+  approves Architecture 1.0. Exact original approval/geometry/allocation prompts
+  are unavailable; PROMPTS.md labels summaries rather than inventing quotations.
+- M6 baseline `3c3d979` (2026-10-01), parent `f7e7ea2`, adds the reader, service,
+  models, 11 DICOM service tests and M6BoundaryTest. Its ProvenanceRecord change
+  resolves the constructor shape used by the service, supporting the AR-0 build
+  repair. No preserved pre-repair failing run or complete AR-0 audit transcript
+  was found; full AR-0 procedural completion is not asserted.
+- Fresh reproduction of the `3c3d979` Git archive with
+  `mvn clean test -f <export>/3c3d979/pom.xml`: BUILD SUCCESS, 35 tests,
+  0 failures, 0 errors, 0 skipped. Status: baseline task COMPLETE; M6 IN PROGRESS.
+- The geometry entry above was subsequently checkpointed as `32b4bc1` —
+  fix: harden M6 physical slice geometry. Fresh archive reproduction with
+  `mvn clean test -f <export>/32b4bc1/pom.xml`: BUILD SUCCESS, 39 tests,
+  0 failures, 0 errors, 0 skipped. Status: scoped geometry task COMPLETE.
+- The allocation entry was subsequently checkpointed as `fc1ad46` —
+  fix: harden voxel allocation validation. Status: scoped allocation task COMPLETE.
+  Earlier "No commit created" statements describe their task-time state, not the
+  subsequent Git history. No later M6 correctness commit exists at this audit HEAD.
+- Correction to M5.1 wording: NiftiFormatProbe contains field validators but
+  detectHeader does not call them. The historical field-invariant claim must not
+  be read as active dimension/datatype validation. Architecture section 15.4 and
+  TEST-RESULTS.md retain this as outstanding work.
+
+### Changes and review
+
+Replaced the initialization README; created PROMPTS.md, TEST-STRATEGY.md and
+TEST-RESULTS.md; added this evidence reconciliation and corrected stale milestone
+status/roadmap labels. Preserved original ai/ prompts and historical log entries.
+Reviewed every executable test class/method; naming is behavior-oriented and
+fixture comments already explain the difficult cases. Production Java review
+was read-only; recommended API documentation is recorded in TEST-RESULTS.md.
+No production or test behavior changed, no assertions changed, no tests added.
+
+The approved architecture is unchanged, with Version 1.0.0 and authoritative
+approval metadata. Its duplicate title and draft-era narrative remain editorial
+issues; current implementation status is documented separately.
+
+### Verification and status
+
+Environment checked with `mvn --version`: Java 21.0.12.1 (Eclipse Adoptium),
+Maven 3.9.16, Windows 11. Fresh current `mvn clean test`: BUILD SUCCESS;
+48 tests, 0 failures, 0 errors, 0 skipped. Counts/method inventory come from that
+run's Surefire XML. Historical 35/39 results above were independently reproduced
+from isolated Git archives without switching the checkout.
+
+`git status --short`, `git diff --stat` and `git diff` were reviewed.
+`git diff --check` passed; new documents also passed whitespace checks and all
+local Markdown link targets resolved. Source, tests, pom.xml, original ai/ records
+and the approved architecture match HEAD; the index is unchanged.
+Status: documentation/governance task COMPLETE; no software milestone advanced.
+
+M6 IN PROGRESS: section 24 item 19 still requires format-neutral ImageVolume.
+AR-1, explicit single-slice policy before output, provenance identity/privacy
+coverage and additional detection/geometry/profile hardening remain pending.
+Overflow-safe allocation is already fixed and must not be listed as unresolved.
+
+This task has no related commit: staging and committing are explicitly prohibited.
+The pre-existing `.roomodes`, architecture RC2 and RC3 are preserved.
