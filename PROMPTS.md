@@ -296,3 +296,80 @@ No speculative or count-inflating tests added.
 ### Related Commit
 
 None: this task explicitly prohibits staging and committing.
+
+## M6-P05 — Format-detection evidence-budget hardening
+
+**Evidence type:** Structured summary of the user-supplied hardening request.
+**Date:** 2026-10-01 (task and verification); entry recorded 2026-10-02.
+**Stage:** M5/M6. **Tool:** Codex.
+**Repository baseline:** `ba13b10`; the supplied prompt named the earlier `fc1ad46`.
+
+### Role
+
+Perform focused format-detection correctness hardening under approved Architecture 1.0.
+
+### Context
+
+DICOM probing treated its 1 MiB evidence budget as a total-file size limit.
+An inconclusive probe could suppress later probes. Gzip NIfTI probing drained
+the payload and classified exceeding its 16 MiB decompressed cap as corruption.
+
+### Objective
+
+Recognize large supported inputs from bounded identifying evidence, continue
+after inconclusive probes, and distinguish budget exhaustion from corruption.
+
+### Inputs / Relevant Files
+
+FormatDetectionService, DicomFormatProbe, NiftiFormatProbe, DetectionDiagnostic,
+FormatDetectionServiceTest and the approved architecture contract.
+
+### Requirements
+
+Add regressions before production fixes; preserve preamble-less DICOM and small
+valid input recognition; read only the required NIfTI header; inspect existing
+datatype helpers and change them only if needed by the active detection path.
+
+### Constraints
+
+Use deterministic synthetic temporary fixtures and bounded reads. Reuse existing
+result types and keep changes local. Recognition does not certify payload integrity.
+
+### Negative Prompt
+
+DO NOT start conversion or AR-1; move packages; introduce ImageVolume; redesign
+PixelEncoding; modify reconstruction geometry, allocation, provenance, GUI or
+FrameOfReferenceUID/BIPED logic; add dependencies; weaken or disable tests;
+overwrite user work; stage or commit. Leave unused datatype helpers deferred.
+
+### Verification
+
+- Pre-fix: `mvn "-Dtest=FormatDetectionServiceTest" clean test` — 24 tests,
+  6 failures, 0 errors, 0 skipped.
+- Post-fix: `mvn "-Dtest=FormatDetectionServiceTest" test` — BUILD SUCCESS;
+  24 tests, 0 failures, 0 errors, 0 skipped.
+- Full: `mvn clean test` — BUILD SUCCESS; 56 tests, 0 failures, 0 errors, 0 skipped.
+- `git diff --check` passed.
+
+### Result
+
+Scoped hardening COMPLETE; M6 remains IN PROGRESS. DICOM uses bounded metadata
+parsing, UNKNOWN outcomes allow later probes, and NIfTI reads at most its 348/540
+header bytes. The directly conflicting trailer-integrity expectation was explicitly
+updated for header-only detection. Unused NIfTI validators remain deferred.
+Detailed failure evidence and limitations are in [DEVELOPMENT_LOG.md](DEVELOPMENT_LOG.md).
+
+### Related Tests
+
+- `detectsLargePart10DicomFromEarlyMetadata`
+- `continuesToLaterProbeAfterInsufficientEvidence`
+- `detectsLargeNiftiAfterDicomProbe`
+- `detectsLargeGzipNiftiWithoutDrainingPayload`
+- `largeUnrelatedFileIsUnknownRatherThanSizeFailure`
+- `rejectsTruncatedGzipNiftiHeader`
+- `distinguishesTruncatedDicomMetadataFromProbeExhaustion`
+
+### Related Commit
+
+Pending. The hardening changes are uncommitted; the recorded verification is for
+the working tree based on `ba13b10`.

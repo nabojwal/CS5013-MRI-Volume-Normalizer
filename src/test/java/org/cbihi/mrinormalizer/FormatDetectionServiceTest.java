@@ -103,11 +103,12 @@ class FormatDetectionServiceTest {
     }
 
     @Test
-    void rejectsGzipWithCorruptTrailer() throws IOException {
+    void detectsCompleteGzipHeaderWithoutRequiringTrailerValidation() throws IOException {
         byte[] valid = gzip(niftiBytes(NIFTI_1_HEADER_SIZE, "n+1\0"));
         byte[] truncated = java.util.Arrays.copyOf(valid, valid.length - 2);
 
-        assertEquals(DetectionOutcome.CORRUPT, detect("truncated.nii.gz", truncated).outcome());
+        // Detection stops at the complete header; payload/trailer integrity is a later concern.
+        assertEquals(DetectionOutcome.NIFTI_GZ, detect("truncated.nii.gz", truncated).outcome());
     }
 
     @Test
@@ -136,16 +137,121 @@ class FormatDetectionServiceTest {
 
     @Test
     void oversizedDicomIsInspectedOnlyWithinTheDetectionBound() throws IOException {
-        byte[] oversized = new byte[2 * 1024 * 1024];
-        oversized[128] = 'D';
-        oversized[129] = 'I';
-        oversized[130] = 'C';
-        oversized[131] = 'M';
-
-        DetectionResult result = detect("oversized.dcm", oversized);
+        Path input = largeFileMetaInformation("budget.dcm", 2 * 1024 * 1024);
+        DetectionResult result = service().detect(new InputSource(input.toString()));
 
         assertEquals(DetectionOutcome.UNKNOWN, result.outcome());
         assertEquals(DetectionDiagnostic.INPUT_TOO_LARGE, result.diagnostic());
+    }
+
+    @Test
+    void detectsLargePart10DicomFromEarlyMetadata() throws IOException {
+        Path input = temporaryDirectory.resolve("large.data");
+        try (var output = Files.newOutputStream(input)) {
+            output.write(dicomBytes());
+            // Explicit-VR OW Pixel Data header, followed by a streamed 2 MiB value.
+            output.write(ByteBuffer.allocate(12).order(ByteOrder.LITTLE_ENDIAN)
+                    .putShort((short) 0x7fe0).putShort((short) 0x0010)
+                    .put((byte) 'O').put((byte) 'W').putShort((short) 0).putInt(2 * 1024 * 1024).array());
+            writeZeros(output, 2 * 1024 * 1024);
+        }
+        assertTrue(Files.size(input) > 1024 * 1024);
+        DetectionResult result = service().detect(new InputSource(input.toString()));
+        assertEquals(DetectionOutcome.DICOM, result.outcome());
+        assertEquals(DetectionDiagnostic.NONE, result.diagnostic());
+        assertTrue(result.extensionMismatch());
+    }
+
+    @Test
+    void continuesToLaterProbeAfterInsufficientEvidence() throws IOException {
+        Path input = Files.write(temporaryDirectory.resolve("later.nii"), niftiBytes(348, "n+1\0"));
+        var detector = new FormatDetectionService(List.of(
+                source -> DetectionResult.unknown(DetectionDiagnostic.INPUT_TOO_LARGE),
+                new NiftiFormatProbe()));
+        assertEquals(DetectionOutcome.NIFTI, detector.detect(new InputSource(input.toString())).outcome());
+    }
+
+    @Test
+    void detectsLargeNiftiAfterDicomProbe() throws IOException {
+        Path input = temporaryDirectory.resolve("large.nii");
+        try (var output = Files.newOutputStream(input)) {
+            output.write(niftiBytes(348, "n+1\0"));
+            writeZeros(output, 2 * 1024 * 1024);
+        }
+        assertEquals(DetectionOutcome.NIFTI, service().detect(new InputSource(input.toString())).outcome());
+    }
+
+    @Test
+    void detectsLargeGzipNiftiWithoutDrainingPayload() throws IOException {
+        Path input = temporaryDirectory.resolve("large.gz");
+        try (var output = new GZIPOutputStream(Files.newOutputStream(input))) {
+            output.write(niftiBytes(348, "n+1\0"));
+            // Exceeds the old 16 MiB decompressed cap, with only a small streaming buffer.
+            writeZeros(output, 17 * 1024 * 1024);
+        }
+        DetectionResult result = service().detect(new InputSource(input.toString()));
+        assertEquals(DetectionOutcome.NIFTI_GZ, result.outcome());
+        assertEquals(DetectionDiagnostic.NONE, result.diagnostic());
+    }
+
+    @Test
+    void rejectsTruncatedGzipNiftiHeader() throws IOException {
+        byte[] partial = java.util.Arrays.copyOf(niftiBytes(348, "n+1\0"), 100);
+        DetectionResult result = detect("short.gz", gzip(partial));
+        assertEquals(DetectionOutcome.CORRUPT, result.outcome());
+        assertEquals(DetectionDiagnostic.INVALID_NIFTI, result.diagnostic());
+    }
+
+    @Test
+    void largeUnrelatedFileIsUnknownRatherThanSizeFailure() throws IOException {
+        Path input = temporaryDirectory.resolve("random.dcm");
+        byte[] block = new byte[8192];
+        new java.util.Random(5013).nextBytes(block);
+        try (var output = Files.newOutputStream(input)) {
+            for (int i = 0; i < 256; i++) output.write(block);
+        }
+        DetectionResult result = service().detect(new InputSource(input.toString()));
+        assertEquals(DetectionOutcome.UNKNOWN, result.outcome());
+        assertEquals(DetectionDiagnostic.UNSUPPORTED_FORMAT, result.diagnostic());
+    }
+
+    @Test
+    void distinguishesTruncatedDicomMetadataFromProbeExhaustion() throws IOException {
+        Path input = largeFileMetaInformation("truncated.dcm", 32);
+        DetectionResult result = service().detect(new InputSource(input.toString()));
+        assertEquals(DetectionOutcome.CORRUPT, result.outcome());
+        assertEquals(DetectionDiagnostic.INVALID_DICOM, result.diagnostic());
+    }
+
+    @Test
+    void detectsBigEndianGzipNifti2Header() throws IOException {
+        assertEquals(DetectionOutcome.NIFTI_GZ,
+                detect("header.bin", gzip(niftiBytes(540, "n+2\0", ByteOrder.BIG_ENDIAN))).outcome());
+    }
+
+    private Path largeFileMetaInformation(String filename, int payloadBytes) throws IOException {
+        Path input = temporaryDirectory.resolve(filename);
+        try (var output = Files.newOutputStream(input)) {
+            output.write(new byte[128]);
+            output.write(new byte[] {'D', 'I', 'C', 'M'});
+            // File Meta Information Version followed by a declared 2 MiB Private Information.
+            // No complete identifying metadata is available within the probe budget.
+            output.write(new byte[] {2, 0, 1, 0, 'O', 'B', 0, 0, 2, 0, 0, 0, 0, 1});
+            output.write(ByteBuffer.allocate(12).order(ByteOrder.LITTLE_ENDIAN)
+                    .putShort((short) 2).putShort((short) 0x0102)
+                    .put((byte) 'O').put((byte) 'B').putShort((short) 0).putInt(2 * 1024 * 1024).array());
+            writeZeros(output, payloadBytes);
+        }
+        return input;
+    }
+
+    private void writeZeros(java.io.OutputStream output, int count) throws IOException {
+        byte[] block = new byte[8192];
+        while (count > 0) {
+            int length = Math.min(count, block.length);
+            output.write(block, 0, length);
+            count -= length;
+        }
     }
 
     @Test

@@ -18,8 +18,6 @@ public final class NiftiFormatProbe implements FormatProbe {
 
     private static final int NIFTI_1_HEADER_SIZE = 348;
     private static final int NIFTI_2_HEADER_SIZE = 540;
-    private static final int MAX_HEADER_BYTES = 4096;
-    private static final int MAX_DECOMPRESSED_BYTES = 16 * 1024 * 1024;
 
     @Override
     public DetectionResult probe(InputSource input) {
@@ -28,7 +26,7 @@ public final class NiftiFormatProbe implements FormatProbe {
             if (hasGzipSignature(raw)) {
                 try (InputStream compressed = Files.newInputStream(path);
                      InputStream gzip = new GZIPInputStream(compressed)) {
-                    return detectHeader(readBoundedGzip(gzip), true);
+                    return detectHeader(readHeaderPrefix(gzip), true);
                 } catch (IOException exception) {
                     return DetectionResult.corrupt(DetectionDiagnostic.INVALID_GZIP);
                 }
@@ -38,7 +36,7 @@ public final class NiftiFormatProbe implements FormatProbe {
         }
 
         try (InputStream stream = Files.newInputStream(path)) {
-            return detectHeader(stream.readNBytes(MAX_HEADER_BYTES), false);
+            return detectHeader(readHeaderPrefix(stream), false);
         } catch (IOException exception) {
             return DetectionResult.unknown(DetectionDiagnostic.IO_ERROR);
         }
@@ -146,23 +144,16 @@ public final class NiftiFormatProbe implements FormatProbe {
         return little == headerSize ? ByteOrder.LITTLE_ENDIAN : ByteOrder.BIG_ENDIAN;
     }
 
-    private byte[] readBoundedGzip(InputStream gzip) throws IOException {
-        byte[] header = new byte[MAX_HEADER_BYTES];
-        int headerLength = 0;
-        int total = 0;
-        byte[] buffer = new byte[1024];
-        int read;
-        while ((read = gzip.read(buffer)) != -1) {
-            if (total + read > MAX_DECOMPRESSED_BYTES) {
-                throw new IOException("gzip decompressed data exceeds detection limit");
-            }
-            int copyLength = Math.min(read, header.length - headerLength);
-            if (copyLength > 0) {
-                System.arraycopy(buffer, 0, header, headerLength, copyLength);
-                headerLength += copyLength;
-            }
-            total += read;
-        }
-        return java.util.Arrays.copyOf(header, headerLength);
+    private byte[] readHeaderPrefix(InputStream input) throws IOException {
+        byte[] sizeBytes = input.readNBytes(Integer.BYTES);
+        if (sizeBytes.length < Integer.BYTES) return sizeBytes;
+        Integer size = headerSize(sizeBytes);
+        if (size == null) return sizeBytes;
+        // Stop at the header boundary. Payload/CRC/trailer validation belongs to
+        // full-file loading, not bounded format recognition.
+        byte[] remainder = input.readNBytes(size - Integer.BYTES);
+        byte[] header = java.util.Arrays.copyOf(sizeBytes, Integer.BYTES + remainder.length);
+        System.arraycopy(remainder, 0, header, Integer.BYTES, remainder.length);
+        return header;
     }
 }

@@ -7,7 +7,8 @@ public enum DetectionDiagnostic {
     INPUT_NOT_READABLE,
     EMPTY_INPUT,
     INVALID_DICOM,
-        INPUT_TOO_LARGE,
+    /** Inconclusive within the probe budget; not a file-size validity limit. */
+    INPUT_TOO_LARGE,
     INVALID_INPUT_REFERENCE,
     INVALID_NIFTI,
     INVALID_GZIP,

@@ -371,3 +371,96 @@ Overflow-safe allocation is already fixed and must not be listed as unresolved.
 
 This task has no related commit: staging and committing are explicitly prohibited.
 The pre-existing `.roomodes`, architecture RC2 and RC3 are preserved.
+
+---
+
+## 2026-10-01 — M5/M6 Format Detection Evidence Budgets
+
+Starting checkpoint: `ba13b10` — docs: establish project documentation and test
+governance. The supplied task named `fc1ad46`; live Git showed the subsequent
+documentation checkpoint and no tracked modifications before this task.
+
+Objective: make probe limits evidence budgets rather than total-file validity
+limits, continue after inconclusive probes, and recognize gzip NIfTI from bounded
+header reads. Reconstruction, allocation, provenance and architecture are out of scope.
+
+### Test-first evidence
+
+Before production edits, added eight tests in FormatDetectionServiceTest and
+updated two directly affected existing fixtures/expectations. Command:
+`mvn "-Dtest=FormatDetectionServiceTest" clean test`.
+Result: BUILD FAILURE; 24 tests, 6 failures, 0 errors, 0 skipped.
+
+| Test | Observed pre-fix result |
+|---|---|
+| detectsLargePart10DicomFromEarlyMetadata | Expected DICOM, got UNKNOWN for a streamed 2 MiB Pixel Data fixture |
+| continuesToLaterProbeAfterInsufficientEvidence | Expected NIFTI, got UNKNOWN after a budget-limited first probe |
+| detectsLargeNiftiAfterDicomProbe | Expected NIFTI, got UNKNOWN for a >1 MiB uncompressed fixture |
+| detectsLargeGzipNiftiWithoutDrainingPayload | Expected NIFTI_GZ, got CORRUPT after exceeding the old 16 MiB decompressed cap |
+| largeUnrelatedFileIsUnknownRatherThanSizeFailure | Expected UNSUPPORTED_FORMAT, got INPUT_TOO_LARGE for seeded unrelated bytes |
+| detectsCompleteGzipHeaderWithoutRequiringTrailerValidation | Expected NIFTI_GZ, got CORRUPT because the old implementation checked the trailer |
+
+New rejectsTruncatedGzipNiftiHeader, distinguishesTruncatedDicomMetadataFromProbeExhaustion
+and detectsBigEndianGzipNifti2Header passed before the fix. Existing small valid
+files and preamble-less DICOM also passed; no extra production changes were made
+to force failures in those cases.
+
+The old rejectsGzipWithCorruptTrailer expectation was explicitly replaced to
+match the requested header-only detection contract. Payload/trailer validation
+cannot be promised without reading past the header. The existing oversized DICOM
+test now uses incomplete-within-budget File Meta Information rather than a DICM
+marker plus arbitrary padding; its UNKNOWN/INPUT_TOO_LARGE assertions are retained.
+Fixtures use temporary files and 8 KiB streaming buffers; the gzip fixture expands
+to 17 MiB to exceed the old cap without allocating that payload in memory.
+
+### Implementation
+
+- DicomFormatProbe uses dcm4che's existing createWithLimit with a 1 MiB budget.
+  It checks the preamble, parses File Meta Information and stops on identifying
+  SOP class/instance and transfer-syntax metadata. Preamble-less input retains
+  parser-based fallback through the early dataset SOP identifiers. It does not
+  parse Pixel Data merely to classify a file.
+- Parser EOF while more file bytes exist beyond the budget returns
+  UNKNOWN/INPUT_TOO_LARGE. Actual short recognizable metadata remains
+  CORRUPT/INVALID_DICOM; unrelated bytes remain UNKNOWN/UNSUPPORTED_FORMAT.
+  INPUT_TOO_LARGE is retained for API compatibility and documented as inconclusive
+  evidence, not invalid total file size. Recognition is not full DICOM validation.
+- FormatDetectionService continues through UNKNOWN outcomes and preserves a
+  nontrivial fallback diagnostic if later probes only report non-matches. A
+  positive match or actual CORRUPT result still terminates probing.
+- NiftiFormatProbe reads four size bytes, then only the remaining header bytes:
+  348 total for NIfTI-1 or 540 for NIfTI-2, for both plain and gzip input. Unknown
+  sizes stop after four bytes. GZIPInputStream may buffer compressed bytes, but
+  the detector does not drain decompressed payload or require trailer validation.
+  Short recognizable headers remain INVALID_NIFTI; gzip decoding failures while
+  obtaining the header remain INVALID_GZIP.
+
+### NIfTI helper review and limits
+
+Header-size values, endian handling and NIfTI-1 four-byte magic placement agree
+with the official nifti_clib header definitions. Existing NIfTI-2 recognition
+checks only the first four magic bytes, not its additional signature bytes.
+Dimension/datatype helpers are uncalled; validTypeAndBitpix groups independent
+codes incorrectly (e.g. code 512 is UINT16 but the helper rejects bitpix 16;
+code 128 is RGB24 but bitpix 24 is absent). They were not activated, changed or
+given speculative tests, per the focused request. vox_offset, complete datatype
+validation, full NIfTI-2 signature validation and full-file integrity remain deferred.
+Reference definitions reviewed:
+[nifti1.h](https://github.com/NIFTI-Imaging/nifti_clib/blob/master/niftilib/nifti1.h),
+[nifti2.h](https://github.com/NIFTI-Imaging/nifti_clib/blob/master/nifti2/nifti2.h).
+
+### Verification and status
+
+- Focused: `mvn "-Dtest=FormatDetectionServiceTest" test` — BUILD SUCCESS;
+  24 tests, 0 failures, 0 errors, 0 skipped.
+- Full: `mvn clean test` — BUILD SUCCESS; 56 tests, 0 failures, 0 errors, 0 skipped.
+- Focused Maven required execution outside the sandbox because its sandbox-local
+  repository path was inaccessible; no dependencies or versions were changed.
+- Reviewed `git status --short`, `git diff --stat` and the complete diff;
+  `git diff --check` passed. The index remains empty.
+
+Status: FORMAT DETECTION BUDGET HARDENING COMPLETE. M6 remains IN PROGRESS.
+Provenance identity, FrameOfReferenceUID/BIPED, single-slice spacing, AR-1 and
+NIfTI conversion remain deferred. Earlier documentation/test inventories describe
+their recorded checkpoint; this entry records the new detection semantics and count.
+No staging or commit performed. The three intentional untracked files are untouched.

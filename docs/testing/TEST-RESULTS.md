@@ -18,6 +18,12 @@ All dates below are 2026-10-01 (Asia/Calcutta). Fresh runs used Java 21.0.12.1
 | 2026-10-01 | `3c3d979` Git archive | M6 reconstruction baseline | `mvn clean test -f <export>/3c3d979/pom.xml` | 35 | 0 | 0 | 0 | BUILD SUCCESS |
 | 2026-10-01 | `32b4bc1` Git archive | M6 geometry hardening | `mvn clean test -f <export>/32b4bc1/pom.xml` | 39 | 0 | 0 | 0 | BUILD SUCCESS |
 | 2026-10-01 | `fc1ad46` + documentation working tree | Current M6 governance | `mvn clean test` | 48 | 0 | 0 | 0 | BUILD SUCCESS |
+| 2026-10-01 | Pending | Format-detection budget hardening | `mvn clean test` | 56 | 0 | 0 | 0 | BUILD SUCCESS |
+
+The Pending row records the executed 2026-10-01 working-tree verification based
+on `ba13b10`; no new commit is implied. See [M6-P05](../../PROMPTS.md#m6-p05--format-detection-evidence-budget-hardening)
+and the development log for its regressions and changed detection semantics.
+The 48-method inventory below remains the earlier governance-audit snapshot.
 
 These are fresh reproductions, not reconstructed original build transcripts.
 Both commits were exported with `git archive --format=zip` and extracted into an

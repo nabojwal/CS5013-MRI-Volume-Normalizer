@@ -45,11 +45,14 @@ public final class FormatDetectionService {
         DetectionResult fallback = DetectionResult.unknown(DetectionDiagnostic.UNSUPPORTED_FORMAT);
         for (FormatProbe probe : probes) {
             DetectionResult result = probe.probe(input);
-            if (result.outcome() != DetectionOutcome.UNKNOWN
-                    || result.diagnostic() != DetectionDiagnostic.UNSUPPORTED_FORMAT) {
+            if (result.outcome() != DetectionOutcome.UNKNOWN) {
                 return applyExtensionHint(result, path);
             }
-            fallback = result;
+            // Inconclusive probes must not hide a later positive match. Retain useful
+            // diagnostics if every remaining probe merely reports a non-match.
+            if (result.diagnostic() != DetectionDiagnostic.UNSUPPORTED_FORMAT) {
+                fallback = result;
+            }
         }
         return applyExtensionHint(fallback, path);
     }
