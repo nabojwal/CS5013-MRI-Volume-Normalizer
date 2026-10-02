@@ -527,3 +527,75 @@ Absent tags remain null; present-empty/unparsable tags remain invalid as NaN.
 ### Related Commit
 
 Pending at verification time.
+
+## M6-P08 - Provenance Source Identity Hardening
+
+**Evidence type:** Structured summary of the current user request, not a verbatim
+historical transcript. **Date:** 2026-10-02. **Baseline:** `06c9b69`.
+
+### Role
+
+Perform focused M6 provenance-identity hardening under approved Architecture 1.0.
+
+### Context
+
+inputFingerprint hashed every candidate path in request order, not file content.
+Relocation and permutations changed identity; selected byte changes did not.
+
+### Objective
+
+Identify selected DICOM sources by logical SOP UID and raw source content,
+independent of paths, candidate order and unselected candidate inputs.
+
+### Relevant Files
+
+DefaultDicomSeriesService, application/provenance/SelectedSourceFingerprint,
+DicomSeriesServiceTest, DEVELOPMENT_LOG.md, docs/testing/TEST-RESULTS.md, README.md.
+
+### Requirements
+
+Test first; stream SHA-256 source bytes; sort selected sources lexically by SOP UID;
+aggregate records framed as 4-byte big-endian UTF-8 UID length, UID bytes and
+32-byte content digest; emit lowercase SHA-256 hex. Preserve duplicate rejection.
+Fail if any selected source cannot be read; never publish a subset digest.
+
+### Constraints
+
+Reuse existing InputSource associations; keep hashing application-owned. Use JDK
+APIs and bounded buffers. Preserve all other provenance fields and medical-image
+processing behavior. Failure identity is unavailable (null).
+
+### Negative Prompt
+
+Do not hash paths/order/timestamps, load entire files for hashing, include
+unselected candidates, redesign provenance, inject Clock, add dependencies,
+alter geometry/frame/BIPED/spacing/detection/allocation, start AR-1/conversion,
+change GUI or approved architecture, weaken tests, stage or commit.
+
+### Verification
+
+- Pre-fix `mvn -Dtest=DicomSeriesServiceTest test`: BUILD FAILURE;
+  43 tests, 6 failures, 0 errors, 0 skipped.
+- Final focused same command: BUILD SUCCESS; 43/0/0/0.
+- `mvn clean test`: BUILD SUCCESS; 84/0/0/0.
+
+### Results
+
+Scoped identity hardening COMPLETE; M6 remains IN PROGRESS. The old source-path
+hash is replaced by canonical selected UID/content identity; source I/O failures
+return a structured failure with no fingerprint. Sources must remain stable
+during the existing parse/hash workflow; atomic snapshots are outside this task.
+
+### Related Tests
+
+- `fingerprintIsIndependentOfInputOrder`
+- `fingerprintIsIndependentOfSourcePath`
+- `fingerprintChangesWhenSelectedSourceContentChanges`
+- `unselectedCandidateContentDoesNotAffectSelectedFingerprint`
+- `fingerprintHasCanonicalSha256Encoding`
+- `knownCanonicalAggregationFixture`
+- `failsWithoutPartialFingerprintWhenSelectedSourceCannotBeRead`
+
+### Related Commit
+
+Pending at verification time.

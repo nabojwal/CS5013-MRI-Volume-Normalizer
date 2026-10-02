@@ -59,8 +59,9 @@ can therefore fail a request.
 - Compatibility: study, dimensions, encoding, transfer syntax, spacing and rescale.
 - Rescale slope/intercept remain explicit metadata. No normalization, resampling,
   interpolation or coordinate-system conversion occurs.
-- Provenance records a hash of ordered input references, versions, timestamp,
-  counts and summaries; it is not a content fingerprint or full manifest.
+- Provenance records a canonical SHA-256 fingerprint of selected SOP UIDs and raw
+  source content, independent of paths/input order, plus versions, timestamp,
+  counts and summaries; failures have no fingerprint, and a full manifest remains pending.
 
 NIfTI-1/2 single-file headers and gzip wrapping are recognized. NIfTI volume I/O
 and conversion are not implemented. Detection is not full image validation.

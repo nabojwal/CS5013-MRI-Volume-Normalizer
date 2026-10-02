@@ -593,3 +593,63 @@ Reader tests use existing synthetic temporary DICOM fixtures.
 M6 single-slice spacing hardening COMPLETE. M6 remains IN PROGRESS.
 Provenance identity, unused NIfTI validators, AR-1 and conversion remain deferred.
 Related commit: Pending at verification time. No staging or commit performed.
+
+## 2026-10-02 - M6 Provenance Source Identity Hardening
+
+Baseline: `06c9b69` (single-slice policy checkpoint). Tracked files were clean;
+the three intentional untracked files were untouched. Objective: bind successful
+reconstruction provenance to selected logical source identities and raw bytes,
+independent of candidate order and source locations.
+
+### Test-first evidence
+
+Before production changes, `mvn -Dtest=DicomSeriesServiceTest test`:
+BUILD FAILURE; 43 tests, 6 failures, 0 errors, 0 skipped.
+
+| Test | Pre-fix observation |
+|---|---|
+| fingerprintIsIndependentOfInputOrder | Failed: permutation changed fingerprint |
+| fingerprintIsIndependentOfSourcePath | Failed: identical relocated/renamed files changed fingerprint |
+| fingerprintChangesWhenSelectedSourceContentChanges | Failed: SeriesDescription changed at the same path with the same SOP UID, but fingerprint did not |
+| unselectedCandidateContentDoesNotAffectSelectedFingerprint | Content-only change already passed; removing unselected candidate failed by changing fingerprint |
+| fingerprintHasCanonicalSha256Encoding | Passed: lowercase 64-character hex and repeatability already worked |
+| knownCanonicalAggregationFixture | Failed: old path hash differed from independently framed source hashes |
+| failsWithoutPartialFingerprintWhenSelectedSourceCannotBeRead | Failed: reconstruction succeeded despite a selected source being deleted after parsing |
+
+The unselected test additionally verifies relocated/reordered unselected candidates
+after the fix. Canonical testing uses deterministic SOP UIDs whose lexical order
+differs from numeric order, DigestInputStream and DataOutputStream framing.
+Changing SOPInstanceUID necessarily changes DICOM bytes; no redundant UID-change
+test was added. The canonical expected value explicitly includes each UID.
+
+### Implementation
+
+SelectedSourceFingerprint is a small final application/provenance helper. The
+service retains each selected instance's existing InputSource beside its SOP UID;
+no source field was added to DicomInstance and the reader is unchanged.
+Compatibility and duplicate-SOP validation precede hashing.
+
+Each selected file is streamed through JDK SHA-256 with a reusable 8192-byte buffer.
+Records sort by ascending lexical SOPInstanceUID. Aggregate SHA-256 receives:
+4-byte big-endian UTF-8 UID byte length, UID bytes, raw 32-byte source digest.
+The output is 64 lowercase hexadecimal characters. No location, timestamp,
+request order, versions, or unselected sources enter the digest.
+
+Selected-source open/read failures map to INPUT_NOT_READABLE through the existing
+service failure path. Failure provenance has null inputFingerprint: unavailable,
+not a partial/empty-source/path digest. ProvenanceRecord's schema and all other
+fields remain unchanged. No full-file allocation or extra dependency was added.
+The source files must remain stable during parsing and hashing; this focused
+change does not provide an atomic filesystem snapshot or concurrent-write detection.
+
+### Verification and scope
+
+- `mvn -Dtest=DicomSeriesServiceTest test`: BUILD SUCCESS; 43 tests,
+  0 failures, 0 errors, 0 skipped.
+- `mvn clean test`: BUILD SUCCESS; 84 tests, 0 failures, 0 errors, 0 skipped.
+- README's outdated path-hash sentence was replaced with the selected-content contract.
+
+Scoped provenance identity hardening COMPLETE. M6 remains IN PROGRESS.
+Richer provenance/schema, Clock injection, unused NIfTI validators, AR-1 and
+conversion remain deferred. Related commit: Pending at verification time.
+No staging or commit performed.

@@ -451,6 +451,116 @@ class DicomSeriesServiceTest {
         }
     }
 
+    @Test
+    void fingerprintIsIndependentOfInputOrder() throws IOException {
+        Path first = dicom("identity-first.dcm", spec(0, new long[] {1, 1, 1, 1}));
+        Path second = dicom("identity-second.dcm", spec(5, new long[] {2, 2, 2, 2}));
+        assertEquals(successfulFingerprint(first, second), successfulFingerprint(second, first));
+    }
+
+    @Test
+    void fingerprintIsIndependentOfSourcePath() throws IOException {
+        Path first = dicom("original-first.dcm", spec(0, new long[] {1, 1, 1, 1}));
+        Path second = dicom("original-second.dcm", spec(5, new long[] {2, 2, 2, 2}));
+        Path directory = Files.createDirectory(temporaryDirectory.resolve("relocated"));
+        Path copyFirst = Files.copy(first, directory.resolve("renamed-a.bin"));
+        Path copySecond = Files.copy(second, directory.resolve("renamed-b.bin"));
+        assertEquals(successfulFingerprint(first, second), successfulFingerprint(copyFirst, copySecond));
+    }
+
+    @Test
+    void fingerprintChangesWhenSelectedSourceContentChanges() throws IOException {
+        Spec source = spec(0, new long[] {1, 2, 3, 4}).sop("2.25.901").description("original");
+        Path path = dicom("content.dcm", source);
+        var before = service().process(request(SERIES, path));
+        assertTrue(before.successful());
+        dicom("content.dcm", source.description("changed"));
+        var after = service().process(request(SERIES, path));
+        assertTrue(after.successful());
+        org.junit.jupiter.api.Assertions.assertNotEquals(before.provenance().inputFingerprint(),
+                after.provenance().inputFingerprint());
+        assertArrayEquals(before.volume().geometry().origin(), after.volume().geometry().origin());
+        for (int y = 0; y < 2; y++) {
+            for (int x = 0; x < 2; x++) {
+                assertEquals(before.volume().voxels().rawValueAt(x, y, 0), after.volume().voxels().rawValueAt(x, y, 0));
+            }
+        }
+    }
+
+    @Test
+    void unselectedCandidateContentDoesNotAffectSelectedFingerprint() throws IOException {
+        Path selected = dicom("selected-identity.dcm", spec(0, new long[] {1, 2, 3, 4}));
+        Spec otherSpec = spec(0, new long[] {9, 9, 9, 9}).series("2.25.999").description("before");
+        Path other = dicom("unselected-identity.dcm", otherSpec);
+        String before = successfulFingerprint(selected, other);
+        dicom("unselected-identity.dcm", otherSpec.description("after"));
+        assertEquals(before, successfulFingerprint(selected, other));
+        assertEquals(before, successfulFingerprint(selected));
+        Path relocated = Files.copy(other, temporaryDirectory.resolve("other-name.dcm"));
+        assertEquals(before, successfulFingerprint(relocated, selected));
+    }
+
+    @Test
+    void fingerprintHasCanonicalSha256Encoding() throws IOException {
+        Path input = dicom("encoding.dcm", spec(0, new long[] {1, 2, 3, 4}));
+        String fingerprint = successfulFingerprint(input);
+        org.junit.jupiter.api.Assertions.assertNotNull(fingerprint);
+        assertEquals(64, fingerprint.length());
+        assertTrue(fingerprint.matches("[0-9a-f]{64}"));
+        assertEquals(fingerprint, successfulFingerprint(input));
+    }
+
+    @Test
+    void knownCanonicalAggregationFixture() throws Exception {
+        String[] uids = {"2.25.10", "2.25.9"}; // Lexical order intentionally differs from numeric order.
+        Path[] paths = {
+                dicom("canonical-a.dcm", spec(5, new long[] {2, 2, 2, 2}).sop(uids[0])),
+                dicom("canonical-b.dcm", spec(0, new long[] {1, 1, 1, 1}).sop(uids[1]))};
+        ByteArrayOutputStream records = new ByteArrayOutputStream();
+        try (var framed = new java.io.DataOutputStream(records)) {
+            for (int i = 0; i < paths.length; i++) {
+                var digest = java.security.MessageDigest.getInstance("SHA-256");
+                try (var stream = new java.security.DigestInputStream(Files.newInputStream(paths[i]), digest)) {
+                    stream.transferTo(java.io.OutputStream.nullOutputStream());
+                }
+                byte[] uid = uids[i].getBytes(java.nio.charset.StandardCharsets.UTF_8);
+                framed.writeInt(uid.length);
+                framed.write(uid);
+                framed.write(digest.digest());
+            }
+        }
+        String expected = java.util.HexFormat.of().formatHex(
+                java.security.MessageDigest.getInstance("SHA-256").digest(records.toByteArray()));
+        assertEquals(expected, successfulFingerprint(paths[1], paths[0]));
+    }
+
+    @Test
+    void failsWithoutPartialFingerprintWhenSelectedSourceCannotBeRead() throws IOException {
+        Path first = dicom("hash-present.dcm", spec(0, new long[] {1, 1, 1, 1}).sop("2.25.910"));
+        Path second = dicom("hash-removed.dcm", spec(5, new long[] {2, 2, 2, 2}).sop("2.25.911"));
+        var realReader = new Dcm4cheInstanceReader();
+        var deletingReader = new DefaultDicomSeriesService(input -> {
+            var instance = realReader.read(input);
+            if (input.reference().equals(second.toString())) {
+                try {
+                    Files.delete(second);
+                } catch (IOException exception) {
+                    throw new java.io.UncheckedIOException(exception);
+                }
+            }
+            return instance;
+        }, GeometryValidationPolicy.defaults());
+        var result = deletingReader.process(request(SERIES, first, second));
+        assertError(result, DicomProcessingError.INPUT_NOT_READABLE);
+        org.junit.jupiter.api.Assertions.assertNull(result.provenance().inputFingerprint());
+    }
+
+    private String successfulFingerprint(Path... inputs) {
+        var result = service().process(request(SERIES, inputs));
+        assertTrue(result.successful(), result.errors().toString());
+        return result.provenance().inputFingerprint();
+    }
+
     private Path[] slightlyTiltedStack(double spacing) throws IOException {
         // All directions differ by less than 1e-4. At x=200, their own normals shift
         // projections by about +/-0.008 mm, reversing the 0.005 mm stack's order.
@@ -503,6 +613,7 @@ class DicomSeriesServiceTest {
         if (spec.between != null) dataset.setString(Tag.SpacingBetweenSlices, VR.DS, spec.between);
         if (spec.thickness != null) dataset.setString(Tag.SliceThickness, VR.DS, spec.thickness);
         dataset.setString(Tag.Modality, VR.CS, spec.modality);
+        if (spec.description != null) dataset.setString(Tag.SeriesDescription, VR.LO, spec.description);
         dataset.setInt(Tag.Rows, VR.US, spec.rows);
         dataset.setInt(Tag.Columns, VR.US, spec.columns);
         dataset.setString(Tag.PixelSpacing, VR.DS, decimalStrings(spec.spacing));
@@ -553,6 +664,7 @@ class DicomSeriesServiceTest {
         private double[] position; private long[] values; private String study = STUDY; private String series = SERIES;
         private String frame = FRAME; private String anatomy;
         private String between = "2.0"; private String thickness;
+        private String description;
         private String sop = "2.25." + System.nanoTime(); private String sopClass = UID.MRImageStorage; private String modality = "MR";
         private int rows = 2; private int columns = 2; private double[] spacing = {1, 1};
         private double[] orientation = {1, 0, 0, 0, 1, 0}; private int allocated = 16; private int stored = 16;
@@ -564,6 +676,7 @@ class DicomSeriesServiceTest {
         Spec study(String value) { study = value; return this; } Spec series(String value) { series = value; return this; }
         Spec frame(String value) { frame = value; return this; } Spec anatomy(String value) { anatomy = value; return this; }
         Spec zSpacing(String spacing, String fallback) { between = spacing; thickness = fallback; return this; }
+        Spec description(String value) { description = value; return this; }
         Spec sop(String value) { sop = value; return this; } Spec dimensions(int r, int c) { rows = r; columns = c; return this; }
         Spec spacing(double r, double c) { spacing = new double[] {r, c}; return this; }
         Spec orientation(double[] value) { orientation = value; return this; } Spec allocated(int value) { allocated = value; return this; }

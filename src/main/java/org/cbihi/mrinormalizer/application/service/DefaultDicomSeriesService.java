@@ -1,8 +1,5 @@
 package org.cbihi.mrinormalizer.application.service;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -11,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.cbihi.mrinormalizer.application.provenance.ProvenanceRecord;
+import org.cbihi.mrinormalizer.application.provenance.SelectedSourceFingerprint;
 import org.cbihi.mrinormalizer.application.request.DicomSeriesRequest;
 import org.cbihi.mrinormalizer.application.result.DicomProcessingResult;
 import org.cbihi.mrinormalizer.domain.error.DicomProcessingError;
@@ -48,19 +46,23 @@ public final class DefaultDicomSeriesService implements DicomSeriesService {
             return failure(DicomProcessingError.EMPTY_INPUT, request, 0);
         }
         try {
-            List<DicomInstance> allInstances = new ArrayList<>();
+            List<DicomInstance> selected = new ArrayList<>();
+            List<SelectedSourceFingerprint.Source> sources = new ArrayList<>();
             for (var input : request.inputs()) {
-                allInstances.add(reader.read(input));
+                DicomInstance instance = reader.read(input);
+                if (request.selectedSeriesInstanceUid().equals(instance.seriesInstanceUid())) {
+                    selected.add(instance);
+                    sources.add(new SelectedSourceFingerprint.Source(instance.sopInstanceUid(), input));
+                }
             }
-            List<DicomInstance> selected = allInstances.stream()
-                    .filter(instance -> request.selectedSeriesInstanceUid().equals(instance.seriesInstanceUid()))
-                    .toList();
             if (selected.isEmpty()) {
                 return failure(DicomProcessingError.SERIES_NOT_FOUND, request, 0);
             }
             validateCompatibility(selected);
             NativeVolume volume = validateAndReconstruct(selected);
-            return DicomProcessingResult.success(volume, provenance(request, true, selected.size(), List.of(), volume));
+            String fingerprint = SelectedSourceFingerprint.sha256(sources);
+            return DicomProcessingResult.success(volume,
+                    provenance(request, true, selected.size(), List.of(), volume, fingerprint));
         } catch (DicomProcessingException exception) {
             return failure(exception.error(), request, 0);
         } catch (RuntimeException exception) {
@@ -236,35 +238,19 @@ public final class DefaultDicomSeriesService implements DicomSeriesService {
     }
 
     private DicomProcessingResult failure(DicomProcessingError error, DicomSeriesRequest request, int acceptedSlices) {
-        return DicomProcessingResult.failure(error, provenance(request, false, acceptedSlices, List.of(error), null));
+        return DicomProcessingResult.failure(error, provenance(request, false, acceptedSlices, List.of(error), null, null));
     }
 
     private ProvenanceRecord provenance(DicomSeriesRequest request, boolean success, int acceptedSlices,
-                                        List<DicomProcessingError> errors, NativeVolume volume) {
+                                        List<DicomProcessingError> errors, NativeVolume volume, String fingerprint) {
         int inputCount = request == null || request.inputs() == null ? 0 : request.inputs().size();
         String geometry = volume == null ? "unavailable" : "dimensions=" + volume.geometry().width() + "x"
                 + volume.geometry().height() + "x" + volume.geometry().depth() + ";coordinate=DICOM_PATIENT_LPS";
         String pixels = volume == null ? "unavailable" : "allocated=" + volume.voxels().encoding().bitsAllocated()
                 + ";stored=" + volume.voxels().encoding().bitsStored() + ";representation="
                 + volume.voxels().encoding().valueType();
-        return new ProvenanceRecord(fingerprint(request), SOFTWARE_VERSION, DCM4CHE_VERSION, Instant.now(), success,
+        return new ProvenanceRecord(fingerprint, SOFTWARE_VERSION, DCM4CHE_VERSION, Instant.now(), success,
                 inputCount, acceptedSlices, geometry, pixels, errors);
-    }
-
-    private String fingerprint(DicomSeriesRequest request) {
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            if (request != null && request.inputs() != null) {
-                for (var input : request.inputs()) {
-                    String reference = input == null ? "<null>" : String.valueOf(input.reference());
-                    digest.update(reference.getBytes(StandardCharsets.UTF_8));
-                    digest.update((byte) 0);
-                }
-            }
-            return java.util.HexFormat.of().formatHex(digest.digest());
-        } catch (NoSuchAlgorithmException exception) {
-            throw new IllegalStateException("SHA-256 is unavailable", exception);
-        }
     }
 
     private boolean near(double first, double second, double tolerance) {

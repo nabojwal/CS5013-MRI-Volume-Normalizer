@@ -255,3 +255,27 @@ ImmutableVoxelDataTest 9, architecture 5, smoke/main 3 = 77.
 M6 remains IN PROGRESS. This resolves the reconstruction single-slice spacing
 gap recorded in earlier snapshots; provenance identity, unused NIfTI validators,
 AR-1 and conversion remain deferred. No staging or commit performed.
+
+## 2026-10-02 - Provenance Identity Working-Tree Verification
+
+Baseline: `06c9b69`. Related commit: **Pending at verification time**.
+Fresh execution results for the working tree, not a new committed checkpoint.
+
+| Phase / command | Tests | Failures | Errors | Skipped | Result |
+|---|---:|---:|---:|---:|---|
+| Pre-fix: `mvn -Dtest=DicomSeriesServiceTest test` | 43 | 6 | 0 | 0 | BUILD FAILURE |
+| Final focused: same command | 43 | 0 | 0 | 0 | BUILD SUCCESS |
+| `mvn clean test` | 84 | 0 | 0 | 0 | BUILD SUCCESS |
+
+Seven added tests cover order/path independence, selected-byte sensitivity,
+unselected-candidate isolation, lowercase encoding/repeatability, canonical
+UID framing/order and read failure without a partial digest. Format/repeatability
+already passed before the fix. Unselected content changes alone also passed
+previously because no content was hashed; removing the candidate exposed scope.
+See [development log](../../DEVELOPMENT_LOG.md) for exact pre-fix evidence and
+[M6-P08](../../PROMPTS.md#m6-p08---provenance-source-identity-hardening).
+
+Final totals: DicomSeriesServiceTest 43, FormatDetectionServiceTest 24,
+ImmutableVoxelDataTest 9, architecture 5, smoke/main 3 = 84.
+M6 remains IN PROGRESS. Richer provenance, Clock injection, unused NIfTI validators,
+AR-1 and conversion remain deferred. No staging or commit performed.
