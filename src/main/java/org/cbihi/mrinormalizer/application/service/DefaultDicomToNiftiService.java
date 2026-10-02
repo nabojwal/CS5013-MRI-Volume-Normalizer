@@ -10,6 +10,7 @@ import org.cbihi.mrinormalizer.application.provenance.ProvenanceRecord;
 import org.cbihi.mrinormalizer.application.request.DicomSeriesRequest;
 import org.cbihi.mrinormalizer.application.request.DicomToNiftiRequest;
 import org.cbihi.mrinormalizer.application.result.DicomToNiftiResult;
+import org.cbihi.mrinormalizer.application.validation.ConversionValidationReport;
 import org.cbihi.mrinormalizer.domain.error.DicomToNiftiError;
 
 /** Composes verified DICOM reconstruction, LPS-to-RAS mapping and NIfTI serialization. */
@@ -21,8 +22,12 @@ public final class DefaultDicomToNiftiService implements DicomToNiftiService {
     public DefaultDicomToNiftiService(
             DicomSeriesService dicomSeriesService,
             NiftiVolumeWriter niftiWriter) {
-        this.dicomSeriesService = Objects.requireNonNull(dicomSeriesService, "dicomSeriesService");
-        this.niftiWriter = Objects.requireNonNull(niftiWriter, "niftiWriter");
+        this.dicomSeriesService = Objects.requireNonNull(
+                dicomSeriesService,
+                "dicomSeriesService");
+        this.niftiWriter = Objects.requireNonNull(
+                niftiWriter,
+                "niftiWriter");
     }
 
     @Override
@@ -30,7 +35,8 @@ public final class DefaultDicomToNiftiService implements DicomToNiftiService {
         var reconstruction = request == null
                 ? dicomSeriesService.process(null)
                 : dicomSeriesService.process(new DicomSeriesRequest(
-                        request.inputs(), request.selectedSeriesInstanceUid()));
+                        request.inputs(),
+                        request.selectedSeriesInstanceUid()));
 
         if (!reconstruction.successful()) {
             return DicomToNiftiResult.failure(
@@ -42,7 +48,10 @@ public final class DefaultDicomToNiftiService implements DicomToNiftiService {
         var rasAffine = NiftiAffineMapper.toNiftiRas(volume.geometry());
 
         try {
-            niftiWriter.write(volume, rasAffine, request.output());
+            niftiWriter.write(
+                    volume,
+                    rasAffine,
+                    request.output());
         } catch (IllegalArgumentException exception) {
             return DicomToNiftiResult.outputFailure(
                     DicomToNiftiError.INVALID_OUTPUT,
@@ -58,12 +67,25 @@ public final class DefaultDicomToNiftiService implements DicomToNiftiService {
                     failedOutputProvenance(reconstruction.provenance()));
         }
 
+        /*
+         * The report is intentionally constructed only after the writer returns.
+         * It records conversion invariants; it does not claim that the written
+         * file was subsequently reopened or independently parsed.
+         */
+        var validationReport =
+                ConversionValidationReport.losslessIntegerPreserving(
+                        request.output(),
+                        volume,
+                        rasAffine);
+
         return DicomToNiftiResult.success(
                 request.output(),
-                reconstruction.provenance());
+                reconstruction.provenance(),
+                validationReport);
     }
 
-    private ProvenanceRecord failedOutputProvenance(ProvenanceRecord provenance) {
+    private ProvenanceRecord failedOutputProvenance(
+            ProvenanceRecord provenance) {
         if (provenance == null) {
             return null;
         }
