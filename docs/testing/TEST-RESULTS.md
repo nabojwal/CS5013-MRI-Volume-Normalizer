@@ -279,3 +279,42 @@ Final totals: DicomSeriesServiceTest 43, FormatDetectionServiceTest 24,
 ImmutableVoxelDataTest 9, architecture 5, smoke/main 3 = 84.
 M6 remains IN PROGRESS. Richer provenance, Clock injection, unused NIfTI validators,
 AR-1 and conversion remain deferred. No staging or commit performed.
+
+## 2026-10-02 - M7-P01 Format-Neutral ImageVolume Verification
+
+Baseline: `cb7769e` on `feature/m7-dicom-to-nifti`.
+Related commit: **Pending at verification time**.
+
+This verification covers the minimum architecture migration required before
+DICOM-to-NIfTI conversion.
+
+The generic volume boundary was migrated from `NativeVolume` with
+DICOM-coupled voxel encoding to `ImageVolume` with generic scalar semantics.
+
+Changes verified include:
+
+- `ImageVolume` as the authoritative generic 3D image aggregate;
+- `ScalarType` with `UINT8`, `INT8`, `UINT16`, and `INT16`;
+- `VoxelData.scalarType()` replacing generic exposure of DICOM `PixelEncoding`;
+- DICOM `PixelEncoding` retained at the DICOM metadata boundary;
+- `IntensityTransform` as the generic linear intensity representation;
+- `DicomProcessingResult` returning `ImageVolume`;
+- removal of the parallel `NativeVolume` aggregate;
+- preservation of decoded stored voxel values and geometry;
+- architecture regression coverage preventing DICOM encoding leakage.
+
+| Command / suite | Tests | Failures | Errors | Skipped | Result |
+|---|---:|---:|---:|---:|---|
+| `DicomSeriesServiceTest` | 47 | 0 | 0 | 0 | PASS |
+| `ImageVolumeTest` | 3 | 0 | 0 | 0 | PASS |
+| `ImmutableVoxelDataTest` | 9 | 0 | 0 | 0 | PASS |
+| `FormatDetectionServiceTest` | 24 | 0 | 0 | 0 | PASS |
+| Architecture tests | 6 | 0 | 0 | 0 | PASS |
+| Smoke / main tests | 3 | 0 | 0 | 0 | PASS |
+| `mvn clean test` | **92** | **0** | **0** | **0** | **BUILD SUCCESS** |
+
+`git diff --check` also completed without errors.
+
+AR-1A / M7 preparation is COMPLETE. The generic volume contract is now suitable
+for the next conversion stage. NIfTI affine construction, LPS-to-RAS conversion,
+qform/sform handling, and NIfTI serialization are not part of this verification.

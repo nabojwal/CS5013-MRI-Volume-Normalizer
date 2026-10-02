@@ -8,7 +8,7 @@ public interface VoxelData {
 
     int depth();
 
-    PixelEncoding encoding();
+    ScalarType scalarType();
 
     long rawValueAt(int x, int y, int z);
 }

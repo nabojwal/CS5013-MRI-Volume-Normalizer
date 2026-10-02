@@ -17,7 +17,8 @@ import org.cbihi.mrinormalizer.domain.model.CoordinateSystem;
 import org.cbihi.mrinormalizer.domain.model.DicomInstance;
 import org.cbihi.mrinormalizer.domain.model.GeometryValidationPolicy;
 import org.cbihi.mrinormalizer.domain.model.ImmutableVoxelData;
-import org.cbihi.mrinormalizer.domain.model.NativeVolume;
+import org.cbihi.mrinormalizer.domain.model.ImageVolume;
+import org.cbihi.mrinormalizer.domain.model.IntensityTransform;
 import org.cbihi.mrinormalizer.domain.model.SliceGeometry;
 import org.cbihi.mrinormalizer.domain.model.VolumeGeometry;
 import org.cbihi.mrinormalizer.domain.port.DicomInstanceReader;
@@ -59,7 +60,7 @@ public final class DefaultDicomSeriesService implements DicomSeriesService {
                 return failure(DicomProcessingError.SERIES_NOT_FOUND, request, 0);
             }
             validateCompatibility(selected);
-            NativeVolume volume = validateAndReconstruct(selected);
+            ImageVolume volume = validateAndReconstruct(selected);
             String fingerprint = SelectedSourceFingerprint.sha256(sources);
             return DicomProcessingResult.success(volume,
                     provenance(request, true, selected.size(), List.of(), volume, fingerprint));
@@ -124,7 +125,7 @@ public final class DefaultDicomSeriesService implements DicomSeriesService {
         }
     }
 
-    private NativeVolume validateAndReconstruct(List<DicomInstance> instances) {
+    private ImageVolume validateAndReconstruct(List<DicomInstance> instances) {
         // SOP UIDs are unique after compatibility validation; request order is irrelevant.
         DicomInstance reference = instances.stream()
                 .min(Comparator.comparing(DicomInstance::sopInstanceUid)).orElseThrow();
@@ -210,7 +211,7 @@ public final class DefaultDicomSeriesService implements DicomSeriesService {
         }
     }
 
-    private NativeVolume reconstruct(List<DicomInstance> ordered, SliceGeometry referenceGeometry,
+    private ImageVolume reconstruct(List<DicomInstance> ordered, SliceGeometry referenceGeometry,
                                      double[] referenceNormal, double sliceSpacing) {
         DicomInstance first = ordered.getFirst();
         int width = first.columns();
@@ -227,8 +228,12 @@ public final class DefaultDicomSeriesService implements DicomSeriesService {
         VolumeGeometry geometry = new VolumeGeometry(width, height, ordered.size(), first.rowSpacing(),
                 first.columnSpacing(), sliceSpacing, first.geometry().position(), referenceGeometry.columnIndexDirection(),
                 referenceGeometry.rowIndexDirection(), referenceNormal, CoordinateSystem.DICOM_PATIENT_LPS);
-        return new NativeVolume(geometry, new ImmutableVoxelData(width, height, ordered.size(),
-                first.pixelEncoding(), values), first.rescaleTransform());
+        return new ImageVolume(geometry, new ImmutableVoxelData(width, height, ordered.size(),
+                first.pixels().scalarType(), values), intensityTransform(first.rescaleTransform()));
+    }
+
+    private IntensityTransform intensityTransform(org.cbihi.mrinormalizer.domain.model.RescaleTransform transform) {
+        return new IntensityTransform(transform.declared(), transform.slope(), transform.intercept());
     }
 
     private boolean sameRescale(DicomInstance first, DicomInstance second) {
@@ -242,13 +247,11 @@ public final class DefaultDicomSeriesService implements DicomSeriesService {
     }
 
     private ProvenanceRecord provenance(DicomSeriesRequest request, boolean success, int acceptedSlices,
-                                        List<DicomProcessingError> errors, NativeVolume volume, String fingerprint) {
+                                        List<DicomProcessingError> errors, ImageVolume volume, String fingerprint) {
         int inputCount = request == null || request.inputs() == null ? 0 : request.inputs().size();
         String geometry = volume == null ? "unavailable" : "dimensions=" + volume.geometry().width() + "x"
                 + volume.geometry().height() + "x" + volume.geometry().depth() + ";coordinate=DICOM_PATIENT_LPS";
-        String pixels = volume == null ? "unavailable" : "allocated=" + volume.voxels().encoding().bitsAllocated()
-                + ";stored=" + volume.voxels().encoding().bitsStored() + ";representation="
-                + volume.voxels().encoding().valueType();
+        String pixels = volume == null ? "unavailable" : "scalarType=" + volume.voxels().scalarType();
         return new ProvenanceRecord(fingerprint, SOFTWARE_VERSION, DCM4CHE_VERSION, Instant.now(), success,
                 inputCount, acceptedSlices, geometry, pixels, errors);
     }

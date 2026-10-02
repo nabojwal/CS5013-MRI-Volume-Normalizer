@@ -599,3 +599,47 @@ during the existing parse/hash workflow; atomic snapshots are outside this task.
 ### Related Commit
 
 Pending at verification time.
+
+## M7-P01 - Format-Neutral ImageVolume Migration
+
+**Evidence type:** Current structured implementation task. **Date:** 2026-10-02. **Baseline:** `cb7769e` on `feature/m7-dicom-to-nifti`.
+
+### Role
+
+Perform the minimum architecture migration required before DICOM-to-NIfTI conversion.
+
+### Context
+
+The existing `NativeVolume` was close to a generic image aggregate, but `VoxelData.encoding()` exposed DICOM `PixelEncoding`. This made the future NIfTI writer depend on DICOM storage semantics.
+
+### Objective
+
+Create a format-neutral `ImageVolume` boundary with generic scalar semantics while preserving all verified M6 reconstruction behavior.
+
+### Requirements
+
+- introduce `ImageVolume`;
+- introduce `ScalarType` = UINT8, INT8, UINT16, INT16;
+- expose `VoxelData.scalarType()` rather than `PixelEncoding`;
+- retain DICOM `PixelEncoding` separately on DICOM metadata;
+- preserve raw decoded values, geometry, x-fastest indexing and linear intensity semantics;
+- migrate `DicomProcessingResult` to `ImageVolume`;
+- remove the parallel `NativeVolume` aggregate;
+- add architecture regression coverage preventing DICOM encoding leakage.
+
+### Negative Prompt
+
+Do not implement the NIfTI writer, affine conversion, qform/sform, package-wide AR-1 cleanup, reverse conversion, GUI work, new dependencies, value resampling, voxel reordering, or changes to validated M6 geometry/profile/provenance behavior.
+
+### Verification
+
+- `git diff --check`: clean.
+- `mvn clean test`: BUILD SUCCESS; 92 tests, 0 failures, 0 errors, 0 skipped.
+- `DicomSeriesServiceTest`: 47/0/0/0.
+- `ImageVolumeTest`: 3/0/0/0.
+- `ImmutableVoxelDataTest`: 9/0/0/0.
+- Architecture tests: 6/0/0/0.
+
+### Related Commit
+
+Pending verification.

@@ -101,3 +101,55 @@ Matches the project requirements while providing a modern cross-platform Swing a
 
 Status:
 Accepted
+
+---
+
+## ADR-009 - Format-Neutral ImageVolume
+
+Decision:
+Use `ImageVolume` as the authoritative in-memory 3D image representation shared by conversion workflows.
+
+Contract:
+- `VolumeGeometry geometry`
+- `VoxelData voxels`
+- `IntensityTransform intensityTransform`
+
+Invariants:
+- all components are non-null;
+- geometry and voxel dimensions match;
+- x is column index, y is row index, z is slice index;
+- voxel values remain stored numeric values;
+- spatial geometry is explicit;
+- no DICOM or NIfTI implementation type is exposed.
+
+`NativeVolume` is superseded by `ImageVolume` rather than retained as a parallel aggregate.
+
+Reason:
+DICOM-to-NIfTI conversion requires one format-neutral volume boundary. The previous aggregate was structurally suitable but its voxel contract leaked DICOM `PixelEncoding`.
+
+Status:
+Accepted
+
+---
+
+## ADR-010 - Generic Scalar Type
+
+Decision:
+The initial generic scalar model supports `UINT8`, `INT8`, `UINT16`, and `INT16`.
+`VoxelData` exposes `ScalarType` instead of DICOM `PixelEncoding`. The initial backing implementation continues to store decoded numeric values in `long[]` with x-fastest indexing.
+
+DICOM-specific storage metadata such as Bits Allocated, Bits Stored, High Bit, Pixel Representation, Samples per Pixel, and Photometric Interpretation remains on DICOM metadata objects and does not define the generic voxel contract.
+
+Mapping:
+- 8-bit unsigned DICOM storage -> `UINT8`
+- 8-bit signed DICOM storage -> `INT8`
+- 16-bit unsigned DICOM storage -> `UINT16`
+- 16-bit signed DICOM storage -> `INT16`
+
+A signed 12-bit sample stored in a 16-bit DICOM container maps to `INT16`; the original Bits Stored value remains DICOM-specific metadata.
+
+Reason:
+The NIfTI writer needs a generic scalar storage representation, not DICOM tag semantics.
+
+Status:
+Accepted

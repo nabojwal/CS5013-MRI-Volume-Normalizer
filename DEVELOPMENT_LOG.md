@@ -653,3 +653,34 @@ Scoped provenance identity hardening COMPLETE. M6 remains IN PROGRESS.
 Richer provenance/schema, Clock injection, unused NIfTI validators, AR-1 and
 conversion remain deferred. Related commit: Pending at verification time.
 No staging or commit performed.
+
+---
+
+## 2026-10-02
+
+### AR-1A / M7 Preparation - Format-Neutral Image Volume
+
+Starting checkpoint: `cb7769e` on `feature/m7-dicom-to-nifti`.
+
+Objective: remove DICOM `PixelEncoding` from the generic volume boundary before implementing DICOM-to-NIfTI conversion.
+
+Implementation prepared:
+- introduced `ImageVolume`;
+- introduced `ScalarType` with UINT8/INT8/UINT16/INT16;
+- introduced generic `IntensityTransform`;
+- migrated `VoxelData` / `ImmutableVoxelData` to `ScalarType`;
+- retained DICOM `PixelEncoding` and `RescaleTransform` on DICOM metadata;
+- mapped decoded DICOM storage to generic scalar types in the reader;
+- changed `DicomProcessingResult` and reconstruction output to `ImageVolume`;
+- removed obsolete `NativeVolume` aggregate;
+- added format-neutral volume and boundary regressions.
+
+Verification:
+- `git diff --check`: no errors.
+- `mvn clean test`: BUILD SUCCESS; 92 tests, 0 failures, 0 errors, 0 skipped.
+- `DicomSeriesServiceTest`: 47 tests passed.
+- `ImageVolumeTest`: 3 tests passed.
+- `ImmutableVoxelDataTest`: 9 tests passed.
+- Architecture tests: 6 tests passed.
+
+AR-1A format-neutral ImageVolume migration COMPLETE. The verified M6 behavior remains intact and the generic volume boundary no longer exposes DICOM PixelEncoding. DICOM-to-NIfTI affine and writer implementation remain pending.
