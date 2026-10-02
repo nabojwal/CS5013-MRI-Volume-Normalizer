@@ -81,6 +81,9 @@ public final class DefaultDicomSeriesService implements DicomSeriesService {
             if (!reference.seriesInstanceUid().equals(instance.seriesInstanceUid())) {
                 fail(DicomProcessingError.MIXED_SERIES);
             }
+        }
+        validateSupportedCoordinateProfile(instances);
+        for (DicomInstance instance : instances) {
             if (!reference.modality().equals(instance.modality()) || !reference.sopClassUid().equals(instance.sopClassUid())
                     || reference.rows() != instance.rows() || reference.columns() != instance.columns()
                     || !reference.pixelEncoding().equals(instance.pixelEncoding())
@@ -91,6 +94,30 @@ public final class DefaultDicomSeriesService implements DicomSeriesService {
             if (!near(reference.rowSpacing(), instance.rowSpacing(), policy.pixelSpacingToleranceMm())
                     || !near(reference.columnSpacing(), instance.columnSpacing(), policy.pixelSpacingToleranceMm())) {
                 fail(DicomProcessingError.INCOMPATIBLE_INSTANCE);
+            }
+        }
+    }
+
+    private void validateSupportedCoordinateProfile(List<DicomInstance> instances) {
+        for (DicomInstance instance : instances) {
+            if (instance.frameOfReferenceUid() == null || instance.frameOfReferenceUid().isBlank()) {
+                throw new DicomProcessingException(DicomProcessingError.MISSING_REQUIRED_METADATA,
+                        "FrameOfReferenceUID is required for the supported reconstruction profile.");
+            }
+        }
+        String referenceFrame = instances.getFirst().frameOfReferenceUid();
+        for (DicomInstance instance : instances) {
+            if (!referenceFrame.equals(instance.frameOfReferenceUid())) {
+                throw new DicomProcessingException(DicomProcessingError.INCOMPATIBLE_INSTANCE,
+                        "Selected series contains inconsistent FrameOfReferenceUID values.");
+            }
+        }
+        for (DicomInstance instance : instances) {
+            String orientation = instance.anatomicalOrientationType();
+            // Absent/blank is interpreted as BIPED here, not fabricated by the reader.
+            if (orientation != null && !orientation.isBlank() && !"BIPED".equals(orientation.trim())) {
+                throw new DicomProcessingException(DicomProcessingError.UNSUPPORTED_OBJECT_TYPE,
+                        "AnatomicalOrientationType is outside the supported BIPED reconstruction profile.");
             }
         }
     }

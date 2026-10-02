@@ -200,3 +200,31 @@ Source links are authoritative; loops within one method do not count as extra te
 #### [MainTest](../../src/test/java/org/cbihi/mrinormalizer/MainTest.java)
 
 - `javaVersionShouldBe21`
+
+## 2026-10-02 - Frame/Profile Working-Tree Verification
+
+Baseline: `cacec3a`. Related commit: **Pending at verification time**.
+This is a fresh working-tree result, not a new Git checkpoint.
+The historical inventories above remain snapshots of their recorded checkpoints.
+
+| Command / phase | Tests | Failures | Errors | Skipped | Result |
+|---|---:|---:|---:|---:|---|
+| `mvn -Dtest=DicomSeriesServiceTest test` pre-fix | 25 | 6 | 0 | 0 | BUILD FAILURE |
+| Same command, final post-fix | 25 | 0 | 0 | 0 | BUILD SUCCESS |
+| `mvn clean test` | 66 | 0 | 0 | 0 | BUILD SUCCESS |
+
+Six negative profile regressions demonstrated acceptance of missing/blank/mixed
+frames and QUADRUPED/mixed/unknown anatomy before the fix. Four positive new tests
+and the strengthened selected-series isolation test already passed.
+See [M6-P06](../../PROMPTS.md#m6-p06---selected-series-frame-and-biped-profile-hardening)
+and [development log](../../DEVELOPMENT_LOG.md) for exact method names and evidence.
+
+Real dcm4che extraction is exercised end-to-end and asserted directly in the
+profile fixtures, including null preservation. The direct accessor assertions were
+added after model extension; the pre-fix failures were service behavior assertions.
+
+Final class counts: DicomSeriesServiceTest 25, FormatDetectionServiceTest 24,
+ImmutableVoxelDataTest 9, architecture tests 5, smoke/main tests 3 = 66.
+All failures/errors/skips are zero. M6 remains IN PROGRESS; single-slice spacing,
+provenance identity, unused NIfTI validators, AR-1 and conversion are still deferred.
+No staging or commit performed.

@@ -373,3 +373,83 @@ Detailed failure evidence and limitations are in [DEVELOPMENT_LOG.md](DEVELOPMEN
 
 Pending. The hardening changes are uncommitted; the recorded verification is for
 the working tree based on `ba13b10`.
+
+## M6-P06 - Selected-series frame and BIPED profile hardening
+
+**Evidence type:** Structured summary of the current user-supplied task, not a
+verbatim transcript. **Date:** 2026-10-02. **Tool:** Codex.
+**Repository baseline:** `cacec3a`.
+
+### Role
+
+Perform focused M6 DICOM reconstruction-profile hardening under Architecture 1.0.
+
+### Context
+
+The reader/model omitted frame identity and anatomical orientation; reconstruction
+could combine different frames or interpret QUADRUPED data as BIPED.
+The preceding detection work was committed and tracked files were clean.
+
+### Objective
+
+Require one nonblank FrameOfReferenceUID across selected slices and effective
+BIPED orientation, treating absent/blank anatomy as BIPED.
+
+### Relevant Files
+
+DicomInstance, Dcm4cheInstanceReader, DefaultDicomSeriesService,
+DicomSeriesServiceTest, ImmutableVoxelDataTest (constructor fixture only),
+DEVELOPMENT_LOG.md and docs/testing/TEST-RESULTS.md.
+
+### Requirements
+
+Add regressions before production edits; carry both nullable attributes through
+the current model; use dcm4che Tag constants; validate after series selection and
+before service geometry; reject missing/mixed frames and unsupported anatomy;
+preserve unrelated candidate-series isolation and use existing error categories.
+
+### Constraints
+
+Use tiny synthetic temporary DICOM fixtures and the existing reader/test framework.
+Preserve null attributes in the reader; apply the BIPED default in the application.
+Keep case-sensitive BIPED handling and exact nonblank frame UID comparison.
+
+### Negative Prompt
+
+Do not implement full MR IOD validation, QUADRUPED conversion, synthetic frame UIDs,
+AR-1, NIfTI conversion, provenance redesign, GUI changes, dependencies, package moves,
+or changes to geometry, allocation or detection algorithms. Do not weaken tests,
+edit approved architecture, stage files, or commit.
+
+### Verification
+
+- Pre-fix `mvn -Dtest=DicomSeriesServiceTest test`: BUILD FAILURE;
+  25 tests, 6 failures, 0 errors, 0 skipped.
+- Final focused same command: BUILD SUCCESS; 25/0/0/0.
+- `mvn clean test`: BUILD SUCCESS; 66/0/0/0.
+
+### Result
+
+Scoped frame/profile hardening COMPLETE; M6 remains IN PROGRESS. Nullable attributes
+are preserved, selected-series validation rejects unsupported profiles, and real
+reader extraction is covered. Results expose existing categories; explicit exception
+messages are not surfaced by the unchanged result API.
+
+### Related Tests
+
+- acceptsConsistentFrameOfReferenceUid
+- rejectsMissingFrameOfReferenceUid
+- rejectsBlankFrameOfReferenceUid
+- rejectsMixedFrameOfReferenceUids
+- acceptsExplicitBipedOrientation
+- acceptsMissingAnatomicalOrientationTypeAsBiped
+- acceptsBlankAnatomicalOrientationTypeAsBiped
+- rejectsQuadrupedOrientation
+- rejectsMixedBipedAndQuadrupedOrientations
+- rejectsUnknownAnatomicalOrientationType
+- acceptsMultipleSuppliedSeriesOnlyWhenRequestedSeriesIsExplicit (strengthened)
+- rejectsOversizedReconstructionBeforeReadingVoxels (fixture signature only)
+
+### Related Commit
+
+Pending at verification time.

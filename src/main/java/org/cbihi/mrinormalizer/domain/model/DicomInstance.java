@@ -14,7 +14,9 @@ public record DicomInstance(
         SliceGeometry geometry,
         PixelEncoding pixelEncoding,
         RescaleTransform rescaleTransform,
-        VoxelData pixels
+        VoxelData pixels,
+        String frameOfReferenceUid,
+        String anatomicalOrientationType
 ) {
 
     public DicomInstance {

@@ -464,3 +464,66 @@ Provenance identity, FrameOfReferenceUID/BIPED, single-slice spacing, AR-1 and
 NIfTI conversion remain deferred. Earlier documentation/test inventories describe
 their recorded checkpoint; this entry records the new detection semantics and count.
 No staging or commit performed. The three intentional untracked files are untouched.
+
+## 2026-10-02 - M6 Frame of Reference / BIPED Profile Hardening
+
+Baseline: `cacec3a` (format-detection hardening checkpoint). Tracked files were
+clean; the three intentional untracked files were untouched. Objective: enforce
+frame identity and the supported BIPED profile only for selected-series slices.
+
+### Test-first evidence
+
+Added ten methods in DicomSeriesServiceTest using tiny synthetic DICOM files
+and the real dcm4che reader; strengthened the existing selected-series isolation
+test with unrelated QUADRUPED/different-frame and missing-frame candidates.
+Before production changes, `mvn -Dtest=DicomSeriesServiceTest test` returned
+BUILD FAILURE: 25 tests, 6 failures, 0 errors, 0 skipped.
+
+Failing regressions (all invalid stacks were incorrectly accepted):
+
+- rejectsMissingFrameOfReferenceUid
+- rejectsBlankFrameOfReferenceUid
+- rejectsMixedFrameOfReferenceUids
+- rejectsQuadrupedOrientation
+- rejectsMixedBipedAndQuadrupedOrientations
+- rejectsUnknownAnatomicalOrientationType
+
+Positive controls already passed: acceptsConsistentFrameOfReferenceUid,
+acceptsExplicitBipedOrientation, acceptsMissingAnatomicalOrientationTypeAsBiped,
+acceptsBlankAnatomicalOrientationTypeAsBiped, and the strengthened
+acceptsMultipleSuppliedSeriesOnlyWhenRequestedSeriesIsExplicit.
+The unknown-value loop stopped at UNKNOWN in the pre-fix run; lowercase biped
+was also verified rejected after the fix.
+
+### Implementation
+
+DicomInstance carries nullable frameOfReferenceUid and anatomicalOrientationType.
+Dcm4cheInstanceReader extracts Tag.FrameOfReferenceUID and
+Tag.AnatomicalOrientationType without generating defaults. After selection and
+study/series/duplicate-SOP checks, DefaultDicomSeriesService validates frame
+presence, exact UID equality, then effective BIPED before pixel compatibility
+and service geometry validation. Null/blank orientation means BIPED; trimmed
+uppercase BIPED is accepted; other nonblank values are rejected case-sensitively.
+
+Existing categories are reused: MISSING_REQUIRED_METADATA for absent/blank frame,
+INCOMPATIBLE_INSTANCE for mixed frames, UNSUPPORTED_OBJECT_TYPE for unsupported
+anatomy. Exceptions carry explicit messages; the existing result API exposes
+only error categories, not those messages. No result/provenance redesign was made.
+The reader still derives per-instance geometry before selection, as before;
+new semantic validation precedes service orientation/common-normal reconstruction.
+
+After adding the model accessors, direct reader assertions were added to the
+same fixtures to verify exact extraction and preserved nulls. The existing
+allocation regression received a valid frame UID constructor argument so it
+continues reaching the allocation guard; no allocation behavior/assertion changed.
+Geometry algorithms, dependencies, detection and approved architecture are unchanged.
+
+### Verified results
+
+- `mvn -Dtest=DicomSeriesServiceTest test`: BUILD SUCCESS; 25 tests,
+  0 failures, 0 errors, 0 skipped (including final reader assertions).
+- `mvn clean test`: BUILD SUCCESS; 66 tests, 0 failures, 0 errors, 0 skipped.
+
+M6 frame/profile hardening COMPLETE. M6 remains IN PROGRESS. Single-slice spacing,
+provenance identity, unused NIfTI validators, AR-1 and conversion remain deferred.
+No staging or commit performed. Related commit: Pending at verification time.

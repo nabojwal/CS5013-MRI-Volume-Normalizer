@@ -31,6 +31,7 @@ class DicomSeriesServiceTest {
 
     private static final String STUDY = "2.25.101";
     private static final String SERIES = "2.25.102";
+    private static final String FRAME = "2.25.104";
 
     @TempDir
     Path temporaryDirectory;
@@ -91,10 +92,13 @@ class DicomSeriesServiceTest {
 
     @Test
     void acceptsMultipleSuppliedSeriesOnlyWhenRequestedSeriesIsExplicit() throws IOException {
-        Path selected = dicom("selected.dcm", spec(0, new long[] {1, 2, 3, 4}));
-        Path other = dicom("other.dcm", spec(0, new long[] {9, 9, 9, 9}).series("2.25.103"));
+        Path selected = dicom("selected.dcm", spec(0, new long[] {1, 2, 3, 4}).anatomy("BIPED"));
+        Path other = dicom("other.dcm", spec(0, new long[] {9, 9, 9, 9}).series("2.25.103")
+                .frame("2.25.999").anatomy("QUADRUPED"));
+        Path missingFrame = dicom("unselected-missing-frame.dcm", spec(5, new long[] {9, 9, 9, 9})
+                .series("2.25.103").frame(null));
 
-        var result = service().process(request(SERIES, other, selected));
+        var result = service().process(request(SERIES, other, selected, missingFrame));
 
         assertTrue(result.successful());
         assertEquals(1L, result.volume().voxels().rawValueAt(0, 0, 0));
@@ -247,6 +251,87 @@ class DicomSeriesServiceTest {
         }
     }
 
+    @Test
+    void acceptsConsistentFrameOfReferenceUid() throws IOException {
+        assertTrue(profileResult(new String[] {FRAME, FRAME, FRAME}, new String[] {null, null, null}).successful());
+    }
+
+    @Test
+    void rejectsMissingFrameOfReferenceUid() throws IOException {
+        assertError(profileResult(new String[] {FRAME, null, FRAME}, new String[] {null, null, null}),
+                DicomProcessingError.MISSING_REQUIRED_METADATA);
+    }
+
+    @Test
+    void rejectsBlankFrameOfReferenceUid() throws IOException {
+        for (String blank : new String[] {"", "   "}) {
+            assertError(profileResult(new String[] {FRAME, blank, FRAME}, new String[] {null, null, null}),
+                    DicomProcessingError.MISSING_REQUIRED_METADATA);
+        }
+    }
+
+    @Test
+    void rejectsMixedFrameOfReferenceUids() throws IOException {
+        assertError(profileResult(new String[] {FRAME, FRAME, "2.25.999"}, new String[] {null, null, null}),
+                DicomProcessingError.INCOMPATIBLE_INSTANCE);
+    }
+
+    @Test
+    void acceptsExplicitBipedOrientation() throws IOException {
+        assertTrue(profileResult(new String[] {FRAME, FRAME, FRAME},
+                new String[] {"BIPED", "BIPED", "BIPED"}).successful());
+    }
+
+    @Test
+    void acceptsMissingAnatomicalOrientationTypeAsBiped() throws IOException {
+        assertTrue(profileResult(new String[] {FRAME, FRAME, FRAME},
+                new String[] {"BIPED", null, "BIPED"}).successful());
+    }
+
+    @Test
+    void acceptsBlankAnatomicalOrientationTypeAsBiped() throws IOException {
+        assertTrue(profileResult(new String[] {FRAME, FRAME, FRAME},
+                new String[] {"", "   ", "BIPED"}).successful());
+    }
+
+    @Test
+    void rejectsQuadrupedOrientation() throws IOException {
+        assertError(profileResult(new String[] {FRAME, FRAME, FRAME},
+                new String[] {"QUADRUPED", "QUADRUPED", "QUADRUPED"}), DicomProcessingError.UNSUPPORTED_OBJECT_TYPE);
+    }
+
+    @Test
+    void rejectsMixedBipedAndQuadrupedOrientations() throws IOException {
+        assertError(profileResult(new String[] {FRAME, FRAME, FRAME},
+                new String[] {"BIPED", "QUADRUPED", null}), DicomProcessingError.UNSUPPORTED_OBJECT_TYPE);
+    }
+
+    @Test
+    void rejectsUnknownAnatomicalOrientationType() throws IOException {
+        for (String unsupported : new String[] {"UNKNOWN", "biped"}) {
+            assertError(profileResult(new String[] {FRAME, FRAME, FRAME},
+                    new String[] {"BIPED", unsupported, null}), DicomProcessingError.UNSUPPORTED_OBJECT_TYPE);
+        }
+    }
+
+    private org.cbihi.mrinormalizer.application.result.DicomProcessingResult profileResult(
+            String[] frames, String[] anatomies) throws IOException {
+        Path[] paths = new Path[3];
+        for (int i = 0; i < paths.length; i++) {
+            paths[i] = dicom("profile-" + i + ".dcm", spec(i * 5, new long[] {i, i, i, i})
+                    .sop("2.25.80" + i).frame(frames[i]).anatomy(anatomies[i]));
+            var decoded = new Dcm4cheInstanceReader().read(new InputSource(paths[i].toString()));
+            // DICOM padding/empty values may be normalized by dcm4che; absent stays null.
+            if (frames[i] == null || !frames[i].isBlank()) {
+                assertEquals(frames[i], decoded.frameOfReferenceUid());
+            }
+            if (anatomies[i] == null || !anatomies[i].isBlank()) {
+                assertEquals(anatomies[i], decoded.anatomicalOrientationType());
+            }
+        }
+        return service().process(request(SERIES, paths));
+    }
+
     private Path[] slightlyTiltedStack(double spacing) throws IOException {
         // All directions differ by less than 1e-4. At x=200, their own normals shift
         // projections by about +/-0.008 mm, reversing the 0.005 mm stack's order.
@@ -294,6 +379,8 @@ class DicomSeriesServiceTest {
         dataset.setString(Tag.SOPInstanceUID, VR.UI, spec.sop);
         dataset.setString(Tag.StudyInstanceUID, VR.UI, spec.study);
         dataset.setString(Tag.SeriesInstanceUID, VR.UI, spec.series);
+        if (spec.frame != null) dataset.setString(Tag.FrameOfReferenceUID, VR.UI, spec.frame);
+        if (spec.anatomy != null) dataset.setString(Tag.AnatomicalOrientationType, VR.CS, spec.anatomy);
         dataset.setString(Tag.Modality, VR.CS, spec.modality);
         dataset.setInt(Tag.Rows, VR.US, spec.rows);
         dataset.setInt(Tag.Columns, VR.US, spec.columns);
@@ -343,6 +430,7 @@ class DicomSeriesServiceTest {
 
     private static final class Spec {
         private double[] position; private long[] values; private String study = STUDY; private String series = SERIES;
+        private String frame = FRAME; private String anatomy;
         private String sop = "2.25." + System.nanoTime(); private String sopClass = UID.MRImageStorage; private String modality = "MR";
         private int rows = 2; private int columns = 2; private double[] spacing = {1, 1};
         private double[] orientation = {1, 0, 0, 0, 1, 0}; private int allocated = 16; private int stored = 16;
@@ -352,6 +440,7 @@ class DicomSeriesServiceTest {
         private Spec(double z, long[] values) { this.position = new double[] {0, 0, z}; this.values = values; }
         Spec position(double x, double y, double z) { position = new double[] {x, y, z}; return this; }
         Spec study(String value) { study = value; return this; } Spec series(String value) { series = value; return this; }
+        Spec frame(String value) { frame = value; return this; } Spec anatomy(String value) { anatomy = value; return this; }
         Spec sop(String value) { sop = value; return this; } Spec dimensions(int r, int c) { rows = r; columns = c; return this; }
         Spec spacing(double r, double c) { spacing = new double[] {r, c}; return this; }
         Spec orientation(double[] value) { orientation = value; return this; } Spec allocated(int value) { allocated = value; return this; }

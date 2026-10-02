@@ -62,7 +62,8 @@ public final class Dcm4cheInstanceReader implements DicomInstanceReader {
         return new DicomInstance(requiredText(dataset, Tag.SOPInstanceUID), requiredText(dataset, Tag.StudyInstanceUID),
                 requiredText(dataset, Tag.SeriesInstanceUID), requiredText(dataset, Tag.Modality),
                 requiredText(dataset, Tag.SOPClassUID), transferSyntax, rows, columns, spacing[0], spacing[1],
-                geometry, encoding, rescale, pixels);
+                geometry, encoding, rescale, pixels,
+                dataset.getString(Tag.FrameOfReferenceUID), dataset.getString(Tag.AnatomicalOrientationType));
     }
 
     private void validateScope(Attributes dataset, Attributes fileMeta, String transferSyntax) {
