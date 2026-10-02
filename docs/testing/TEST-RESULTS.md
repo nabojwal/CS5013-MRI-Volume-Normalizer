@@ -283,7 +283,7 @@ AR-1 and conversion remain deferred. No staging or commit performed.
 ## 2026-10-02 - M7-P01 Format-Neutral ImageVolume Verification
 
 Baseline: `cb7769e` on `feature/m7-dicom-to-nifti`.
-Related commit: **Pending at verification time**.
+Related commit: **`1dd31fc` - `refactor: introduce format-neutral image volume`**.
 
 This verification covers the minimum architecture migration required before
 DICOM-to-NIfTI conversion.
@@ -358,7 +358,7 @@ this checkpoint.
 ## 2026-10-02 - M7-P03 NIfTI-1 Writer Verification
 
 Baseline: `8fb2831` on `feature/m7-dicom-to-nifti`.
-Related commit: **Pending at verification time**.
+Related commit: **`6924dd5` - `feat: add nifti-1 volume writer`**.
 
 This verification covers project-owned NIfTI-1 serialization of the generic
 image-volume model.
@@ -404,7 +404,7 @@ conversion and NIfTI writing as one use case remain pending.
 ## 2026-10-02 - M7-P04 End-to-End DICOM to NIfTI Verification
 
 Baseline: `6924dd5` on `feature/m7-dicom-to-nifti`.
-Related commit: **Pending at verification time**.
+Related commit: **`a495699` - `feat: add end-to-end dicom to nifti conversion`; follow-up governance cleanup `c38ff6d`**.
 
 This verification exercises the complete implemented DICOM-to-NIfTI path using
 real synthetic DICOM files and the production adapters.
@@ -425,3 +425,86 @@ No interpolation, resampling, normalization or voxel-array reordering occurs.
 This establishes the first executable DICOM-to-NIfTI vertical slice for the
 supported profile. Output-write failure normalization and broader independent
 interoperability validation remain follow-up hardening work.
+
+## 2026-10-02 - M7-P05 Acceptance Hardening and Independent Interoperability Verification
+
+Baseline: `c38ff6d` on `feature/m7-dicom-to-nifti`.
+
+M7-P05A related commit: **`2bf1927` - `fix: harden nifti output handling`**.
+
+M7-P05B is validation-only acceptance evidence and did not modify tracked
+production source code.
+
+### M7-P05A - Output Hardening Verification
+
+Verified behavior:
+
+- existing NIfTI output is not overwritten;
+- output collision is represented as `OUTPUT_ALREADY_EXISTS`;
+- invalid output targets are represented as `INVALID_OUTPUT`;
+- general output write failures are represented as `OUTPUT_WRITE_FAILED`;
+- output-side failures are distinct from DICOM reconstruction errors;
+- failed output conversion produces unsuccessful overall provenance;
+- partial newly created output is cleaned up when serialization fails;
+- successful output behavior remains unchanged.
+
+| Command / suite | Tests | Failures | Errors | Skipped | Result |
+|---|---:|---:|---:|---:|---|
+| Hardening-focused tests | 5 | 0 | 0 | 0 | PASS |
+| Combined NIfTI writer/conversion regression | 21 | 0 | 0 | 0 | PASS |
+| `mvn clean test` | **123** | **0** | **0** | **0** | **BUILD SUCCESS** |
+
+### M7-P05B - Independent NIfTI Interoperability Verification
+
+The production `Nifti1VolumeWriter` generated temporary `.nii` and `.nii.gz`
+files from a synthetic `2 x 2 x 2` `UINT16` volume.
+
+Independent validation was performed with NiBabel 5.4.2. NiBabel was used only
+as an external acceptance validator and was not added to the Java runtime or
+Maven dependency graph.
+
+Validation input:
+
+- dimensions: `2 x 2 x 2`;
+- raw stored voxels: `1..8`;
+- column spacing: `0.5 mm`;
+- row spacing: `0.75 mm`;
+- slice spacing: `2.0 mm`;
+- DICOM-LPS origin: `[10, 20, 30]`;
+- declared intensity slope/intercept: `2.5 / -100`.
+
+Independent results:
+
+| Acceptance property | Result |
+|---|---|
+| `.nii` parsed by NiBabel | PASS |
+| `.nii.gz` parsed by NiBabel | PASS |
+| Shape `(2, 2, 2)` | PASS |
+| Datatype `uint16` | PASS |
+| Spacing `(0.5, 0.75, 2.0)` | PASS |
+| Raw voxel values `1..8` preserved exactly | PASS |
+| `.nii` and `.nii.gz` raw arrays identical | PASS |
+| `.nii` and `.nii.gz` spatial affines equivalent | PASS |
+| `qform_code = 1` | PASS |
+| `sform_code = 1` | PASS |
+| Declared slope/intercept preserved | PASS |
+| Expected DICOM-LPS to NIfTI-RAS mapping | PASS |
+| Affine comparison tolerance `1e-5` | PASS |
+
+### M7 Acceptance State
+
+The focused M7 verification now satisfies:
+
+- [x] independent NIfTI parsing;
+- [x] output shape preservation;
+- [x] supported integer voxel-array preservation;
+- [x] voxel spacing preservation;
+- [x] world-coordinate mapping within tolerance;
+- [x] qform/sform consistency;
+- [ ] explicit conversion provenance/validation report.
+
+M7 therefore remains **IN PROGRESS**.
+
+Reconstruction provenance is already carried through `DicomToNiftiResult`, but
+the dedicated conversion validation-report model remains the final M7 acceptance
+item.

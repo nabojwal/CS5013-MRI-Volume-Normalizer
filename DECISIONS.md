@@ -186,13 +186,72 @@ supported DICOM MR profile.
 
 For later NIfTI reading, a valid sform is preferred, qform is the fallback, and
 material disagreement between simultaneously valid transforms is rejected rather
-than silently choosing one. Affine interoperability comparisons use a documented
-millimetre-scale numerical tolerance; no change to voxel values is permitted.
+than silently choosing one.
+
+For the M7 NIfTI-1 writer, quaternion representability uses an absolute tolerance
+of `1e-5` when checking normalized direction-vector lengths, orthogonality and
+rotation determinant. qform/sform equivalence and independent serialized-affine
+validation use an absolute affine-element tolerance of `1e-5`. Geometry outside
+the quaternion-representable profile is preserved exactly in sform and receives
+`qform_code = 0`; it is never silently approximated.
+
+No change to voxel values is permitted.
 
 Reason:
 DICOM patient geometry is LPS while NIfTI commonly expresses anatomical world
 coordinates as RAS. Making the conversion explicit and testable prevents hidden
 axis flips and preserves the established x/y/z voxel-index convention.
+
+Status:
+Accepted
+
+---
+
+## ADR-012 - Fail-Safe NIfTI Output Collision Policy
+
+Decision:
+DICOM-to-NIfTI conversion shall never silently overwrite an existing output
+file. The NIfTI writer creates new `.nii` and `.nii.gz` outputs using
+create-new semantics.
+
+If the requested output already exists, conversion fails explicitly with
+`OUTPUT_ALREADY_EXISTS` and the existing file remains unchanged.
+
+If a new output file is created but serialization subsequently fails, the writer
+attempts to remove the partial output before propagating the failure.
+
+Invalid output targets and general write failures are exposed through structured
+application-level conversion errors rather than being treated as successful
+conversion results.
+
+Reason:
+Research-data conversion must not silently destroy an existing dataset or leave a
+partial volume that can be mistaken for a valid result.
+
+Status:
+Accepted
+
+---
+
+## ADR-013 - Project-Owned Minimal NIfTI-1 Writer and Independent Validation
+
+Decision:
+The M7 supported profile uses the project-owned minimal NIfTI-1 writer rather
+than adding a runtime NIfTI library dependency.
+
+The writer supports the explicitly approved integer NIfTI-1 single-file profile
+and `.nii.gz` compression wrapper. External libraries may be used outside the
+Java application as independent acceptance-validation tools.
+
+For M7 acceptance, NiBabel is used only as an independent validation
+implementation. It is not a Maven dependency and is not part of the deployed
+application.
+
+Reason:
+The supported NIfTI output profile is deliberately narrow and deterministic.
+Keeping serialization project-owned preserves the existing dependency boundary,
+while external validation reduces the risk of testing only against our own
+interpretation of the format.
 
 Status:
 Accepted

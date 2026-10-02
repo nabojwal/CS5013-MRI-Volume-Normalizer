@@ -791,7 +791,7 @@ than silently approximated.
 
 M7-P03 NIfTI-1 serialization COMPLETE.
 End-to-end DICOM-to-NIfTI orchestration remains pending.
-Related commit: Pending at verification time.
+Related commit: `6924dd5` - `feat: add nifti-1 volume writer`.
 
 
 ---
@@ -852,4 +852,114 @@ Result: BUILD SUCCESS; 118 tests, 0 failures, 0 errors, 0 skipped.
 
 M7-P04 end-to-end vertical slice COMPLETE.
 Output-I/O error normalization and final M7 acceptance review remain pending.
-Related commit: Pending at verification time.
+Related commit: `a495699` - `feat: add end-to-end dicom to nifti conversion`; follow-up governance cleanup `c38ff6d`.
+---
+
+## 2026-10-02 - M7-P05 Acceptance Hardening and Independent Interoperability
+
+Starting checkpoint: `c38ff6d` on `feature/m7-dicom-to-nifti`.
+
+Objective: harden the DICOM-to-NIfTI output boundary and independently validate
+the generated NIfTI files against an external implementation before final M7
+acceptance.
+
+### M7-P05A - Fail-Safe Output Handling
+
+The conversion boundary was hardened to distinguish DICOM reconstruction errors
+from output-side conversion failures.
+
+Implemented:
+
+- introduced `DicomToNiftiError`;
+- added `INVALID_OUTPUT`, `OUTPUT_ALREADY_EXISTS`, and `OUTPUT_WRITE_FAILED`;
+- extended `DicomToNiftiResult` with structured conversion errors;
+- conversion success now requires both DICOM and conversion error lists to be empty;
+- output-side failure produces unsuccessful overall provenance;
+- NIfTI output now uses create-new semantics;
+- existing output files are never silently overwritten;
+- newly created partial files are deleted if serialization subsequently fails;
+- invalid targets and general output-write failures are normalized into structured
+  application errors.
+
+### M7-P05A Verification
+
+Focused hardening suite:
+
+`mvn "-Dtest=Nifti1VolumeWriterHardeningTest,DicomToNiftiServiceHardeningTest" test`
+
+Result: BUILD SUCCESS; 5 tests, 0 failures, 0 errors, 0 skipped.
+
+Combined writer/conversion regression:
+
+`mvn "-Dtest=Nifti1VolumeWriterTest,Nifti1VolumeWriterHardeningTest,DicomToNiftiServiceTest,DicomToNiftiServiceHardeningTest" test`
+
+Result: BUILD SUCCESS; 21 tests, 0 failures, 0 errors, 0 skipped.
+
+Full regression:
+
+`mvn clean test`
+
+Result: BUILD SUCCESS; 123 tests, 0 failures, 0 errors, 0 skipped.
+
+Related commit:
+
+`2bf1927` - `fix: harden nifti output handling`
+
+### M7-P05B - Independent NIfTI Interoperability Validation
+
+A temporary acceptance harness generated `.nii` and `.nii.gz` files using the
+production `Nifti1VolumeWriter`.
+
+The files were then read independently using NiBabel 5.4.2. NiBabel was used
+only as an external acceptance validator and was not added as a Maven or runtime
+dependency.
+
+Synthetic validation volume:
+
+- dimensions: `2 x 2 x 2`;
+- scalar type: `UINT16`;
+- raw voxel values: `1..8`;
+- column spacing: `0.5 mm`;
+- row spacing: `0.75 mm`;
+- slice spacing: `2.0 mm`;
+- DICOM-LPS origin: `[10, 20, 30]`;
+- intensity slope/intercept: `2.5 / -100`.
+
+Independent validation confirmed:
+
+- `.nii` parses successfully;
+- `.nii.gz` parses successfully;
+- shape is preserved;
+- datatype is preserved;
+- raw integer voxel values are preserved exactly;
+- `.nii` and `.nii.gz` contain identical raw voxel arrays;
+- spacing is preserved;
+- qform and sform are internally consistent;
+- `qform_code = 1`;
+- `sform_code = 1`;
+- declared intensity scaling is preserved;
+- expected DICOM-LPS to NIfTI-RAS world mapping is preserved;
+- affine comparisons pass at absolute tolerance `1e-5`.
+
+No tracked production source file was modified by the independent validation
+procedure.
+
+### M7 Acceptance State
+
+The focused acceptance work now satisfies six M7 checks:
+
+- independent parsing;
+- shape preservation;
+- supported integer voxel preservation;
+- spacing preservation;
+- world-coordinate mapping;
+- qform/sform consistency.
+
+M7 remains IN PROGRESS.
+
+The remaining architecture acceptance item is an explicit conversion
+provenance/validation report. DICOM reconstruction provenance is already carried
+through `DicomToNiftiResult`, but the dedicated conversion validation-report
+model has not yet been implemented.
+
+M7-P05B related commit: none; validation-only acceptance evidence.

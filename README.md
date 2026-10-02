@@ -2,137 +2,256 @@
 
 ## 1. Overview
 
-A Java research-data utility for IIT Madras CS5013: Programming with AI. The
-implemented engine recognizes DICOM/NIfTI inputs and reconstructs a selected
-supported DICOM MR series while retaining physical geometry and stored pixels.
-Controlled DICOM-to-NIfTI and NIfTI-to-DICOM conversion, research dataset
-organization and expanded provenance are planned. This is a research-use project,
+A Java 21 research-data utility for IIT Madras CS5013: Programming with AI.
+
+The implemented engine detects DICOM/NIfTI inputs, reconstructs an explicitly
+selected supported conventional MR DICOM series into a format-neutral
+`ImageVolume`, and converts that volume to NIfTI-1 `.nii` or `.nii.gz` while
+preserving the supported stored voxel values and spatial semantics.
+
+Controlled NIfTI-to-DICOM reconstruction, dataset-level organization and the
+final desktop workflow remain later milestones. This is a research-use project,
 not a clinical or PACS product.
 
-## 2. Project Objectives
+## 2. Core Principles
 
-- Recognize formats from content rather than trusting extensions.
-- Assemble compatible MR slices using physical position and explicit validation.
-- Preserve voxel values, spatial meaning and separate rescale metadata.
-- Support reproducible conversion and dataset organization in later stages.
+- detect formats from content rather than trusting extensions;
+- reconstruct DICOM slices using validated physical geometry;
+- preserve raw stored voxel values;
+- preserve rescale slope/intercept as explicit intensity metadata;
+- keep DICOM geometry in patient LPS until the conversion boundary;
+- perform explicit DICOM LPS to NIfTI RAS affine conversion;
+- do not resample, interpolate, flip or reorder voxel arrays in the supported
+  DICOM-to-NIfTI path;
+- fail explicitly on unsupported data or unsafe output conditions.
 
-Intensity normalization is optional under the approved architecture, not part of
-the required conversion MVP.
+Intensity normalization is optional and is not part of the required conversion
+MVP.
 
 ## 3. Current Development Status
 
-Reviewed 2026-10-01 at `fc1ad46` (`fix: harden voxel allocation validation`).
+Reviewed 2026-10-02 on `feature/m7-dicom-to-nifti`.
 
 | Milestone | Description | Status / checkpoint |
 |---|---|---|
 | M1 | Java/Maven/JUnit baseline | COMPLETE — `63fff6d` |
 | M2 | dcm4che integration | COMPLETE — `8e1580b` |
 | M3 | FlatLaf foundation | COMPLETE — `cf9013d` |
-| M4 | Initial architecture | COMPLETE — `7e50a9b`; revision governs subsequent work |
+| M4 | Initial architecture | COMPLETE — `7e50a9b` |
 | M5 | Content-based detection | COMPLETE — `88da522` |
-| M5.1 | Scoped detection hardening | COMPLETE — `1989589`; remaining gaps below |
-| M6 | DICOM reconstruction | IN PROGRESS — baseline `3c3d979`, geometry `32b4bc1`, allocation `fc1ad46` |
-| AR-1 | Architecture refactor | Planned; not implemented |
-| M7 | DICOM-to-NIfTI | Planned under Architecture 1.0 |
-| M8 | Controlled NIfTI-to-DICOM | Planned under Architecture 1.0 |
-| Later | Dataset workflow, round-trip validation, GUI, demo and hardening | Planned |
+| M5.1 | Detection hardening | COMPLETE — `1989589` |
+| M6 | DICOM reconstruction | COMPLETE — protected checkpoint `cb7769e` |
+| M7-P01 | Format-neutral `ImageVolume` | COMPLETE — `1dd31fc` |
+| M7-P02 | DICOM LPS to NIfTI RAS affine | COMPLETE — `8fb2831` |
+| M7-P03 | NIfTI-1 writer | COMPLETE — `6924dd5` |
+| M7-P04 | End-to-end DICOM to NIfTI | COMPLETE — `a495699` |
+| M7-P05A | Safe output and structured failures | COMPLETE — `2bf1927` |
+| M7-P05B | Independent NIfTI interoperability validation | VERIFIED |
+| M7 | DICOM-to-NIfTI acceptance | IN PROGRESS — validation-report criterion remains |
+| M8 | Controlled NIfTI-to-DICOM | NOT STARTED |
+| M10 | GUI integration | NOT STARTED |
 
-Fresh checkpoint reruns and current-suite results are in
-[Verified Test Results](docs/testing/TEST-RESULTS.md). Passing tests do not satisfy
-all M6 criteria: output remains `NativeVolume`, not the required format-neutral
-`ImageVolume`.
+The latest Java regression baseline contains 123 passing tests with zero
+failures, errors or skips.
 
-## 4. Supported Scope
+## 4. Supported DICOM Profile
 
-`DefaultDicomSeriesService` accepts explicit file inputs and a selected
-`SeriesInstanceUID`. `Dcm4cheInstanceReader` supports conventional MR Image
-Storage, Modality MR, single-frame input (absent NumberOfFrames defaults to 1).
-All supplied files are read before series filtering; an invalid unselected file
-can therefore fail a request.
+`DefaultDicomSeriesService` accepts explicit file inputs and an explicitly
+selected `SeriesInstanceUID`.
 
-- Transfer syntaxes: Implicit VR Little Endian, Explicit VR Little Endian and
-  Explicit VR Big Endian. Compressed/encapsulated and deflated input is unsupported.
-- Pixels: MONOCHROME2, one sample, 8/16 allocated bits, signed or unsigned,
-  valid BitsStored and HighBit = BitsStored - 1; stored values remain `long`.
-- Geometry: IOP/IPP validation, one common normal, physical ordering, duplicate
-  position/SOP rejection, spacing and whole-grid residual validation, native LPS.
-- Compatibility: study, dimensions, encoding, transfer syntax, spacing and rescale.
-- Rescale slope/intercept remain explicit metadata. No normalization, resampling,
-  interpolation or coordinate-system conversion occurs.
-- Provenance records a canonical SHA-256 fingerprint of selected SOP UIDs and raw
-  source content, independent of paths/input order, plus versions, timestamp,
-  counts and summaries; failures have no fingerprint, and a full manifest remains pending.
+Supported initial profile:
 
-NIfTI-1/2 single-file headers and gzip wrapping are recognized. NIfTI volume I/O
-and conversion are not implemented. Detection is not full image validation.
+- conventional single-frame MR Image Storage;
+- Modality `MR`;
+- Implicit VR Little Endian;
+- Explicit VR Little Endian;
+- Explicit VR Big Endian;
+- MONOCHROME2;
+- one sample per pixel;
+- 8-bit or 16-bit allocated integer samples;
+- signed and unsigned representations;
+- validated BitsStored / HighBit;
+- explicit Image Orientation Patient / Image Position Patient geometry;
+- validated Pixel Spacing;
+- validated FrameOfReferenceUID;
+- BIPED patient-coordinate profile;
+- validated regular slice spacing.
 
-## 5. Architecture
+Physical slice position controls ordering. Filename order and `InstanceNumber`
+do not control reconstruction.
 
-Current packages separate `domain.model`/`domain.port`, `application`,
-`infrastructure` adapters and `presentation`. dcm4che parsing is in infrastructure.
-The [approved Architecture Revision 1.0](docs/architecture/ARCHITECTURE-REVISION-1.0.md)
-defines target application ports, the format-neutral volume, split reconstruction
-responsibilities and later workflows. AR-1 remains pending. Draft-era implementation
-snapshots in that contract are historical, not current status.
+Single-slice reconstruction requires valid `SpacingBetweenSlices` or falls back
+to valid `SliceThickness`.
 
-## 6. Requirements
+## 5. Generic Volume and Spatial Model
 
-Java 21 and Maven (verified with Maven 3.9.16). `pom.xml` pins dcm4che-core 5.33.0,
-FlatLaf 3.6.1, JUnit Jupiter 5.12.2, compiler plugin 3.14.1 and Surefire 3.5.3.
-Initial resolution requires Maven repositories including the configured dcm4che
-repository. This audit changes no dependencies.
+`ImageVolume` is the authoritative in-memory image representation.
 
-## 7. Build and Test
+The generic scalar profile currently supports:
 
-Run from the project root:
+- `UINT8`;
+- `INT8`;
+- `UINT16`;
+- `INT16`.
+
+The established voxel-index convention is:
+
+- x = column index;
+- y = row index;
+- z = slice index.
+
+DICOM reconstruction remains in patient LPS coordinates.
+
+For NIfTI output:
+
+`A_RAS = diag(-1, -1, 1, 1) * A_LPS`
+
+This changes the world-coordinate convention only. It does not reorder the
+stored voxel array.
+
+## 6. NIfTI-1 Output Profile
+
+The project-owned writer supports:
+
+- `.nii`;
+- `.nii.gz`;
+- NIfTI-1 single-file `n+1` format;
+- little-endian header and payload;
+- UINT8, INT8, UINT16 and INT16;
+- millimetre spatial units;
+- explicit intensity scaling metadata;
+- sform as the authoritative full affine;
+- qform when the affine is representable by the NIfTI quaternion model;
+- `qform_code = 0` when exact quaternion representation is not supported;
+- no silent overwrite of existing outputs;
+- cleanup of newly created partial output after serialization failure.
+
+The writer uses no third-party NIfTI runtime dependency.
+
+## 7. DICOM-to-NIfTI Workflow
+
+The implemented application path is:
+
+```text
+explicit DICOM inputs
+        |
+        v
+Dcm4cheInstanceReader
+        |
+        v
+validated DICOM series
+        |
+        v
+ImageVolume in DICOM patient LPS
+        |
+        v
+NiftiAffineMapper
+        |
+        v
+voxel-to-world RAS affine
+        |
+        v
+Nifti1VolumeWriter
+        |
+        +--> .nii
+        |
+        +--> .nii.gz
+```
+
+Output failures are represented separately from DICOM reconstruction errors.
+
+## 8. Verification
+
+Primary verification:
 
 ```shell
 mvn clean test
+```
+
+Latest verified Java result:
+
+```text
+123 tests passed
+0 failures
+0 errors
+0 skipped
+BUILD SUCCESS
+```
+
+Useful focused commands:
+
+```shell
 mvn "-Dtest=DicomSeriesServiceTest" test
-mvn "-Dtest=ImmutableVoxelDataTest" test
-mvn "-Dtest=FormatDetectionServiceTest" test
+mvn "-Dtest=Nifti1VolumeWriterTest,Nifti1VolumeWriterHardeningTest" test
+mvn "-Dtest=DicomToNiftiServiceTest,DicomToNiftiServiceHardeningTest" test
 git diff --check
 ```
 
-There is no implemented end-user conversion workflow yet.
+Independent M7 interoperability validation was performed with NiBabel 5.4.2
+against Java-generated `.nii` and `.nii.gz` files.
 
-## 8. Test Philosophy
+The external reader confirmed:
 
-JUnit covers domain invariants, synthetic-file service/adapter behavior,
-regressions, dependency smoke checks and selected architecture boundaries.
-Confirmed bugs should receive a failing regression before a minimal fix, focused
-verification and full-suite execution. See [Test Strategy](docs/testing/TEST-STRATEGY.md)
-and [Test Results](docs/testing/TEST-RESULTS.md) for methodology, evidence and gaps.
+- shape `(2, 2, 2)`;
+- datatype `uint16`;
+- voxel spacing `(0.5, 0.75, 2.0)`;
+- exact raw voxel-array preservation;
+- qform code `1`;
+- sform code `1`;
+- qform/sform affine geometry within absolute tolerance `1e-5`;
+- declared slope `2.5` and intercept `-100`;
+- gzip-wrapped NIfTI interoperability;
+- expected DICOM-LPS to NIfTI-RAS world mapping.
 
-## 9. AI-Assisted Development
+NiBabel is an external acceptance-validation tool only. It is not a project
+runtime dependency.
 
-AI assistants operate under explicit constraints and human project-owner authority.
-The [AI Prompt Log](PROMPTS.md) connects preserved prompts and labeled historical
-task summaries to tests, implementation, verification and Git checkpoints.
-Negative prompting constrains scope. Generated diffs require review and tests
-must run before checkpoints; AI does not independently approve architecture.
-Missing historical prompts are identified rather than reconstructed as quotations.
+## 9. Provenance
 
-## 10. Repository Documentation
+Successful DICOM reconstruction records a canonical SHA-256 fingerprint derived
+from selected SOP Instance UIDs and selected source content, independent of path
+and input ordering.
+
+The DICOM-to-NIfTI use case carries reconstruction provenance forward. NIfTI
+output failures are represented as failed overall conversion outcomes.
+
+An explicit conversion validation-report model remains the final M7 acceptance
+item.
+
+## 10. Architecture
+
+The authoritative design contract is:
+
+[Architecture Revision 1.0](docs/architecture/ARCHITECTURE-REVISION-1.0.md)
+
+Current implementation decisions are recorded in:
+
+[Architecture Decision Records](DECISIONS.md)
+
+## 11. Repository Documentation
 
 - [Architecture contract](docs/architecture/ARCHITECTURE-REVISION-1.0.md)
 - [Milestones](MILESTONES.md)
+- [Architecture decisions](DECISIONS.md)
 - [Development log](DEVELOPMENT_LOG.md)
 - [AI prompt log and traceability](PROMPTS.md)
-- [Original prompt registry](ai/PROMPT_REGISTRY.md)
 - [Test strategy](docs/testing/TEST-STRATEGY.md)
-- [Test results and executable inventory](docs/testing/TEST-RESULTS.md)
+- [Verified test results](docs/testing/TEST-RESULTS.md)
 
-## 11. Limitations / Planned Work
+## 12. Remaining Work
 
-M6 is IN PROGRESS. AR-1 and the format-neutral volume are unimplemented.
-Single-slice spacing is currently `0.0`; an explicit policy is required before
-NIfTI output. FrameOfReferenceUID/AnatomicalOrientationType checks are absent.
-The detector returns INPUT_TOO_LARGE above 1 MiB; the M6 reader does not inherit
-this limit, but a valid larger-file reconstruction regression is missing.
-NIfTI dimension/datatype validators exist but are not invoked by detection.
-Provenance identity/privacy tests need expansion. The test gap register separates
-implemented behavior, missing tests and planned features.
+Immediate:
 
-No patient datasets, DICOM studies, NIfTI volumes, generated output, secrets or
-logs belong in Git. Tests construct synthetic temporary fixtures.
+- finish the M7 conversion validation-report acceptance criterion;
+- perform the final M7 acceptance review and checkpoint.
+
+Later:
+
+- controlled NIfTI-to-DICOM reconstruction;
+- dataset discovery and organization workflow;
+- broader round-trip validation;
+- Swing/FlatLaf user workflow;
+- stakeholder demo hardening.
+
+No patient datasets, DICOM studies, generated imaging outputs, secrets or
+runtime logs belong in Git. Tests construct synthetic temporary fixtures.
