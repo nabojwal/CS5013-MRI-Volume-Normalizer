@@ -508,3 +508,113 @@ M7 therefore remains **IN PROGRESS**.
 Reconstruction provenance is already carried through `DicomToNiftiResult`, but
 the dedicated conversion validation-report model remains the final M7 acceptance
 item.
+## 2026-10-03 - M7-P05C Conversion Validation Report and Final M7 Verification
+
+Architectural checkpoint: **`b6bab40` - `docs: define m7 conversion validation report`**.
+
+Implementation checkpoint: **`0976788` - `feat: add conversion validation report`**.
+
+This verification closes the final Architecture Revision 1.0 M7 requirement that
+DICOM-to-NIfTI conversion produce explicit provenance/validation output.
+
+### M7-P05C - Validation-Report Verification
+
+The application now returns a dedicated `ConversionValidationReport` for
+successful DICOM-to-NIfTI conversion.
+
+The report is created only after `NiftiVolumeWriter.write(...)` completes
+successfully.
+
+It records factual conversion invariants derived from the validated in-memory
+`ImageVolume`, the explicit NIfTI-RAS affine supplied to the writer and the
+supported conversion path.
+
+The report does not claim that the written NIfTI file was reopened, reparsed or
+independently validated at runtime.
+
+Verified report contents include:
+
+- output target;
+- width, height and depth;
+- scalar type;
+- voxel count;
+- row spacing;
+- column spacing;
+- slice spacing;
+- NIfTI-RAS voxel-to-world affine;
+- intensity transform;
+- stored-voxel preservation state;
+- resampling state;
+- interpolation state;
+- voxel-order-change state.
+
+For the supported M7 integer-preserving path, the verified invariants are:
+
+- stored voxel values preserved: `true`;
+- resampled: `false`;
+- interpolated: `false`;
+- voxel order changed: `false`.
+
+Failure-path verification confirms:
+
+- DICOM reconstruction failure produces no validation report;
+- output-write failure produces no validation report;
+- failed conversion cannot carry a validation report;
+- successful output requires a validation report;
+- result output and validation-report output must match.
+
+### Focused and Combined Test Results
+
+| Command / suite | Tests | Failures | Errors | Skipped | Result |
+|---|---:|---:|---:|---:|---|
+| `ConversionValidationReportTest` | 6 | 0 | 0 | 0 | PASS |
+| `ConversionValidationReportTest` + `DicomToNiftiServiceTest` + `DicomToNiftiServiceHardeningTest` | 14 | 0 | 0 | 0 | PASS |
+| `mvn clean test` | **129** | **0** | **0** | **0** | **BUILD SUCCESS** |
+
+The previous 123-test regression baseline remains green. P05C adds six focused
+tests, increasing the complete Java suite to 129 tests.
+
+### Independent Interoperability Evidence
+
+Independent serialized-file validation remains the M7-P05B NiBabel 5.4.2
+acceptance evidence.
+
+That validation independently confirmed:
+
+- `.nii` parsing;
+- `.nii.gz` parsing;
+- shape;
+- datatype;
+- voxel spacing;
+- exact supported integer voxel-array preservation;
+- equivalent `.nii` and `.nii.gz` spatial affines;
+- qform/sform consistency;
+- declared intensity scaling;
+- expected DICOM-LPS to NIfTI-RAS world mapping;
+- affine agreement within absolute tolerance `1e-5`.
+
+NiBabel remains external acceptance tooling only. It is not a Maven or runtime
+dependency.
+
+### Final M7 Acceptance State
+
+Architecture Revision 1.0 M7 exit criteria:
+
+- [x] output parsed by an independent NIfTI implementation;
+- [x] output shape matches;
+- [x] supported integer voxel array matches exactly;
+- [x] spacing matches within tolerance;
+- [x] world-coordinate mapping matches within tolerance;
+- [x] qform/sform are internally consistent;
+- [x] conversion produces explicit provenance/validation output.
+
+All seven M7 exit criteria are satisfied.
+
+**M7 DICOM-to-NIfTI is COMPLETE for the supported profile as of 2026-10-03.**
+
+GUI integration was not required for M7 completion.
+
+ADR-014 records that M7 uses structured application-level provenance and
+validation models without adding a persisted sidecar. Future persisted
+provenance/validation manifests use UTF-8 JSON as their canonical serialization
+format.

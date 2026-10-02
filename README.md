@@ -30,7 +30,7 @@ MVP.
 
 ## 3. Current Development Status
 
-Reviewed 2026-10-02 on `feature/m7-dicom-to-nifti`.
+Reviewed 2026-10-03 on `feature/m7-dicom-to-nifti`.
 
 | Milestone | Description | Status / checkpoint |
 |---|---|---|
@@ -47,11 +47,13 @@ Reviewed 2026-10-02 on `feature/m7-dicom-to-nifti`.
 | M7-P04 | End-to-end DICOM to NIfTI | COMPLETE — `a495699` |
 | M7-P05A | Safe output and structured failures | COMPLETE — `2bf1927` |
 | M7-P05B | Independent NIfTI interoperability validation | VERIFIED |
-| M7 | DICOM-to-NIfTI acceptance | IN PROGRESS — validation-report criterion remains |
+| ADR-014 | Structured validation report and future JSON manifest | ACCEPTED — `b6bab40` |
+| M7-P05C | Conversion validation report | COMPLETE — `0976788` |
+| M7 | DICOM-to-NIfTI acceptance | COMPLETE — 2026-10-03 |
 | M8 | Controlled NIfTI-to-DICOM | NOT STARTED |
 | M10 | GUI integration | NOT STARTED |
 
-The latest Java regression baseline contains 123 passing tests with zero
+The latest Java regression baseline contains 129 passing tests with zero
 failures, errors or skips.
 
 ## 4. Supported DICOM Profile
@@ -153,12 +155,21 @@ voxel-to-world RAS affine
         v
 Nifti1VolumeWriter
         |
-        +--> .nii
+        +--> .nii / .nii.gz
         |
-        +--> .nii.gz
+        v
+writer returns successfully
+        |
+        v
+ConversionValidationReport
 ```
 
 Output failures are represented separately from DICOM reconstruction errors.
+
+The `ConversionValidationReport` is created only after the NIfTI writer
+completes successfully. It records factual conversion invariants and does not
+claim that the written output was reopened, reparsed or independently validated
+at runtime.
 
 ## 8. Verification
 
@@ -171,7 +182,7 @@ mvn clean test
 Latest verified Java result:
 
 ```text
-123 tests passed
+129 tests passed
 0 failures
 0 errors
 0 skipped
@@ -184,8 +195,13 @@ Useful focused commands:
 mvn "-Dtest=DicomSeriesServiceTest" test
 mvn "-Dtest=Nifti1VolumeWriterTest,Nifti1VolumeWriterHardeningTest" test
 mvn "-Dtest=DicomToNiftiServiceTest,DicomToNiftiServiceHardeningTest" test
+mvn "-Dtest=ConversionValidationReportTest" test
+mvn "-Dtest=ConversionValidationReportTest,DicomToNiftiServiceTest,DicomToNiftiServiceHardeningTest" test
 git diff --check
 ```
+
+The P05C report-focused suite passes 6 tests, and the combined
+report/conversion suite passes 14 tests.
 
 Independent M7 interoperability validation was performed with NiBabel 5.4.2
 against Java-generated `.nii` and `.nii.gz` files.
@@ -215,8 +231,17 @@ and input ordering.
 The DICOM-to-NIfTI use case carries reconstruction provenance forward. NIfTI
 output failures are represented as failed overall conversion outcomes.
 
-An explicit conversion validation-report model remains the final M7 acceptance
-item.
+Successful conversion additionally returns an application-level
+`ConversionValidationReport` containing the output target, dimensions, scalar
+type, voxel count, spacing, NIfTI-RAS affine, intensity transform and the
+lossless-path conversion invariants.
+
+For the supported M7 path, stored voxel values are preserved, resampling and
+interpolation are false, and voxel ordering is unchanged.
+
+M7 does not persist an additional provenance/validation sidecar. ADR-014 records
+UTF-8 JSON as the canonical serialization format for future persisted
+provenance/validation manifests.
 
 ## 10. Architecture
 
@@ -240,14 +265,12 @@ Current implementation decisions are recorded in:
 
 ## 12. Remaining Work
 
-Immediate:
+Immediate next milestone:
 
-- finish the M7 conversion validation-report acceptance criterion;
-- perform the final M7 acceptance review and checkpoint.
+- controlled NIfTI-to-DICOM reconstruction (M8).
 
 Later:
 
-- controlled NIfTI-to-DICOM reconstruction;
 - dataset discovery and organization workflow;
 - broader round-trip validation;
 - Swing/FlatLaf user workflow;

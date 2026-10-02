@@ -963,3 +963,155 @@ through `DicomToNiftiResult`, but the dedicated conversion validation-report
 model has not yet been implemented.
 
 M7-P05B related commit: none; validation-only acceptance evidence.
+---
+
+## 2026-10-03 - M7-P05C Conversion Validation Report and M7 Completion
+
+Starting architectural checkpoint: `b6bab40` on
+`feature/m7-dicom-to-nifti`.
+
+Objective: satisfy the final Architecture Revision 1.0 M7 exit criterion by
+adding explicit application-level conversion validation output without claiming
+runtime rereading or independent parsing of the generated NIfTI file.
+
+### Architecture Decision
+
+ADR-014 established the M7 validation/provenance boundary.
+
+M7 exposes provenance and conversion validation as structured application
+models. It does not persist an additional provenance/validation sidecar.
+
+The dedicated conversion report is created only after successful NIfTI writing
+and records factual invariants known from the validated in-memory volume,
+explicit NIfTI-RAS affine and conversion path.
+
+The report does not claim that the written NIfTI file was reopened, reparsed or
+independently validated at runtime.
+
+Future persisted provenance/validation manifests use UTF-8 JSON as their
+canonical serialization format. Concrete persisted-manifest schema and
+persistence mechanics remain later workflow work.
+
+ADR-014 checkpoint:
+
+`b6bab40` - `docs: define m7 conversion validation report`
+
+### M7-P05C Implementation
+
+Added:
+
+`application.validation.ConversionValidationReport`
+
+The report captures:
+
+- output target;
+- width, height and depth;
+- scalar type;
+- voxel count;
+- row, column and slice spacing;
+- NIfTI-RAS voxel-to-world affine;
+- intensity transform;
+- stored-voxel preservation state;
+- resampling state;
+- interpolation state;
+- voxel-order-change state.
+
+For the supported M7 integer-preserving conversion path:
+
+- stored voxel values are preserved;
+- resampling is false;
+- interpolation is false;
+- voxel ordering is unchanged.
+
+`DicomToNiftiResult` now carries `ConversionValidationReport` on successful
+conversion.
+
+The result contract enforces:
+
+- successful output requires a validation report;
+- failed conversion cannot carry a validation report;
+- result output and report output must match.
+
+`DefaultDicomToNiftiService` constructs the report only after
+`NiftiVolumeWriter.write(...)` returns successfully.
+
+Therefore reconstruction failures, invalid output targets, collisions and
+general output-write failures do not produce a conversion validation report.
+
+Implementation checkpoint:
+
+`0976788` - `feat: add conversion validation report`
+
+### Focused Verification
+
+Report-specific suite:
+
+`mvn "-Dtest=ConversionValidationReportTest" test`
+
+Result:
+
+BUILD SUCCESS; 6 tests, 0 failures, 0 errors, 0 skipped.
+
+Combined report/conversion suite:
+
+`mvn "-Dtest=ConversionValidationReportTest,DicomToNiftiServiceTest,DicomToNiftiServiceHardeningTest" test`
+
+Result:
+
+BUILD SUCCESS; 14 tests, 0 failures, 0 errors, 0 skipped.
+
+The focused tests verify:
+
+- dimensions and voxel count;
+- scalar type;
+- row, column and slice spacing;
+- expected NIfTI-RAS affine;
+- declared intensity slope/intercept;
+- stored-voxel preservation;
+- absence of resampling;
+- absence of interpolation;
+- unchanged voxel ordering;
+- report presence on successful conversion;
+- report absence on reconstruction failure;
+- report absence on writer failure;
+- output/report consistency;
+- rejection of contradictory voxel counts.
+
+### Full Regression
+
+Command:
+
+`mvn clean test`
+
+Result:
+
+BUILD SUCCESS; 129 tests, 0 failures, 0 errors, 0 skipped.
+
+The previous 123-test baseline remains green and the six new P05C tests increase
+the complete Java regression suite to 129 tests.
+
+### Final M7 Acceptance Review
+
+Architecture Revision 1.0 M7 exit criteria:
+
+- independent NIfTI parsing: PASS;
+- shape preservation: PASS;
+- supported integer voxel-array preservation: PASS;
+- spacing preservation within tolerance: PASS;
+- world-coordinate mapping within tolerance: PASS;
+- qform/sform consistency: PASS;
+- explicit conversion provenance/validation output: PASS.
+
+The independent parsing and serialized-file interoperability evidence remains the
+M7-P05B NiBabel 5.4.2 acceptance validation.
+
+The application-level report is separate from that independent external
+validation and does not overstate what is checked at runtime.
+
+M7 DICOM-to-NIfTI is COMPLETE for the supported profile as of 2026-10-03.
+
+GUI integration was not required for M7 completion.
+
+Next planned milestone:
+
+M8 - Controlled NIfTI-to-DICOM.

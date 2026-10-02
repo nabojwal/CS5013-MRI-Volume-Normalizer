@@ -929,3 +929,125 @@ model remains the final M7 acceptance item.
 M7-P05A: `2bf1927` - `fix: harden nifti output handling`
 
 M7-P05B: validation-only acceptance evidence; no production-code change.
+## M7-P05C - Conversion Validation Report and Final M7 Acceptance
+
+**Evidence type:** Structured implementation and acceptance closure. **Date:** 2026-10-03. **Baseline:** `b6bab40` on `feature/m7-dicom-to-nifti`.
+
+### Architectural Decision
+
+ADR-014 established that M7 exposes provenance and conversion validation as
+structured application-level models.
+
+For M7:
+
+- a successful DICOM-to-NIfTI conversion exposes a dedicated
+  `ConversionValidationReport`;
+- the report is created only after the NIfTI writer completes successfully;
+- the report records factual conversion invariants known from the validated
+  in-memory volume, explicit NIfTI-RAS affine and conversion path;
+- the report does not claim that the written NIfTI file was reopened, reparsed
+  or independently validated at runtime;
+- M7 does not create an additional persisted provenance/validation sidecar;
+- future persisted provenance/validation manifests use UTF-8 JSON as their
+  canonical serialization format.
+
+### Objective
+
+Close the final Architecture Revision 1.0 M7 exit criterion:
+
+`conversion produces provenance/validation output`
+
+without adding runtime NIfTI rereading, a JSON dependency, a persisted sidecar,
+resampling, interpolation, GUI integration or unrelated dataset-workflow code.
+
+### Implementation Sequence
+
+The implementation followed the approved sequence:
+
+1. M7-P05C.0 - record ADR-014;
+2. M7-P05C.1 - add `ConversionValidationReport`;
+3. M7-P05C.2 - add the report to `DicomToNiftiResult`;
+4. M7-P05C.3 - populate the report only after successful NIfTI writing;
+5. M7-P05C.4 - add focused report and failure-path tests;
+6. M7-P05C.5 - run the full regression;
+7. M7-P05C.6 - perform the final M7 acceptance review.
+
+### Implementation
+
+Added the application-level
+`org.cbihi.mrinormalizer.application.validation.ConversionValidationReport`.
+
+The report records:
+
+- output target;
+- width, height and depth;
+- scalar type;
+- voxel count;
+- row, column and slice spacing;
+- NIfTI-RAS voxel-to-world affine;
+- intensity transform;
+- stored-voxel preservation state;
+- resampling state;
+- interpolation state;
+- voxel-order-change state.
+
+For the supported M7 integer-preserving conversion path:
+
+- stored voxel values are preserved;
+- resampling is false;
+- interpolation is false;
+- voxel ordering is unchanged.
+
+`DicomToNiftiResult` now carries the validation report on successful conversion.
+Its result contract rejects a successful output without a report, rejects a
+report on a failed conversion and requires the result output target to match the
+report output target.
+
+`DefaultDicomToNiftiService` constructs the report only after
+`NiftiVolumeWriter.write(...)` returns successfully.
+
+Reconstruction failures and output-write failures do not produce a validation
+report.
+
+### Verification
+
+Focused report suite:
+
+`mvn "-Dtest=ConversionValidationReportTest" test`
+
+Result: BUILD SUCCESS; 6 tests, 0 failures, 0 errors, 0 skipped.
+
+Combined report/conversion regression:
+
+`mvn "-Dtest=ConversionValidationReportTest,DicomToNiftiServiceTest,DicomToNiftiServiceHardeningTest" test`
+
+Result: BUILD SUCCESS; 14 tests, 0 failures, 0 errors, 0 skipped.
+
+Full regression:
+
+`mvn clean test`
+
+Result: BUILD SUCCESS; 129 tests, 0 failures, 0 errors, 0 skipped.
+
+### Final M7 Acceptance
+
+All Architecture Revision 1.0 M7 exit criteria are satisfied:
+
+- independent NIfTI parsing: PASS;
+- output shape preservation: PASS;
+- supported integer voxel-array preservation: PASS;
+- spacing preservation within tolerance: PASS;
+- world-coordinate mapping within tolerance: PASS;
+- qform/sform consistency: PASS;
+- explicit provenance/validation output: PASS.
+
+M7 DICOM-to-NIfTI acceptance is COMPLETE for the supported profile.
+
+GUI integration was not required for M7 completion. NiBabel remains an external
+acceptance-validation tool only and is not a Maven or runtime dependency.
+
+### Related Commits
+
+ADR-014: `b6bab40` - `docs: define m7 conversion validation report`
+
+M7-P05C: `0976788` - `feat: add conversion validation report`

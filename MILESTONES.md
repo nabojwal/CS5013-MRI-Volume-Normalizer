@@ -1,16 +1,20 @@
 # Project Milestones
 
-Last updated: 2026-10-02
+Last updated: 2026-10-03
 
 ## CURRENT STATE
 
-Current milestone:
+Most recently completed milestone:
 
-`M7 - DICOM-to-NIfTI Acceptance Hardening`
+`M7 - DICOM-to-NIfTI`
 
-Latest completed Git checkpoint:
+Next milestone:
 
-`2bf1927` - `fix: harden nifti output handling`
+`M8 - Controlled NIfTI-to-DICOM`
+
+Latest completed implementation checkpoint:
+
+`0976788` - `feat: add conversion validation report`
 
 Latest verified Java build:
 
@@ -21,7 +25,7 @@ mvn clean test
 Result:
 
 ```text
-123 tests passed
+129 tests passed
 0 failures
 0 errors
 0 skipped
@@ -44,10 +48,18 @@ intensity transform: PASS
 DICOM LPS -> NIfTI RAS mapping: PASS
 ```
 
-M7 is not yet declared complete because Architecture Revision 1.0 additionally
-requires conversion provenance/validation output. Provenance already propagates
-through the conversion result; an explicit validation-report model remains the
-final acceptance item.
+M7 is COMPLETE.
+
+The final M7 acceptance item was satisfied by the application-level
+`ConversionValidationReport`, implemented at `0976788` under ADR-014.
+
+The report is produced only after successful NIfTI writing and records factual
+conversion invariants. It does not claim that the written output was reopened,
+reparsed or independently validated at runtime.
+
+Persisted provenance/validation sidecars are not part of M7. ADR-014 records
+UTF-8 JSON as the canonical serialization format for future persisted
+provenance/validation manifests.
 
 ## M1 - Development Environment
 
@@ -124,11 +136,11 @@ The supported conventional single-frame MR reconstruction path validates:
 
 ## M7 - DICOM-to-NIfTI
 
-Status:
+Status: COMPLETE
 
-`IN PROGRESS - ACCEPTANCE HARDENING`
+Completed: 2026-10-03
 
-Completed checkpoints:
+Architecture/implementation checkpoints:
 
 - M7-P01 format-neutral `ImageVolume`: `1dd31fc`
 - M7-P02 LPS-to-RAS affine: `8fb2831`
@@ -137,6 +149,18 @@ Completed checkpoints:
 - M7-P04 governance cleanup: `c38ff6d`
 - M7-P05A safe output and structured failures: `2bf1927`
 - M7-P05B independent NiBabel validation: PASS
+- ADR-014 structured validation report and future JSON manifest: `b6bab40`
+- M7-P05C conversion validation report: `0976788`
+
+Final Java regression:
+
+```text
+129 tests
+0 failures
+0 errors
+0 skipped
+BUILD SUCCESS
+```
 
 M7 acceptance criteria:
 
@@ -146,9 +170,33 @@ M7 acceptance criteria:
 - [x] spacing matches within tolerance;
 - [x] world-coordinate mapping matches within tolerance;
 - [x] qform/sform are internally consistent;
-- [ ] explicit conversion provenance/validation report.
+- [x] conversion produces explicit provenance/validation output.
 
-GUI integration is not required for M7 completion.
+The final conversion validation report records:
+
+- output target;
+- dimensions;
+- scalar type;
+- voxel count;
+- voxel spacing;
+- NIfTI-RAS affine;
+- intensity transform;
+- stored-voxel preservation;
+- resampling state;
+- interpolation state;
+- voxel-order state.
+
+For the supported M7 path:
+
+- stored voxel values are preserved;
+- resampling is false;
+- interpolation is false;
+- voxel ordering is unchanged.
+
+The report is created only after the NIfTI writer completes successfully.
+Failure results do not carry a validation report.
+
+GUI integration was not required for M7 completion.
 
 ## M8 - Controlled NIfTI-to-DICOM
 
@@ -159,7 +207,7 @@ Status: NOT STARTED
 Status: NOT STARTED
 
 Broader round-trip and dataset-level validation remains separate from the focused
-M7 NIfTI acceptance validation already performed.
+M7 NIfTI acceptance validation already completed.
 
 ## M10 - GUI Integration
 
