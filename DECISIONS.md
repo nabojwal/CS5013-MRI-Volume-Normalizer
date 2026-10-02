@@ -255,3 +255,71 @@ interpretation of the format.
 
 Status:
 Accepted
+---
+
+## ADR-014 - Structured M7 Conversion Validation Report and Future JSON Manifest
+
+Decision:
+For M7 DICOM-to-NIfTI conversion, provenance and conversion validation remain
+structured application-level models.
+
+A successful conversion result shall expose a dedicated
+`ConversionValidationReport` alongside the existing `ProvenanceRecord`.
+
+The M7 validation report shall be created only after the NIfTI writer completes
+successfully. It shall describe factual invariants of the conversion that are
+known from the validated in-memory source volume, the explicit NIfTI-RAS affine
+supplied to the writer, and the conversion path itself.
+
+The initial report shall include:
+
+- output target;
+- output width, height and depth;
+- scalar type;
+- voxel count;
+- row, column and slice spacing;
+- NIfTI-RAS voxel-to-world affine;
+- intensity transform;
+- whether stored voxel values were preserved;
+- whether resampling occurred;
+- whether interpolation occurred;
+- whether voxel ordering changed.
+
+For the supported M7 lossless integer-preserving path:
+
+- stored voxel values are preserved;
+- resampling is false;
+- interpolation is false;
+- voxel ordering is unchanged.
+
+The report does not claim that the written NIfTI file was reopened, reparsed or
+independently validated at runtime. Independent interoperability validation,
+including the M7-P05B NiBabel validation, remains separate acceptance evidence.
+
+M7 shall not create an additional persisted provenance or validation sidecar.
+The structured application result is sufficient for the M7
+provenance/validation-output requirement.
+
+When persisted provenance/validation manifests are introduced by later
+dataset/conversion workflows, their canonical serialization format shall be
+UTF-8 JSON. The concrete JSON schema, schema version and persistence mechanics
+shall be defined when that persisted-manifest workflow is implemented.
+
+Infrastructure adapters shall not silently choose a different provenance
+serialization format.
+
+Reason:
+The application boundary owns provenance and validation semantics. Keeping the
+M7 report structured avoids introducing premature filesystem naming, collision,
+schema and dependency concerns while still making conversion invariants
+machine-readable to application callers.
+
+Choosing UTF-8 JSON now resolves the required provenance serialization-format
+decision without requiring M7 to implement persisted manifests prematurely.
+
+Separating runtime conversion invariants from independent post-write validation
+also prevents the application from making stronger verification claims than it
+has actually performed.
+
+Status:
+Accepted
