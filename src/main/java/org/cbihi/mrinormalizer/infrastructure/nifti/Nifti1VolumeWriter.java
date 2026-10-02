@@ -8,6 +8,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.zip.GZIPOutputStream;
@@ -37,16 +38,37 @@ public final class Nifti1VolumeWriter implements NiftiVolumeWriter {
         if (voxelToWorldRas == null) {
             throw new IllegalArgumentException("NIfTI RAS voxel-to-world affine is required");
         }
+
         Path path = targetPath(target);
         boolean gzip = isGzip(path);
         byte[] header = buildHeader(volume, voxelToWorldRas);
-        try (OutputStream file = new BufferedOutputStream(Files.newOutputStream(path));
-             OutputStream output = gzip ? new GZIPOutputStream(file) : file) {
-            output.write(header);
-            output.write(new byte[VOX_OFFSET - HEADER_SIZE]);
-            writeVoxels(volume.voxels(), output);
+        boolean created = false;
+
+        try (OutputStream file = Files.newOutputStream(
+                     path,
+                     StandardOpenOption.CREATE_NEW,
+                     StandardOpenOption.WRITE);
+             OutputStream buffered = new BufferedOutputStream(file)) {
+
+            created = true;
+
+            if (gzip) {
+                try (OutputStream output = new GZIPOutputStream(buffered)) {
+                    writePayload(header, volume.voxels(), output);
+                }
+            } else {
+                writePayload(header, volume.voxels(), buffered);
+            }
         } catch (IOException exception) {
+            if (created) {
+                deletePartialOutput(path, exception);
+            }
             throw new UncheckedIOException("NIfTI output cannot be written", exception);
+        } catch (RuntimeException exception) {
+            if (created) {
+                deletePartialOutput(path, exception);
+            }
+            throw exception;
         }
     }
 
@@ -111,6 +133,19 @@ public final class Nifti1VolumeWriter implements NiftiVolumeWriter {
         return header.array();
     }
 
+    private void writePayload(byte[] header, VoxelData voxels, OutputStream output) throws IOException {
+        output.write(header);
+        output.write(new byte[VOX_OFFSET - HEADER_SIZE]);
+        writeVoxels(voxels, output);
+    }
+
+    private void deletePartialOutput(Path path, Throwable failure) {
+        try {
+            Files.deleteIfExists(path);
+        } catch (IOException cleanupException) {
+            failure.addSuppressed(cleanupException);
+        }
+    }
     private void writeScaling(ByteBuffer header, IntensityTransform transform) {
         if (!transform.declared()) {
             // NIfTI specifies scl_slope == 0 as "no scaling".
