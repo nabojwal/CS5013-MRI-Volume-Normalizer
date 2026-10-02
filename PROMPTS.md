@@ -642,4 +642,58 @@ Do not implement the NIfTI writer, affine conversion, qform/sform, package-wide 
 
 ### Related Commit
 
-Pending verification.
+`1dd31fc` - `refactor: introduce format-neutral image volume`
+
+## M7-P02 - DICOM LPS to NIfTI RAS Affine
+
+**Evidence type:** Current structured implementation task. **Date:** 2026-10-02. **Baseline:** `1dd31fc` on `feature/m7-dicom-to-nifti`.
+
+### Role
+
+Implement and verify the explicit spatial-affine boundary required before NIfTI serialization.
+
+### Context
+
+M7-P01 established a format-neutral `ImageVolume`. The approved architecture requires an immutable 4x4 voxel-to-world affine and an explicit DICOM patient LPS to NIfTI RAS conversion before writing NIfTI output.
+
+### Objective
+
+Represent voxel-to-world geometry explicitly and convert the validated DICOM LPS geometry to NIfTI RAS without changing voxel indexing, ordering, or values.
+
+### Requirements
+
+- introduce immutable `AffineMatrix4`;
+- use column-vector affine semantics;
+- preserve x=column index, y=row index, z=slice index;
+- derive the LPS affine from `VolumeGeometry`;
+- affine column 0 = column direction × column spacing;
+- affine column 1 = row direction × row spacing;
+- affine column 2 = slice direction × slice spacing;
+- affine column 3 = voxel-(0,0,0) origin;
+- convert LPS to RAS by left multiplication with `diag(-1,-1,1,1)`;
+- do not flip or reorder voxel data;
+- cover nonzero origins, unequal spacing, oblique geometry and representative voxel/world mappings;
+- reject use of the DICOM-to-NIfTI mapper with unsupported source coordinate systems;
+- record the affine policy in ADR-011.
+
+### Negative Prompt
+
+Do not implement NIfTI byte serialization, qform quaternion encoding, resampling, interpolation, voxel-axis permutation, reverse conversion, GUI work, or change validated DICOM reconstruction geometry.
+
+### Verification
+
+- `git apply --check`: clean for the corrected patch.
+- `git diff --check`: clean after application.
+- `mvn "-Dtest=AffineMatrix4Test,NiftiAffineMapperTest" test`: BUILD SUCCESS; 10 tests, 0 failures, 0 errors, 0 skipped.
+- `mvn clean test`: BUILD SUCCESS; 102 tests, 0 failures, 0 errors, 0 skipped.
+- `AffineMatrix4Test`: 5/0/0/0.
+- `NiftiAffineMapperTest`: 5/0/0/0.
+- Existing `DicomSeriesServiceTest`: 47/0/0/0.
+
+### Results
+
+M7-P02 affine mapping COMPLETE. DICOM reconstruction remains in patient LPS coordinates. NIfTI RAS conversion occurs explicitly at the conversion boundary, with no voxel-array reordering or resampling. NIfTI serialization remains pending.
+
+### Related Commit
+
+Pending at verification time.

@@ -318,3 +318,39 @@ Changes verified include:
 AR-1A / M7 preparation is COMPLETE. The generic volume contract is now suitable
 for the next conversion stage. NIfTI affine construction, LPS-to-RAS conversion,
 qform/sform handling, and NIfTI serialization are not part of this verification.
+
+
+## 2026-10-02 - M7-P02 DICOM LPS to NIfTI RAS Affine Verification
+
+Baseline: `1dd31fc` on `feature/m7-dicom-to-nifti`.
+Related commit: **Pending at verification time**.
+
+This verification establishes the explicit spatial transform required before
+NIfTI serialization.
+
+Verified behavior:
+
+- immutable finite 4x4 affine representation;
+- column-vector voxel-to-world convention;
+- x=column, y=row, z=slice indexing;
+- column spacing applied to x;
+- row spacing applied to y;
+- validated slice spacing applied to z;
+- voxel `(0,0,0)` maps to the recorded physical origin;
+- nonzero origins and unequal spacing are preserved;
+- oblique orientations are represented without resampling;
+- DICOM LPS to NIfTI RAS is performed by left multiplication with
+  `diag(-1,-1,1,1)`;
+- voxel arrays are not flipped, reordered, interpolated, or resampled;
+- unsupported source coordinate systems are rejected by the conversion mapper.
+
+| Command / suite | Tests | Failures | Errors | Skipped | Result |
+|---|---:|---:|---:|---:|---|
+| `AffineMatrix4Test` | 5 | 0 | 0 | 0 | PASS |
+| `NiftiAffineMapperTest` | 5 | 0 | 0 | 0 | PASS |
+| Focused affine command | 10 | 0 | 0 | 0 | BUILD SUCCESS |
+| `mvn clean test` | **102** | **0** | **0** | **0** | **BUILD SUCCESS** |
+
+The previous 92-test M7-P01 baseline remains green. NIfTI serialization,
+qform quaternion encoding and independent interoperability validation are outside
+this checkpoint.

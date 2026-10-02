@@ -153,3 +153,46 @@ The NIfTI writer needs a generic scalar storage representation, not DICOM tag se
 
 Status:
 Accepted
+
+---
+
+## ADR-011 - DICOM LPS to NIfTI RAS Affine
+
+Decision:
+The generic voxel-to-world affine uses voxel axes `(x, y, z)` where x is the
+column index, y is the row index, and z is the slice index. No voxel-array
+reordering, interpolation, or resampling is performed for DICOM-to-NIfTI
+conversion.
+
+For `VolumeGeometry` in DICOM patient LPS coordinates:
+
+- affine column 0 = `columnIndexDirection * columnSpacingMm`;
+- affine column 1 = `rowIndexDirection * rowSpacingMm`;
+- affine column 2 = `sliceDirection * sliceSpacing`;
+- affine column 3 = `origin`, the centre of voxel `(0, 0, 0)`.
+
+The NIfTI RAS affine is obtained by left-multiplication:
+
+`A_RAS = diag(-1, -1, 1, 1) * A_LPS`.
+
+This changes the world-coordinate convention only. It does not flip or reorder
+the stored voxel array.
+
+For NIfTI output, sform is the authoritative full affine. qform shall represent
+the same transform when the affine is representable by the NIfTI quaternion
+model; otherwise qform shall not silently approximate unsupported geometry.
+Scanner-anatomical transform codes are used for geometry originating from the
+supported DICOM MR profile.
+
+For later NIfTI reading, a valid sform is preferred, qform is the fallback, and
+material disagreement between simultaneously valid transforms is rejected rather
+than silently choosing one. Affine interoperability comparisons use a documented
+millimetre-scale numerical tolerance; no change to voxel values is permitted.
+
+Reason:
+DICOM patient geometry is LPS while NIfTI commonly expresses anatomical world
+coordinates as RAS. Making the conversion explicit and testable prevents hidden
+axis flips and preserves the established x/y/z voxel-index convention.
+
+Status:
+Accepted

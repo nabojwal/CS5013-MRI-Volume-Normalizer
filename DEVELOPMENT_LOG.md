@@ -684,3 +684,58 @@ Verification:
 - Architecture tests: 6 tests passed.
 
 AR-1A format-neutral ImageVolume migration COMPLETE. The verified M6 behavior remains intact and the generic volume boundary no longer exposes DICOM PixelEncoding. DICOM-to-NIfTI affine and writer implementation remain pending.
+
+---
+
+## 2026-10-02 - M7-P02 DICOM LPS to NIfTI RAS Affine
+
+Starting checkpoint: `1dd31fc` on `feature/m7-dicom-to-nifti`.
+
+Objective: establish the explicit voxel-to-world affine and DICOM patient LPS to
+NIfTI RAS mapping required before NIfTI serialization.
+
+### Implementation
+
+- Added immutable `AffineMatrix4` with finite-value and affine-final-row invariants.
+- Added point transformation and matrix composition using column-vector semantics.
+- Added `VolumeGeometry.voxelToWorldAffine()`.
+- Preserved the established voxel convention:
+  - x = column index;
+  - y = row index;
+  - z = slice index.
+- The LPS affine uses:
+  - column 0 = column-index direction × column spacing;
+  - column 1 = row-index direction × row spacing;
+  - column 2 = slice direction × slice spacing;
+  - column 3 = voxel-(0,0,0) origin.
+- Added `NiftiAffineMapper`, which computes:
+  `A_RAS = diag(-1,-1,1,1) * A_LPS`.
+- Added `NIFTI_RAS` coordinate-system identity for explicit boundary checking.
+- Added ADR-011 documenting LPS/RAS conversion and the no-reordering policy.
+- No voxel values, dimensions, indexing, ordering, interpolation or resampling
+  behavior was changed.
+
+### Verification
+
+Focused command:
+
+`mvn "-Dtest=AffineMatrix4Test,NiftiAffineMapperTest" test`
+
+Result: BUILD SUCCESS; 10 tests, 0 failures, 0 errors, 0 skipped.
+
+Full command:
+
+`mvn clean test`
+
+Result: BUILD SUCCESS; 102 tests, 0 failures, 0 errors, 0 skipped.
+
+`AffineMatrix4Test`: 5 tests passed.
+`NiftiAffineMapperTest`: 5 tests passed.
+Existing DICOM reconstruction suite remains green with 47 tests.
+
+`git diff --check` completed without errors.
+
+M7-P02 affine mapping COMPLETE. NIfTI-1 serialization, qform encoding and
+end-to-end DICOM-to-NIfTI conversion remain pending.
+Related commit: Pending at verification time.
+
