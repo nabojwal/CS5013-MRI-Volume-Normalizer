@@ -696,4 +696,83 @@ M7-P02 affine mapping COMPLETE. DICOM reconstruction remains in patient LPS coor
 
 ### Related Commit
 
+8fb2831 - feat: add nifti ras affine mapping
+
+## M7-P03 - NIfTI-1 Volume Writer
+
+**Evidence type:** Current structured implementation task. **Date:** 2026-10-02. **Baseline:** `8fb2831` on `feature/m7-dicom-to-nifti`.
+
+### Role
+
+Implement the project-owned NIfTI-1 serialization adapter required for the
+DICOM-to-NIfTI vertical slice.
+
+### Context
+
+M7-P01 established a format-neutral `ImageVolume`. M7-P02 established explicit
+voxel-to-world affine semantics and DICOM patient LPS to NIfTI RAS conversion.
+The next boundary is deterministic serialization of a generic image volume and
+an already-computed RAS affine into NIfTI-1 single-file output.
+
+### Objective
+
+Write supported integer `ImageVolume` data to `.nii` and `.nii.gz` while
+preserving dimensions, raw voxel values, scalar representation, intensity
+metadata and spatial geometry.
+
+### Requirements
+
+- introduce an application output port for NIfTI volume writing;
+- implement a project-owned NIfTI-1 writer without adding a new dependency;
+- accept an already-computed voxel-to-world RAS affine rather than performing
+  DICOM coordinate conversion inside infrastructure;
+- support `UINT8`, `INT8`, `UINT16`, and `INT16`;
+- write the NIfTI-1 348-byte header plus extension indicator;
+- use single-file `n+1` format with voxel data beginning at offset 352;
+- serialize voxel data in x-fastest order without interpolation, resampling,
+  flipping or permutation;
+- preserve explicitly declared linear intensity transforms;
+- preserve identity/no-declared-transform semantics;
+- write millimetre spatial units;
+- write scanner-anatomical sform metadata;
+- write equivalent qform metadata where representable;
+- use `qform_code = 0` rather than silently approximating an affine that cannot
+  be represented by the NIfTI quaternion model;
+- support `.nii` and gzip-wrapped `.nii.gz`;
+- reject raw values outside the selected scalar type's legal range;
+- verify generated `.nii` output with the existing NIfTI format detector.
+
+### Architecture Correction
+
+The initial writer draft performed `NiftiAffineMapper` conversion inside the
+infrastructure adapter. This was corrected before commit.
+
+The final boundary is:
+
+`application geometry conversion -> RAS affine -> NiftiVolumeWriter port -> infrastructure serializer`
+
+Therefore the infrastructure writer serializes a supplied RAS affine and does
+not depend on the application conversion implementation.
+
+### Verification
+
+- Initial test compilation exposed a test-only API mismatch:
+  `DetectionResult.isRecognized()` does not exist.
+- The test was corrected to assert
+  `DetectionOutcome.NIFTI` through `DetectionResult.outcome()`.
+- `mvn "-Dtest=Nifti1VolumeWriterTest" test`: BUILD SUCCESS;
+  11 tests, 0 failures, 0 errors, 0 skipped.
+- `mvn clean test`: BUILD SUCCESS;
+  113 tests, 0 failures, 0 errors, 0 skipped.
+- The non-qform-representable affine regression verifies exact sform retention
+  with `qform_code = 0`.
+
+### Results
+
+M7-P03 NIfTI-1 serialization COMPLETE. The writer is ready to be composed with
+the verified DICOM reconstruction service and M7-P02 affine mapper. End-to-end
+DICOM-to-NIfTI orchestration remains pending.
+
+### Related Commit
+
 Pending at verification time.

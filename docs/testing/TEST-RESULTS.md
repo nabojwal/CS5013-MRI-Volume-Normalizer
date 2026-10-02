@@ -323,7 +323,7 @@ qform/sform handling, and NIfTI serialization are not part of this verification.
 ## 2026-10-02 - M7-P02 DICOM LPS to NIfTI RAS Affine Verification
 
 Baseline: `1dd31fc` on `feature/m7-dicom-to-nifti`.
-Related commit: **Pending at verification time**.
+Related commit: **8fb2831 - feat: add nifti ras affine mapping**.
 
 This verification establishes the explicit spatial transform required before
 NIfTI serialization.
@@ -354,3 +354,48 @@ Verified behavior:
 The previous 92-test M7-P01 baseline remains green. NIfTI serialization,
 qform quaternion encoding and independent interoperability validation are outside
 this checkpoint.
+
+## 2026-10-02 - M7-P03 NIfTI-1 Writer Verification
+
+Baseline: `8fb2831` on `feature/m7-dicom-to-nifti`.
+Related commit: **Pending at verification time**.
+
+This verification covers project-owned NIfTI-1 serialization of the generic
+image-volume model.
+
+Verified behavior includes:
+
+- NIfTI-1 single-file serialization;
+- `.nii` output;
+- gzip-wrapped `.nii.gz` output;
+- UINT8, INT8, UINT16 and INT16 datatype mapping;
+- matching datatype and bit-depth metadata;
+- dimensions and voxel spacing;
+- x-fastest raw voxel serialization;
+- preservation of supported integer raw values;
+- preservation of declared linear intensity scaling metadata;
+- millimetre spatial units;
+- supplied RAS affine serialized into sform;
+- equivalent qform generation when representable;
+- exact sform retention and `qform_code = 0` for affine geometry that cannot be
+  represented by the quaternion model;
+- no voxel flip, resampling, interpolation or permutation;
+- generated `.nii` recognition by the existing NIfTI format detector;
+- scalar-range rejection.
+
+The writer receives an already-computed RAS affine. DICOM LPS-to-RAS conversion
+remains an application conversion responsibility rather than an infrastructure
+serialization responsibility.
+
+| Command / suite | Tests | Failures | Errors | Skipped | Result |
+|---|---:|---:|---:|---:|---|
+| `Nifti1VolumeWriterTest` | 11 | 0 | 0 | 0 | PASS |
+| `mvn clean test` | **113** | **0** | **0** | **0** | **BUILD SUCCESS** |
+
+An earlier test compile failure was caused only by use of the nonexistent
+`DetectionResult.isRecognized()` test API. The assertion was corrected to use
+`DetectionResult.outcome()` and expect `DetectionOutcome.NIFTI`; production
+writer behavior was unchanged by that correction.
+
+M7-P03 serialization is verified. End-to-end DICOM reconstruction, affine
+conversion and NIfTI writing as one use case remain pending.

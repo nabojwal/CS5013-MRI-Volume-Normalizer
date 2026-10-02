@@ -737,5 +737,58 @@ Existing DICOM reconstruction suite remains green with 47 tests.
 
 M7-P02 affine mapping COMPLETE. NIfTI-1 serialization, qform encoding and
 end-to-end DICOM-to-NIfTI conversion remain pending.
-Related commit: Pending at verification time.
+Related commit: 8fb2831 - feat: add nifti ras affine mapping.
 
+---
+
+## 2026-10-02 - M7-P03 NIfTI-1 Volume Writer
+
+Starting checkpoint: `8fb2831` on `feature/m7-dicom-to-nifti`.
+
+Objective: implement the NIfTI-1 serialization boundary required for the
+DICOM-to-NIfTI vertical slice.
+
+### Implementation
+
+- Added the NIfTI writer application output port.
+- Added a project-owned NIfTI-1 infrastructure writer using standard Java I/O.
+- The writer receives an `ImageVolume`, an already-computed voxel-to-world RAS
+  affine and an `OutputTarget`.
+- Kept DICOM LPS-to-RAS conversion outside infrastructure.
+- Supported generic scalar types UINT8, INT8, UINT16 and INT16.
+- Wrote NIfTI-1 single-file header metadata, extension indicator and voxel data.
+- Used voxel offset 352 for single-file output.
+- Preserved x-fastest voxel serialization and raw stored integer values.
+- Added `.nii` and gzip-wrapped `.nii.gz` output.
+- Preserved declared linear intensity scaling metadata.
+- Added sform and representable qform spatial metadata.
+- Unsupported quaternion geometry retains the exact supplied sform and writes
+  `qform_code = 0` rather than approximating geometry.
+- No interpolation, resampling, voxel-array flip or voxel permutation was added.
+
+### Verification
+
+The initial writer test compilation found a test-only mismatch:
+`DetectionResult.isRecognized()` was referenced even though the established API
+exposes `outcome()`. The test was corrected to assert `DetectionOutcome.NIFTI`.
+No production change was required for that failure.
+
+After the application/infrastructure boundary correction:
+
+`mvn "-Dtest=Nifti1VolumeWriterTest" test`
+
+Result: BUILD SUCCESS; 11 tests, 0 failures, 0 errors, 0 skipped.
+
+Full regression:
+
+`mvn clean test`
+
+Result: BUILD SUCCESS; 113 tests, 0 failures, 0 errors, 0 skipped.
+
+The writer regression suite includes non-qform-representable affine behavior:
+the exact sform is retained, sform remains valid, and qform is disabled rather
+than silently approximated.
+
+M7-P03 NIfTI-1 serialization COMPLETE.
+End-to-end DICOM-to-NIfTI orchestration remains pending.
+Related commit: Pending at verification time.
