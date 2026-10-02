@@ -777,7 +777,6 @@ DICOM-to-NIfTI orchestration remains pending.
 
 Pending at verification time.
 
-@'
 
 ## M7-P04 - End-to-End DICOM to NIfTI Conversion
 
@@ -849,4 +848,3 @@ validation and final M7 exit-criteria review remain separate hardening work.
 ### Related Commit
 
 Pending at verification time.
-'@ | Add-Content .\PROMPTS.md

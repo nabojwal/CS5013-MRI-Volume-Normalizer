@@ -400,7 +400,6 @@ writer behavior was unchanged by that correction.
 M7-P03 serialization is verified. End-to-end DICOM reconstruction, affine
 conversion and NIfTI writing as one use case remain pending.
 
-@'
 
 ## 2026-10-02 - M7-P04 End-to-End DICOM to NIfTI Verification
 
@@ -426,4 +425,3 @@ No interpolation, resampling, normalization or voxel-array reordering occurs.
 This establishes the first executable DICOM-to-NIfTI vertical slice for the
 supported profile. Output-write failure normalization and broader independent
 interoperability validation remain follow-up hardening work.
-'@ | Add-Content .\docs\testing\TEST-RESULTS.md

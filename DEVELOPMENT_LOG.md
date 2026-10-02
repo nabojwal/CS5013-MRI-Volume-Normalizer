@@ -793,7 +793,6 @@ M7-P03 NIfTI-1 serialization COMPLETE.
 End-to-end DICOM-to-NIfTI orchestration remains pending.
 Related commit: Pending at verification time.
 
-@'
 
 ---
 
@@ -854,5 +853,3 @@ Result: BUILD SUCCESS; 118 tests, 0 failures, 0 errors, 0 skipped.
 M7-P04 end-to-end vertical slice COMPLETE.
 Output-I/O error normalization and final M7 acceptance review remain pending.
 Related commit: Pending at verification time.
-'@ | Add-Content .\DEVELOPMENT_LOG.md
-
