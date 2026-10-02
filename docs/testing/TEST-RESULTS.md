@@ -399,3 +399,31 @@ writer behavior was unchanged by that correction.
 
 M7-P03 serialization is verified. End-to-end DICOM reconstruction, affine
 conversion and NIfTI writing as one use case remain pending.
+
+@'
+
+## 2026-10-02 - M7-P04 End-to-End DICOM to NIfTI Verification
+
+Baseline: `6924dd5` on `feature/m7-dicom-to-nifti`.
+Related commit: **Pending at verification time**.
+
+This verification exercises the complete implemented DICOM-to-NIfTI path using
+real synthetic DICOM files and the production adapters.
+
+| Command / suite | Tests | Failures | Errors | Skipped | Result |
+|---|---:|---:|---:|---:|---|
+| `DicomToNiftiServiceTest` | 5 | 0 | 0 | 0 | PASS |
+| `mvn clean test` | **118** | **0** | **0** | **0** | **BUILD SUCCESS** |
+
+Verified end-to-end properties include DICOM reconstruction, physical slice
+ordering, generic `ImageVolume` construction, LPS-to-RAS affine mapping,
+NIfTI-1 serialization, `.nii.gz` wrapping, dimensions, datatype, voxel spacing,
+complete raw voxel preservation, signed-value preservation, scaling metadata,
+sform geometry, deterministic input-order behavior and failure-without-output.
+
+No interpolation, resampling, normalization or voxel-array reordering occurs.
+
+This establishes the first executable DICOM-to-NIfTI vertical slice for the
+supported profile. Output-write failure normalization and broader independent
+interoperability validation remain follow-up hardening work.
+'@ | Add-Content .\docs\testing\TEST-RESULTS.md

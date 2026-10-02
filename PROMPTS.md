@@ -776,3 +776,77 @@ DICOM-to-NIfTI orchestration remains pending.
 ### Related Commit
 
 Pending at verification time.
+
+@'
+
+## M7-P04 - End-to-End DICOM to NIfTI Conversion
+
+**Evidence type:** Current structured implementation task. **Date:** 2026-10-02. **Baseline:** `6924dd5` on `feature/m7-dicom-to-nifti`.
+
+### Role
+
+Compose the verified DICOM reconstruction, spatial conversion and NIfTI writer
+into one application-level DICOM-to-NIfTI use case.
+
+### Objective
+
+Convert an explicitly selected supported DICOM MR series directly to NIfTI-1
+without resampling, interpolation, voxel reordering or unintended numerical change.
+
+### Implementation
+
+The implemented pipeline is:
+
+`DicomToNiftiRequest -> DicomSeriesService -> ImageVolume -> NiftiAffineMapper -> NiftiVolumeWriter`
+
+Added:
+
+- `DicomToNiftiRequest`;
+- `DicomToNiftiResult`;
+- `DicomToNiftiService`;
+- `DefaultDicomToNiftiService`;
+- end-to-end `DicomToNiftiServiceTest`.
+
+The application service delegates DICOM parsing/reconstruction to the existing
+verified DICOM service, converts the resulting DICOM-LPS geometry to a NIfTI-RAS
+affine and supplies both the generic image volume and the RAS affine to the NIfTI
+writer.
+
+### Verified Behaviors
+
+- multi-slice DICOM to `.nii`;
+- single-slice DICOM to `.nii.gz`;
+- dimensions preserved;
+- supported datatype preserved;
+- complete raw voxel values preserved;
+- voxel spacing preserved;
+- declared linear scaling metadata preserved;
+- DICOM LPS origin/orientation mapped to NIfTI RAS sform;
+- input-file ordering does not alter the resulting NIfTI bytes;
+- signed INT16 values remain numerically unchanged;
+- DICOM reconstruction failures propagate as structured errors;
+- failed reconstruction does not create an output NIfTI file.
+
+### Negative Prompt
+
+Do not add resampling, interpolation, normalization, GUI integration, reverse
+NIfTI-to-DICOM conversion, dataset scanning, broad architecture refactoring or
+new dependencies.
+
+### Verification
+
+- `mvn "-Dtest=DicomToNiftiServiceTest" test`: BUILD SUCCESS;
+  5 tests, 0 failures, 0 errors, 0 skipped.
+- `mvn clean test`: BUILD SUCCESS;
+  118 tests, 0 failures, 0 errors, 0 skipped.
+
+### Results
+
+The first executable DICOM-to-NIfTI vertical slice is COMPLETE for the supported
+profile. Output-I/O failure normalization, broader independent interoperability
+validation and final M7 exit-criteria review remain separate hardening work.
+
+### Related Commit
+
+Pending at verification time.
+'@ | Add-Content .\PROMPTS.md

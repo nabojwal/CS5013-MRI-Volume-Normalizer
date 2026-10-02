@@ -792,3 +792,67 @@ than silently approximated.
 M7-P03 NIfTI-1 serialization COMPLETE.
 End-to-end DICOM-to-NIfTI orchestration remains pending.
 Related commit: Pending at verification time.
+
+@'
+
+---
+
+## 2026-10-02 - M7-P04 End-to-End DICOM to NIfTI Conversion
+
+Starting checkpoint: `6924dd5` on `feature/m7-dicom-to-nifti`.
+
+Objective: compose the verified DICOM reconstruction service, explicit LPS-to-RAS
+mapping and NIfTI-1 writer into a real application conversion path.
+
+### Implementation
+
+Added the explicit `DicomToNiftiRequest`, `DicomToNiftiResult`,
+`DicomToNiftiService` and `DefaultDicomToNiftiService`.
+
+The application workflow is:
+
+`DICOM inputs -> validated ImageVolume in LPS -> RAS affine -> NIfTI writer`
+
+The service reuses `DicomSeriesService`; no DICOM parsing or reconstruction logic
+is duplicated. `NiftiAffineMapper` performs the coordinate-system conversion at
+the application layer and the infrastructure writer receives the resulting RAS
+affine.
+
+No interpolation, resampling, normalization, voxel flipping or voxel permutation
+was introduced.
+
+### End-to-End Verification
+
+`DicomToNiftiServiceTest` uses real synthetic DICOM files through dcm4che,
+`Dcm4cheInstanceReader`, `DefaultDicomSeriesService`, the affine mapper and
+`Nifti1VolumeWriter`.
+
+Verified cases include:
+
+- two-slice unsigned DICOM to `.nii`;
+- complete raw voxel-array equality;
+- expected dimensions, datatype, bit depth and spacing;
+- declared rescale slope/intercept preservation;
+- expected DICOM-LPS to NIfTI-RAS sform;
+- `.nii.gz` output;
+- deterministic output under reversed DICOM input order;
+- failed series selection with no output file;
+- signed INT16 value preservation.
+
+Focused command:
+
+`mvn "-Dtest=DicomToNiftiServiceTest" test`
+
+Result: BUILD SUCCESS; 5 tests, 0 failures, 0 errors, 0 skipped.
+
+Full regression:
+
+`mvn clean test`
+
+Result: BUILD SUCCESS; 118 tests, 0 failures, 0 errors, 0 skipped.
+
+M7-P04 end-to-end vertical slice COMPLETE.
+Output-I/O error normalization and final M7 acceptance review remain pending.
+Related commit: Pending at verification time.
+'@ | Add-Content .\DEVELOPMENT_LOG.md
+
