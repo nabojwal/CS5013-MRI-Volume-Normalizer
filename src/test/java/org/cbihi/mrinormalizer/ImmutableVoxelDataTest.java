@@ -112,7 +112,7 @@ class ImmutableVoxelDataTest {
         var instance = new DicomInstance("2.25.1", "2.25.2", "2.25.3", "MR",
                 "1.2.840.10008.5.1.4.1.1.4", "1.2.840.10008.1.2.1",
                 50_000, 50_000, 1, 1, geometry, ENCODING,
-                RescaleTransform.identityNotDeclared(), virtualPixels, "2.25.4", null);
+                RescaleTransform.identityNotDeclared(), virtualPixels, "2.25.4", null, 2.0, null);
         var service = new DefaultDicomSeriesService(input -> instance, GeometryValidationPolicy.defaults());
 
         var result = service.process(new DicomSeriesRequest(List.of(new InputSource("virtual")), "2.25.3"));

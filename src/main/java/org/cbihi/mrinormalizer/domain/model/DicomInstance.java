@@ -16,7 +16,9 @@ public record DicomInstance(
         RescaleTransform rescaleTransform,
         VoxelData pixels,
         String frameOfReferenceUid,
-        String anatomicalOrientationType
+        String anatomicalOrientationType,
+        Double spacingBetweenSlices,
+        Double sliceThickness
 ) {
 
     public DicomInstance {

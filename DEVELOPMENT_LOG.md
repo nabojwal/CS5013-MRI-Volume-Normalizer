@@ -527,3 +527,69 @@ Geometry algorithms, dependencies, detection and approved architecture are uncha
 M6 frame/profile hardening COMPLETE. M6 remains IN PROGRESS. Single-slice spacing,
 provenance identity, unused NIfTI validators, AR-1 and conversion remain deferred.
 No staging or commit performed. Related commit: Pending at verification time.
+
+## 2026-10-02 - M6 Single-Slice Spacing Policy Hardening
+
+Baseline: `5c9b3ee`. Tracked files were clean; only the three intentional
+untracked files existed. Objective: replace successful zero-spacing one-slice
+reconstruction with the explicitly requested supported-project metadata policy.
+
+### Test-first evidence
+
+Before any production edits, `mvn -Dtest=DicomSeriesServiceTest test`:
+BUILD FAILURE; 33 tests, 7 failures, 0 errors, 0 skipped.
+Then added nullable model fields and constructor wiring only (reader values
+still null; service behavior unchanged) to enable direct boundary tests.
+Before extraction/policy implementation, the same command returned BUILD FAILURE;
+36 tests, 10 failures, 0 errors, 0 skipped.
+
+| Test | Scenario | Pre-fix result |
+|---|---|---|
+| acceptsSingleSliceWithSpacingBetweenSlices | 2.5 mm primary, unchanged origin/directions | Failed: spacing 0.0 |
+| prefersSpacingBetweenSlicesOverSliceThickness | 2.5 primary wins over 4.0 thickness | Failed: spacing 0.0 |
+| acceptsSingleSliceWithSliceThicknessFallback | Absent primary, 3.2 thickness | Failed: spacing 0.0 |
+| rejectsSingleSliceWithoutSpacingMetadata | Both absent | Failed: accepted |
+| rejectsNonPositiveSingleSliceSpacingBetweenSlices | Zero/negative primary despite valid thickness | Failed at zero: accepted |
+| rejectsInvalidSliceThicknessFallback | Absent primary, zero/negative thickness | Failed at zero: accepted |
+| multiSliceSpacingStillComesFromIpp | 1.5 IPP spacing vs 9.0/7.0 metadata | Passed |
+| rejectsEmptyOrMalformedExplicitSingleSliceSpacing | Empty/blank/malformed primary, valid thickness | Failed at empty: accepted |
+| rejectsNonFiniteSingleSliceSpacingBetweenSlices | NaN and both infinities at service boundary | Second run failed at NaN: accepted |
+| rejectsNonFiniteSliceThicknessFallback | Non-finite fallback at service boundary | Second run failed at NaN: accepted |
+| readerExtractsSingleSliceSpacingMetadata | Positive values, null absence, invalid presence | Second run failed: 2.5 read as null |
+
+Loops stop on their first failed assertion in pre-fix runs. All loop cases ran
+successfully after the fix. Non-finite tests use the service/domain boundary
+because NaN/infinities are not valid DICOM DS values; no raw-byte hacks were used.
+Reader tests use existing synthetic temporary DICOM fixtures.
+
+### Implementation and semantics
+
+- DicomInstance carries nullable Double spacingBetweenSlices and sliceThickness.
+- Reader uses Tag.SpacingBetweenSlices and Tag.SliceThickness. Tag absence maps
+  to null; present-empty or unparsable values map to NaN as invalid metadata,
+  never as absence. Numeric zero, negative and non-finite values remain invalid
+  values for application-level policy; no reader fallback is performed.
+- After existing geometry validation/sorting, one slice uses SpacingBetweenSlices
+  when present, otherwise SliceThickness, otherwise MISSING_REQUIRED_METADATA.
+  The chosen value must be finite and > 0; invalid values produce
+  INCOMPATIBLE_INSTANCE with an attribute-specific exception message.
+  Invalid primary metadata never falls back to thickness.
+- SliceThickness is a one-slice grid-spacing surrogate, not measured spacing.
+  Multi-slice IPP spacing, common normal, residual validation and origin are unchanged.
+- Successful reconstruction now supplies positive finite spacing. VolumeGeometry
+  itself was not changed: this scoped invariant is enforced in reconstruction.
+- Existing fixture defaults now declare 2.0 mm explicitly. The existing
+  rejectsOversizedReconstructionBeforeReadingVoxels fixture supplies 2.0 in its
+  new constructor argument, preserving its allocation-path assertion.
+  No original assertions were weakened. Error results still expose categories
+  only; the existing result API does not surface exception diagnostic messages.
+
+### Verification
+
+- `mvn -Dtest=DicomSeriesServiceTest test`: BUILD SUCCESS; 36 tests,
+  0 failures, 0 errors, 0 skipped.
+- `mvn clean test`: BUILD SUCCESS; 77 tests, 0 failures, 0 errors, 0 skipped.
+
+M6 single-slice spacing hardening COMPLETE. M6 remains IN PROGRESS.
+Provenance identity, unused NIfTI validators, AR-1 and conversion remain deferred.
+Related commit: Pending at verification time. No staging or commit performed.

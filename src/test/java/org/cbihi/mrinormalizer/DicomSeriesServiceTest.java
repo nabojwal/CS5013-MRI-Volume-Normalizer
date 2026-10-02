@@ -332,6 +332,125 @@ class DicomSeriesServiceTest {
         return service().process(request(SERIES, paths));
     }
 
+    @Test
+    void acceptsSingleSliceWithSpacingBetweenSlices() throws IOException {
+        var input = spec(12, new long[] {1, 2, 3, 4}).zSpacing("2.5", null).position(10, 20, 12);
+        var result = service().process(request(SERIES, dicom("single-spacing.dcm", input)));
+        assertTrue(result.successful(), result.errors().toString());
+        assertEquals(1, result.volume().geometry().depth());
+        assertEquals(2.5, result.volume().geometry().sliceSpacing());
+        assertArrayEquals(new double[] {10, 20, 12}, result.volume().geometry().origin());
+        assertArrayEquals(new double[] {1, 0, 0}, result.volume().geometry().columnIndexDirection());
+        assertArrayEquals(new double[] {0, 1, 0}, result.volume().geometry().rowIndexDirection());
+        assertArrayEquals(new double[] {0, 0, 1}, result.volume().geometry().sliceDirection());
+    }
+
+    @Test
+    void prefersSpacingBetweenSlicesOverSliceThickness() throws IOException {
+        var result = service().process(request(SERIES, dicom("precedence.dcm",
+                spec(0, new long[] {1, 2, 3, 4}).zSpacing("2.5", "4.0"))));
+        assertTrue(result.successful(), result.errors().toString());
+        assertEquals(2.5, result.volume().geometry().sliceSpacing());
+    }
+
+    @Test
+    void acceptsSingleSliceWithSliceThicknessFallback() throws IOException {
+        var result = service().process(request(SERIES, dicom("thickness.dcm",
+                spec(0, new long[] {1, 2, 3, 4}).zSpacing(null, "3.2"))));
+        assertTrue(result.successful(), result.errors().toString());
+        assertEquals(3.2, result.volume().geometry().sliceSpacing());
+    }
+
+    @Test
+    void rejectsSingleSliceWithoutSpacingMetadata() throws IOException {
+        assertError(service().process(request(SERIES, dicom("no-spacing.dcm",
+                spec(0, new long[] {1, 2, 3, 4}).zSpacing(null, null)))),
+                DicomProcessingError.MISSING_REQUIRED_METADATA);
+    }
+
+    @Test
+    void rejectsNonPositiveSingleSliceSpacingBetweenSlices() throws IOException {
+        for (String value : new String[] {"0", "-2.5"}) {
+            assertError(service().process(request(SERIES, dicom("invalid-primary.dcm",
+                    spec(0, new long[] {1, 2, 3, 4}).zSpacing(value, "4.0")))),
+                    DicomProcessingError.INCOMPATIBLE_INSTANCE);
+        }
+    }
+
+    @Test
+    void rejectsInvalidSliceThicknessFallback() throws IOException {
+        for (String value : new String[] {"0", "-3.2"}) {
+            assertError(service().process(request(SERIES, dicom("invalid-thickness.dcm",
+                    spec(0, new long[] {1, 2, 3, 4}).zSpacing(null, value)))),
+                    DicomProcessingError.INCOMPATIBLE_INSTANCE);
+        }
+    }
+
+    @Test
+    void multiSliceSpacingStillComesFromIpp() throws IOException {
+        Path first = dicom("measured-first.dcm", spec(0, new long[] {1, 1, 1, 1}).zSpacing("9.0", "7.0"));
+        Path second = dicom("measured-second.dcm", spec(1.5, new long[] {2, 2, 2, 2}).zSpacing("9.0", "7.0"));
+        var result = service().process(request(SERIES, second, first));
+        assertTrue(result.successful(), result.errors().toString());
+        assertEquals(1.5, result.volume().geometry().sliceSpacing());
+        assertSliceValues(result.volume(), 1, 2);
+    }
+
+    @Test
+    void rejectsEmptyOrMalformedExplicitSingleSliceSpacing() throws IOException {
+        for (String value : new String[] {"", "   ", "invalid"}) {
+            assertError(service().process(request(SERIES, dicom("bad-spacing.dcm",
+                    spec(0, new long[] {1, 2, 3, 4}).zSpacing(value, "4.0")))),
+                    DicomProcessingError.INCOMPATIBLE_INSTANCE);
+        }
+    }
+
+    @Test
+    void rejectsNonFiniteSingleSliceSpacingBetweenSlices() throws IOException {
+        for (double value : new double[] {Double.NaN, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY}) {
+            assertError(singleSliceAtDomainBoundary(value, 4.0), DicomProcessingError.INCOMPATIBLE_INSTANCE);
+        }
+    }
+
+    @Test
+    void rejectsNonFiniteSliceThicknessFallback() throws IOException {
+        for (double value : new double[] {Double.NaN, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY}) {
+            assertError(singleSliceAtDomainBoundary(null, value), DicomProcessingError.INCOMPATIBLE_INSTANCE);
+        }
+    }
+
+    private org.cbihi.mrinormalizer.application.result.DicomProcessingResult singleSliceAtDomainBoundary(
+            Double between, Double thickness) throws IOException {
+        Path path = dicom("domain-spacing.dcm", spec(0, new long[] {1, 2, 3, 4}));
+        var source = new Dcm4cheInstanceReader().read(new InputSource(path.toString()));
+        var instance = new org.cbihi.mrinormalizer.domain.model.DicomInstance(source.sopInstanceUid(),
+                source.studyInstanceUid(), source.seriesInstanceUid(), source.modality(), source.sopClassUid(),
+                source.transferSyntaxUid(), source.rows(), source.columns(), source.rowSpacing(), source.columnSpacing(),
+                source.geometry(), source.pixelEncoding(), source.rescaleTransform(), source.pixels(),
+                source.frameOfReferenceUid(), source.anatomicalOrientationType(), between, thickness);
+        var application = new DefaultDicomSeriesService(input -> instance, GeometryValidationPolicy.defaults());
+        return application.process(request(SERIES, path));
+    }
+
+    @Test
+    void readerExtractsSingleSliceSpacingMetadata() throws IOException {
+        var reader = new Dcm4cheInstanceReader();
+        Path present = dicom("reader-spacing.dcm", spec(0, new long[] {1, 2, 3, 4}).zSpacing("2.5", "4.0"));
+        var decoded = reader.read(new InputSource(present.toString()));
+        assertEquals(Double.valueOf(2.5), decoded.spacingBetweenSlices());
+        assertEquals(Double.valueOf(4.0), decoded.sliceThickness());
+        Path absent = dicom("reader-absent.dcm", spec(0, new long[] {1, 2, 3, 4}).zSpacing(null, null));
+        var missing = reader.read(new InputSource(absent.toString()));
+        org.junit.jupiter.api.Assertions.assertNull(missing.spacingBetweenSlices());
+        org.junit.jupiter.api.Assertions.assertNull(missing.sliceThickness());
+        for (String invalid : new String[] {"", "invalid"}) {
+            Path path = dicom("reader-invalid.dcm", spec(0, new long[] {1, 2, 3, 4}).zSpacing(invalid, invalid));
+            var bad = reader.read(new InputSource(path.toString()));
+            assertTrue(Double.isNaN(bad.spacingBetweenSlices()));
+            assertTrue(Double.isNaN(bad.sliceThickness()));
+        }
+    }
+
     private Path[] slightlyTiltedStack(double spacing) throws IOException {
         // All directions differ by less than 1e-4. At x=200, their own normals shift
         // projections by about +/-0.008 mm, reversing the 0.005 mm stack's order.
@@ -381,6 +500,8 @@ class DicomSeriesServiceTest {
         dataset.setString(Tag.SeriesInstanceUID, VR.UI, spec.series);
         if (spec.frame != null) dataset.setString(Tag.FrameOfReferenceUID, VR.UI, spec.frame);
         if (spec.anatomy != null) dataset.setString(Tag.AnatomicalOrientationType, VR.CS, spec.anatomy);
+        if (spec.between != null) dataset.setString(Tag.SpacingBetweenSlices, VR.DS, spec.between);
+        if (spec.thickness != null) dataset.setString(Tag.SliceThickness, VR.DS, spec.thickness);
         dataset.setString(Tag.Modality, VR.CS, spec.modality);
         dataset.setInt(Tag.Rows, VR.US, spec.rows);
         dataset.setInt(Tag.Columns, VR.US, spec.columns);
@@ -431,6 +552,7 @@ class DicomSeriesServiceTest {
     private static final class Spec {
         private double[] position; private long[] values; private String study = STUDY; private String series = SERIES;
         private String frame = FRAME; private String anatomy;
+        private String between = "2.0"; private String thickness;
         private String sop = "2.25." + System.nanoTime(); private String sopClass = UID.MRImageStorage; private String modality = "MR";
         private int rows = 2; private int columns = 2; private double[] spacing = {1, 1};
         private double[] orientation = {1, 0, 0, 0, 1, 0}; private int allocated = 16; private int stored = 16;
@@ -441,6 +563,7 @@ class DicomSeriesServiceTest {
         Spec position(double x, double y, double z) { position = new double[] {x, y, z}; return this; }
         Spec study(String value) { study = value; return this; } Spec series(String value) { series = value; return this; }
         Spec frame(String value) { frame = value; return this; } Spec anatomy(String value) { anatomy = value; return this; }
+        Spec zSpacing(String spacing, String fallback) { between = spacing; thickness = fallback; return this; }
         Spec sop(String value) { sop = value; return this; } Spec dimensions(int r, int c) { rows = r; columns = c; return this; }
         Spec spacing(double r, double c) { spacing = new double[] {r, c}; return this; }
         Spec orientation(double[] value) { orientation = value; return this; } Spec allocated(int value) { allocated = value; return this; }

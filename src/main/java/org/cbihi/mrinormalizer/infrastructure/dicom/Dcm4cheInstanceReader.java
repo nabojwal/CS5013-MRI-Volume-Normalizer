@@ -63,7 +63,20 @@ public final class Dcm4cheInstanceReader implements DicomInstanceReader {
                 requiredText(dataset, Tag.SeriesInstanceUID), requiredText(dataset, Tag.Modality),
                 requiredText(dataset, Tag.SOPClassUID), transferSyntax, rows, columns, spacing[0], spacing[1],
                 geometry, encoding, rescale, pixels,
-                dataset.getString(Tag.FrameOfReferenceUID), dataset.getString(Tag.AnatomicalOrientationType));
+                dataset.getString(Tag.FrameOfReferenceUID), dataset.getString(Tag.AnatomicalOrientationType),
+                optionalSpacing(dataset, Tag.SpacingBetweenSlices), optionalSpacing(dataset, Tag.SliceThickness));
+    }
+
+    private Double optionalSpacing(Attributes dataset, int tag) {
+        if (!dataset.contains(tag)) {
+            return null;
+        }
+        // NaN represents present-but-invalid metadata, never absence. Policy belongs to the service.
+        try {
+            return dataset.getDouble(tag, Double.NaN);
+        } catch (NumberFormatException exception) {
+            return Double.NaN;
+        }
     }
 
     private void validateScope(Attributes dataset, Attributes fileMeta, String transferSyntax) {

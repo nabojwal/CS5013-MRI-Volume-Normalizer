@@ -166,9 +166,8 @@ public final class DefaultDicomSeriesService implements DicomSeriesService {
                 }
             }
         }
-        // Keep the existing single-slice policy. For stacks, validate and publish
-        // exactly the grid defined by the first physical gap and first position.
-        double sliceSpacing = spacing.isEmpty() ? 0.0d : spacing.getFirst();
+        // For stacks, publish exactly the grid defined by the first physical gap and first position.
+        double sliceSpacing = spacing.isEmpty() ? resolveSingleSliceSpacing(ordered.getFirst()) : spacing.getFirst();
         double firstProjection = dot(ordered.getFirst().geometry().position(), referenceNormal);
         for (int index = 0; index < ordered.size(); index++) {
             double actual = dot(ordered.get(index).geometry().position(), referenceNormal);
@@ -178,6 +177,25 @@ public final class DefaultDicomSeriesService implements DicomSeriesService {
             }
         }
         return reconstruct(ordered, referenceGeometry, referenceNormal, sliceSpacing);
+    }
+
+    private double resolveSingleSliceSpacing(DicomInstance instance) {
+        Double spacing = instance.spacingBetweenSlices();
+        String attribute = "SpacingBetweenSlices";
+        if (spacing == null) {
+            // Thickness is a one-slice grid-spacing surrogate, not measured center-to-center spacing.
+            spacing = instance.sliceThickness();
+            attribute = "SliceThickness (single-slice spacing fallback)";
+        }
+        if (spacing == null) {
+            throw new DicomProcessingException(DicomProcessingError.MISSING_REQUIRED_METADATA,
+                    "Single-slice reconstruction requires SpacingBetweenSlices or SliceThickness.");
+        }
+        if (!Double.isFinite(spacing) || spacing <= 0) {
+            throw new DicomProcessingException(DicomProcessingError.INCOMPATIBLE_INSTANCE,
+                    attribute + " must be finite and greater than zero.");
+        }
+        return spacing;
     }
 
     private void validateOrientation(SliceGeometry geometry) {

@@ -453,3 +453,77 @@ messages are not surfaced by the unchanged result API.
 ### Related Commit
 
 Pending at verification time.
+
+## M6-P07 - Single-Slice Spacing Policy Hardening
+
+**Evidence type:** Structured summary of the current user task, not a verbatim
+historical transcript. **Date:** 2026-10-02. **Baseline:** `5c9b3ee`.
+
+### Role
+
+Perform focused M6 geometry/profile hardening under approved Architecture 1.0.
+
+### Context
+
+One-slice reconstruction published 0.0 spacing; neither spacing metadata field
+was available in the current reader/model. Multi-slice spacing was IPP-derived.
+
+### Objective
+
+Use positive finite SpacingBetweenSlices, else SliceThickness only when the
+primary is absent, else fail. Thickness is a one-slice surrogate, not measured spacing.
+
+### Inputs
+
+DicomInstance, Dcm4cheInstanceReader, DefaultDicomSeriesService, VolumeGeometry,
+DicomSeriesServiceTest, ImmutableVoxelDataTest, architecture and engineering logs.
+
+### Requirements
+
+Test first; preserve absent versus invalid metadata; reject invalid explicit
+primary values without fallback; retain IPP-derived multi-slice spacing and
+single-slice origin/directions; exercise actual reader extraction and non-finite
+values at the service boundary. Update verified traceability.
+
+### Constraints
+
+Use nullable Double fields, existing error categories and tiny temporary fixtures.
+Keep the policy in the service and changes local. Preserve existing assertions.
+
+### Negative Prompt
+
+Do not invent spacing, alter multi-slice geometry, frame/BIPED checks, allocation,
+detection, provenance, dependencies or packages. Do not start AR-1, conversion,
+affine work or full IOD validation. Do not modify approved architecture, stage or commit.
+
+### Verification
+
+- Before production edits: focused 33 tests, 7 failures, 0 errors, 0 skipped.
+- After model-only wiring, before extraction/policy: focused 36/10/0/0.
+- Final `mvn -Dtest=DicomSeriesServiceTest test`: BUILD SUCCESS, 36/0/0/0.
+- `mvn clean test`: BUILD SUCCESS, 77/0/0/0.
+
+### Result
+
+Scoped hardening COMPLETE; M6 remains IN PROGRESS. Single-slice successes have
+positive finite spacing; multi-slice IPP spacing remains authoritative.
+Absent tags remain null; present-empty/unparsable tags remain invalid as NaN.
+
+### Related Tests
+
+- `acceptsSingleSliceWithSpacingBetweenSlices`
+- `prefersSpacingBetweenSlicesOverSliceThickness`
+- `acceptsSingleSliceWithSliceThicknessFallback`
+- `rejectsSingleSliceWithoutSpacingMetadata`
+- `rejectsNonPositiveSingleSliceSpacingBetweenSlices`
+- `rejectsInvalidSliceThicknessFallback`
+- `multiSliceSpacingStillComesFromIpp`
+- `rejectsEmptyOrMalformedExplicitSingleSliceSpacing`
+- `rejectsNonFiniteSingleSliceSpacingBetweenSlices`
+- `rejectsNonFiniteSliceThicknessFallback`
+- `readerExtractsSingleSliceSpacingMetadata`
+- `rejectsOversizedReconstructionBeforeReadingVoxels`: fixture signature only.
+
+### Related Commit
+
+Pending at verification time.

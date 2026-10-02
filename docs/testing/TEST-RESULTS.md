@@ -228,3 +228,30 @@ ImmutableVoxelDataTest 9, architecture tests 5, smoke/main tests 3 = 66.
 All failures/errors/skips are zero. M6 remains IN PROGRESS; single-slice spacing,
 provenance identity, unused NIfTI validators, AR-1 and conversion are still deferred.
 No staging or commit performed.
+
+## 2026-10-02 - Single-Slice Spacing Working-Tree Verification
+
+Baseline: `5c9b3ee`. Related commit: **Pending at verification time**.
+These are executed working-tree results, not a new committed checkpoint.
+
+| Phase / command | Tests | Failures | Errors | Skipped | Result |
+|---|---:|---:|---:|---:|---|
+| Before production edits: `mvn -Dtest=DicomSeriesServiceTest test` | 33 | 7 | 0 | 0 | BUILD FAILURE |
+| After model-only wiring, before extraction/policy: same command | 36 | 10 | 0 | 0 | BUILD FAILURE |
+| Final focused: same command | 36 | 0 | 0 | 0 | BUILD SUCCESS |
+| `mvn clean test` | 77 | 0 | 0 | 0 | BUILD SUCCESS |
+
+New tests cover primary spacing, precedence, thickness fallback, missing/invalid
+metadata, non-finite boundary values, reader extraction/null preservation and
+multi-slice non-regression. Exact names and old behavior are recorded in
+[development log](../../DEVELOPMENT_LOG.md) and
+[M6-P07](../../PROMPTS.md#m6-p07---single-slice-spacing-policy-hardening).
+
+The 1.5 mm multi-slice control passed before and after despite 9.0/7.0 metadata.
+One-slice geometry retains its original origin and validated directions.
+Final class totals: DicomSeriesServiceTest 36, FormatDetectionServiceTest 24,
+ImmutableVoxelDataTest 9, architecture 5, smoke/main 3 = 77.
+
+M6 remains IN PROGRESS. This resolves the reconstruction single-slice spacing
+gap recorded in earlier snapshots; provenance identity, unused NIfTI validators,
+AR-1 and conversion remain deferred. No staging or commit performed.
