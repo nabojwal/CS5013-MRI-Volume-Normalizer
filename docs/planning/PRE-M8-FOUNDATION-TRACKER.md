@@ -9,8 +9,8 @@
 - Canonical baseline: 0b91666c03d6247a6882c164aa6b033d9b761101.
 - M6 protected checkpoint: cb7769e; protected tag: pre-demo-m6-2026-10-02.
 - M7 protected checkpoint: d9ad7ea; protected tag: pre-demo-m7-2026-10-03.
-- Current authorization: tracker-only recording of passed S3 executable verification and F0 closure regression. No Java changes or later implementation is authorized. F1-F11, GUI and M8 remain blocked.
-- F0: S1 ACCEPTED at 76b676d; S2 ACCEPTED — ea40616 using user-supplied Java 21/Maven results. S2 was committed and pushed; the accepted remote checkpoint is ea4061672a293745ac5f5fc1b0d8d240d217e64e. S3 ACCEPTED — checkpoint pending; F0 IMPLEMENTATION COMPLETE; F0 CLOSURE EVIDENCE PASSED — checkpoint pending.
+- Current authorization: tracker-only reconciliation of accepted S3/F0 checkpoints and closure evidence. No Java changes or later implementation is authorized. F1-F11, GUI and M8 remain blocked.
+- F0: S1 ACCEPTED at 76b676d; S2 ACCEPTED — ea40616 using user-supplied Java 21/Maven results. S2 was committed and pushed; the accepted remote checkpoint is ea4061672a293745ac5f5fc1b0d8d240d217e64e. S3 ACCEPTED — 8b6e714; F0 IMPLEMENTATION COMPLETE; F0 CLOSURE EVIDENCE PASSED; F0 ACCEPTED.
 - F1-F11: NOT STARTED / BLOCKED by sequential review and acceptance.
 - M8: BLOCKED until the complete Pre-M8 acceptance freeze.
 - GUI: BLOCKED; interface remains frozen and no GUI implementation is authorized.
@@ -27,13 +27,13 @@ Fresh Git comparison: source, tests and pom.xml at the canonical baseline are by
 
 Historical evidence only: docs/testing/TEST-RESULTS.md records 129 tests, zero failures/errors/skips and NiBabel 5.4.2 acceptance. Those tests and the external acceptance checks were NOT rerun in this task.
 
-Historical assistant runtime check: OpenJDK 17.0.20; mvn is unavailable. The project requires Java 21. The attempted mvn clean test command failed before execution because Maven was not found. Those attempts generated no test-pass evidence. User-reported S1/S2 verification in the established Java 21/Maven environment is recorded separately below; full F0 closure still requires its remaining evidence.
+Historical assistant runtime check: OpenJDK 17.0.20; mvn is unavailable. The project requires Java 21. The attempted mvn clean test command failed before execution because Maven was not found. Those attempts generated no test-pass evidence. This historical pre-execution limitation is superseded by the user-reported S1/S2/S3 verification and passed full F0 closure regression in the established Java 21/Maven environment, recorded below.
 
 ## Workstream ledger
 
 | ID | Contract/outcome | Dependency | Status | Verified checkpoint |
 | --- | --- | --- | --- | --- |
-| F0 | Architectural contracts and policies | Baseline audit and design approval | IMPLEMENTATION COMPLETE; CLOSURE EVIDENCE PASSED; S1/S2/S3 ACCEPTED | S1: 76b676d; S2: ea40616; tracker: 14207bc; S3/F0: checkpoint pending |
+| F0 | Architectural contracts and policies | Baseline audit and design approval | ACCEPTED; IMPLEMENTATION COMPLETE; CLOSURE EVIDENCE PASSED; S1/S2/S3 ACCEPTED | S1: 76b676d; S2: ea40616; S3/tested implementation: 8b6e714; closure evidence: a2554ab |
 | F1 | Persistent provenance/reporting | Accepted F0 | NOT STARTED | None |
 | F2 | Deterministic recursive inventory | F0/F1 | NOT STARTED | None |
 | F3 | Metadata-only DICOM inspection | F0/F1 | NOT STARTED | None |
@@ -89,7 +89,7 @@ Record without editing now: README.md and MILESTONES.md still identify M8 as nex
 
 Historical tracker/setup record (superseded by S1/S2 acceptance): 1147129, docs: establish Pre-M8 foundation tracker and F0 review gate. It changes only this tracker. Local commit only; no remote push. The F0 specification below is a subsequent uncommitted documentation change for review. No implementation or workstream closure is represented by the setup commit.
 
-Corrected specification approved; S1 accepted at 76b676d; S2 ACCEPTED — ea40616 after user-supplied executable verification. S3 is accepted after executable verification; F0 implementation is complete and closure evidence passed, with S3/F0 checkpoints pending. This update records only that bookkeeping and does not authorize F1. After approval, implement one coherent slice at a time, tests first where feasible; focused tests, failure inspection, subsystem regression, displayed diff and responsibility review after each slice. F0 closure additionally requires full regression, whitespace check, criterion-to-test mapping, updated tracker and one coherent proposed commit. Stop before F1.
+Corrected specification approved; S1 accepted at 76b676d; S2 ACCEPTED — ea40616 after user-supplied executable verification. S3 is accepted at 8b6e714 after executable verification; F0 implementation is complete, closure evidence passed and F0 is accepted. The closure evidence record is a2554ab. This update records only that bookkeeping and does not authorize F1. After approval, implement one coherent slice at a time, tests first where feasible; focused tests, failure inspection, subsystem regression, displayed diff and responsibility review after each slice. F0 closure requirements for full regression, whitespace checks, criterion-to-test mapping, updated tracker and a coherent tested implementation checkpoint are satisfied by the accepted records below. Stop before F1.
 
 ## F0 repository-grounded implementation review
 
@@ -336,7 +336,7 @@ New test symbols are PROPOSED — new: FormatAssessmentTest (unit), FormatAssess
 | F0-A10 / B02 | Approved readiness enum set is exactly REQUIRES_VALIDATION, BLOCKED and READY; reason set includes DETECTION_NOT_COMPLETED; pure factory emits only REQUIRES_VALIDATION or BLOCKED; record exposes no converter/validator/bypass API; no production M6/M7 caller changes; package placement preserved | Architecture, U11 and source/diff review | PASS / ACCEPTED: S3 focused 5 tests; combined F0/M5/architecture 75 tests; zero failures/errors/skips |
 | F0-A11 | Existing M5 and relevant M6/M7/architecture regressions pass without weakening or modifying tests | Existing regression commands | PASS: S3 combined F0/M5/architecture gate 75 tests; protected M6/M7 79 tests; both BUILD SUCCESS, zero failures/errors/skips |
 | F0-A12 | Actual Java 21 mvn clean test with zero failures/errors/skips; git diff --check; protected paths unchanged | Closure commands and Git comparison | PASS: final exact-tree mvn clean test after complete S3 patch, 174 tests, zero failures/errors/skips, BUILD SUCCESS; production/tests compiled under release 21; diff check passed with known tracker LF→CRLF informational warning only |
-| F0-A13 | Revised decisions approved; criterion-to-executed-test mapping and coherent checkpoint recorded; no later implementation | Review/tracker/Git evidence | SPECIFICATION APPROVED; S1/S2/S3 ACCEPTED; F0 IMPLEMENTATION COMPLETE; F0 CLOSURE EVIDENCE PASSED; S3/F0 checkpoint pending |
+| F0-A13 | Revised decisions approved; criterion-to-executed-test mapping and coherent checkpoint recorded; no later implementation | Review/tracker/Git evidence | SPECIFICATION APPROVED; S1/S2/S3 ACCEPTED; F0 IMPLEMENTATION COMPLETE; F0 CLOSURE EVIDENCE PASSED; F0 ACCEPTED; tested implementation: 8b6e714; closure evidence: a2554ab |
 
 Policy evidence remains assigned to its owning workstream. F0 reviews the specification; it must not claim the following future runtime checks pass:
 
@@ -353,7 +353,7 @@ Historical slice plan and remaining gates (S1/S2 instructions superseded by reco
 
 1. Slice F0-S1 (accepted at 76b676d): tests first for U03-S1 and U04-U10, then six immutable contract types and only constructor invariants. Run the unit test, inspect each failure, run M5+architecture subsystem, display diff and confirm no adapters/algorithms appeared. Do not declare, stub or implement the conservative factory until S2. For this environment perform static/source review only; no compilation/test claim. Stop after S1 and wait for actual Java 21/Maven results before any accepted checkpoint.
 2. Slice F0-S2 (ACCEPTED at ea40616; executable results recorded below): tests first for U01-U02/U03-S2/U11/I01-I05, then only the conservative factory in the existing new record. Run focused unit/integration tests; rerun M5 and M6/M7 relevant regression; show diff and inspect readiness/privacy responsibility.
-3. Slice F0-S3 (ACCEPTED; checkpoint pending; executable results recorded below): add B01/B02, review all public/generic references and constant messages. Run focused architecture tests and relevant subsystem; show diff. No extra production abstraction.
+3. Slice F0-S3 (ACCEPTED at 8b6e714; executable results recorded below): add B01/B02, review all public/generic references and constant messages. Run focused architecture tests and relevant subsystem; show diff. No extra production abstraction.
 4. Close only with actual full regression, diff check, criterion mapping, protected-file proof and coherent proposed F0 commit. Stop before F1.
 
 Historical command plan (superseded by user-reported S1/S2/S3 and F0 closure results below; commands were not executed in the assistant environment):
@@ -521,14 +521,17 @@ B01/B02 are **PASS / ACCEPTED**, and F0-A12 full regression is **PASS**. S1 rema
 
     S1 ACCEPTED — 76b676d
     S2 ACCEPTED — ea40616
-    S3 ACCEPTED — checkpoint pending
+    S3 ACCEPTED — 8b6e714
     F0 IMPLEMENTATION COMPLETE
-    F0 CLOSURE EVIDENCE PASSED — checkpoint pending
+    F0 CLOSURE EVIDENCE PASSED
+    F0 ACCEPTED
+    Tested implementation checkpoint: 8b6e714216f7d3d174a81cdc9a120d88a4348f80
+    Closure evidence record: a2554ab93a7ff2fe5c4e547a7fb3119b57ac367c
     F1-F11 BLOCKED
     GUI BLOCKED
     M8 BLOCKED
 
-No S3/F0 checkpoint hash has been supplied or inferred. Future PM8 policy implementations and their owning workstream acceptance remain deferred; passing F0 contracts does not implement F1-F11, GUI or M8 and does not authorize F1. Stop after this tracker-only update.
+The user-supplied tested implementation checkpoint is 8b6e714216f7d3d174a81cdc9a120d88a4348f80; the closure evidence record is a2554ab93a7ff2fe5c4e547a7fb3119b57ac367c. Fresh Git fetch confirms the remote branch at a2554ab, and comparison with 8b6e714 shows only this tracker differs. The tested Java tree is unchanged; no Maven rerun is needed or performed for this docs-only reconciliation. Future PM8 policy implementations and their owning workstream acceptance remain deferred; passing F0 contracts does not implement F1-F11, GUI or M8 and does not authorize F1. Stop after this tracker-only update.
 
 ## Current evidence, defects and approval gate
 
@@ -556,8 +559,8 @@ No S3/F0 checkpoint hash has been supplied or inferred. Future PM8 policy implem
 | 2026-10-04 | User-reported S3 focused architecture gate | 5 tests; 0 failures/errors/skipped; BUILD SUCCESS | B01/B02 PASS / ACCEPTED |
 | 2026-10-04 | User-reported combined F0/M5/architecture gate | 75 tests; 0 failures/errors/skipped; BUILD SUCCESS | S3 and reused F0/M5/architecture coverage accepted |
 | 2026-10-04 | User-reported protected M6/M7 regression | 79 tests; 0 failures/errors/skipped; BUILD SUCCESS | Protected regression evidence passed |
-| 2026-10-04 | User-reported final exact-tree mvn clean test after complete S3 patch | 174 tests; 0 failures/errors/skipped; BUILD SUCCESS; production/tests compiled under Java release 21 | F0-A12 PASS; F0 implementation complete and closure evidence passed; checkpoint pending |
-| 2026-10-04 | User-reported git diff --check and S3 scope | Passed; known tracker LF→CRLF informational warning only; no production Java changes; new architecture test plus tracker only | S3 ACCEPTED — checkpoint pending; F1-F11, GUI and M8 blocked |
+| 2026-10-04 | User-reported final exact-tree mvn clean test after complete S3 patch | 174 tests; 0 failures/errors/skipped; BUILD SUCCESS; production/tests compiled under Java release 21 | F0-A12 PASS; F0 ACCEPTED; tested implementation: 8b6e714; closure evidence: a2554ab |
+| 2026-10-04 | User-reported git diff --check and S3 scope | Passed; known tracker LF→CRLF informational warning only; no production Java changes; new architecture test plus tracker only | S3 ACCEPTED — 8b6e714; F1-F11, GUI and M8 blocked |
 
 Confirmed code defects: none newly established by executable reproduction in this pass. Documentation inconsistencies and runtime limitations are recorded above. Do not treat architectural gaps or unused helpers as a freshly reproduced imaging defect; do not fix them during F0.
 
@@ -573,10 +576,11 @@ Confirmed code defects: none newly established by executable reproduction in thi
 - [x] S3 explicitly authorized for exactly the dedicated B01/B02 architecture test and this tracker.
 - [x] S3 reflective API/shape and fixed-message tests authored; protected-source static review completed.
 - [x] S3 executable verification passed: focused 5 tests, combined F0/M5/architecture 75 tests and protected M6/M7 79 tests; zero failures/errors/skips; BUILD SUCCESS.
-- [x] S3 ACCEPTED — checkpoint pending. No factory declaration/stub/implementation was introduced in S1.
+- [x] S3 ACCEPTED — 8b6e714. No factory declaration/stub/implementation was introduced in S1.
 - [x] F0 IMPLEMENTATION COMPLETE under the accepted test matrix.
 - [x] F0 CLOSURE EVIDENCE PASSED: exact-tree mvn clean test, 174 tests, zero failures/errors/skips, BUILD SUCCESS; production/tests compiled under Java release 21.
-- [ ] S3/F0 accepted checkpoints recorded after commit/push; checkpoint pending.
-- [ ] F1 authorized only after F0 closure.
+- [x] S3/F0 accepted checkpoints recorded: tested implementation 8b6e714216f7d3d174a81cdc9a120d88a4348f80; closure evidence record a2554ab93a7ff2fe5c4e547a7fb3119b57ac367c.
+- [x] F0 ACCEPTED.
+- [ ] F1 explicitly authorized; currently BLOCKED.
 
-**STOP AFTER THIS TRACKER-ONLY UPDATE: S1 ACCEPTED — 76b676d; S2 ACCEPTED — ea40616; S3 ACCEPTED — checkpoint pending; F0 IMPLEMENTATION COMPLETE; F0 CLOSURE EVIDENCE PASSED — checkpoint pending; F1-F11 BLOCKED; GUI BLOCKED; M8 BLOCKED. No F1 authorization is implied.**
+**STOP AFTER THIS TRACKER-ONLY UPDATE: S1 ACCEPTED — 76b676d; S2 ACCEPTED — ea40616; S3 ACCEPTED — 8b6e714; F0 IMPLEMENTATION COMPLETE; F0 CLOSURE EVIDENCE PASSED; F0 ACCEPTED; F1-F11 BLOCKED; GUI BLOCKED; M8 BLOCKED. No F1 authorization is implied.**
