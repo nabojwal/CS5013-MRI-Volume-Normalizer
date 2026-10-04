@@ -9,9 +9,10 @@
 - Canonical baseline: 0b91666c03d6247a6882c164aa6b033d9b761101.
 - M6 protected checkpoint: cb7769e; protected tag: pre-demo-m6-2026-10-02.
 - M7 protected checkpoint: d9ad7ea; protected tag: pre-demo-m7-2026-10-03.
-- Current authorization: tracker-only reconciliation of accepted S3/F0 checkpoints and closure evidence. No Java changes or later implementation is authorized. F1-F11, GUI and M8 remain blocked.
+- Current authorization: F1-S0 accepted; F1-S1A explicitly authorized for exactly four core immutable values, ManifestValueTest and this tracker. F1-S1A EXECUTABLE VERIFICATION PASSED — checkpoint pending. No commit, dependency or later-slice implementation is authorized. F0 remains accepted and closed; F1 remains incomplete; S1B and F2-F11, GUI and M8 remain blocked.
 - F0: S1 ACCEPTED at 76b676d; S2 ACCEPTED — ea40616 using user-supplied Java 21/Maven results. S2 was committed and pushed; the accepted remote checkpoint is ea4061672a293745ac5f5fc1b0d8d240d217e64e. S3 ACCEPTED — 8b6e714; F0 IMPLEMENTATION COMPLETE; F0 CLOSURE EVIDENCE PASSED; F0 ACCEPTED.
-- F1-F11: NOT STARTED / BLOCKED by sequential review and acceptance.
+- F1: S0 ACCEPTED under the user's explicit S1A authorization; F1-S1A EXECUTABLE VERIFICATION PASSED — checkpoint pending; F1 INCOMPLETE. S1B and later slices remain NOT AUTHORIZED. Focused and full executable passes are user-reported below; no accepted S1A checkpoint is claimed because no commit SHA exists.
+- F2-F11: NOT STARTED / BLOCKED by sequential review and acceptance.
 - M8: BLOCKED until the complete Pre-M8 acceptance freeze.
 - GUI: BLOCKED; interface remains frozen and no GUI implementation is authorized.
 
@@ -34,7 +35,7 @@ Historical assistant runtime check: OpenJDK 17.0.20; mvn is unavailable. The pro
 | ID | Contract/outcome | Dependency | Status | Verified checkpoint |
 | --- | --- | --- | --- | --- |
 | F0 | Architectural contracts and policies | Baseline audit and design approval | ACCEPTED; IMPLEMENTATION COMPLETE; CLOSURE EVIDENCE PASSED; S1/S2/S3 ACCEPTED | S1: 76b676d; S2: ea40616; S3/tested implementation: 8b6e714; closure evidence: a2554ab |
-| F1 | Persistent provenance/reporting | Accepted F0 | NOT STARTED | None |
+| F1 | Persistent provenance/reporting | Accepted F0 | S0 ACCEPTED; F1-S1A EXECUTABLE VERIFICATION PASSED — checkpoint pending; F1 INCOMPLETE; S1B BLOCKED | Audit Java baseline: 0757d72; accepted S0 tracker retained; no S1A accepted checkpoint |
 | F2 | Deterministic recursive inventory | F0/F1 | NOT STARTED | None |
 | F3 | Metadata-only DICOM inspection | F0/F1 | NOT STARTED | None |
 | F4 | Candidate series discovery | F2/F3 | NOT STARTED | None |
@@ -581,6 +582,691 @@ Confirmed code defects: none newly established by executable reproduction in thi
 - [x] F0 CLOSURE EVIDENCE PASSED: exact-tree mvn clean test, 174 tests, zero failures/errors/skips, BUILD SUCCESS; production/tests compiled under Java release 21.
 - [x] S3/F0 accepted checkpoints recorded: tested implementation 8b6e714216f7d3d174a81cdc9a120d88a4348f80; closure evidence record a2554ab93a7ff2fe5c4e547a7fb3119b57ac367c.
 - [x] F0 ACCEPTED.
-- [ ] F1 explicitly authorized; currently BLOCKED.
+- [x] F1-S0 specification/repository audit and final corrections accepted by the user before explicit S1A authorization; historical review preparation retained below.
+- [x] F1-S1A implementation explicitly authorized for the six listed paths only; source prepared and executable verification passed below; checkpoint pending, no commit SHA.
+- [ ] F1-S1B explicitly authorized; currently BLOCKED.
 
-**STOP AFTER THIS TRACKER-ONLY UPDATE: S1 ACCEPTED — 76b676d; S2 ACCEPTED — ea40616; S3 ACCEPTED — 8b6e714; F0 IMPLEMENTATION COMPLETE; F0 CLOSURE EVIDENCE PASSED; F0 ACCEPTED; F1-F11 BLOCKED; GUI BLOCKED; M8 BLOCKED. No F1 authorization is implied.**
+**Historical F0 reconciliation stop (superseded only by the F1-S0 audit authorization below): S1 ACCEPTED — 76b676d; S2 ACCEPTED — ea40616; S3 ACCEPTED — 8b6e714; F0 IMPLEMENTATION COMPLETE; F0 CLOSURE EVIDENCE PASSED; F0 ACCEPTED; F1-F11 BLOCKED; GUI BLOCKED; M8 BLOCKED. No F1 authorization is implied.**
+
+## Accepted F1-S0 specification — historical final-review preparation
+
+Historical S0 preparation status on 2026-10-04: **FINAL REVIEW PREPARED; IMPLEMENTATION NOT AUTHORIZED AT THAT TIME**. Superseded by the user's acceptance of S0 and explicit S1A-only authorization recorded in F1-S1A below; other slices remain unauthorized. Repository audit baseline remains **0757d7290ee8443062960392658ff1702817dfc5**. The original rejected F1-S0 proposal and intermediate revision are superseded by this section. The latest review approved the other S0 design choices, including the immutable plan/delta journal, narrow codec, publication scope, slice decomposition and 33-path ceiling; the final corrections below await final architectural review, not implementation authorization. F0 remains accepted and closed. Only this tracker changes. No Java, test, dependency, schema, helper type or commit has been implemented. F1-S1A and all later implementation work remain unauthorized.
+
+Corrections incorporated: supplied ContentDigest evidence only; one immutable job/plan manifest plus factual hash-linked records; schema-specific canonical decoding; one authoritative location for each original M5/M6/M7 diagnostic; explicit F5 logical-plan/F6 digest/F6-F9 execution-evidence composition sequence; restart replay without an external receipt; normalized SHA-256 identifiers; explicit identifying-path privacy qualification; responsibility-neutral persistence exception; smaller model slices; separate persistence contract/replay/adapter slices; recalculated total and per-slice budgets.
+
+### F1-S0.1 Repository findings and reuse classification
+
+Paths are relative to src/main/java/org/cbihi/mrinormalizer unless stated otherwise. EXISTING — verified means source inspected at the exact baseline, not executed in this assistant environment.
+
+| Symbol / document | Actual inspected contract | Reuse or limitation |
+| --- | --- | --- |
+| EXISTING — verified: application/provenance/ProvenanceRecord | Record: inputFingerprint, softwareVersion, dcm4cheVersion, completedAt, successful, inputCount, acceptedSlices, geometry, pixels, errors; only errors is defensively copied | Preserve unchanged. It is an M6 processing summary, not a validated manifest. Arbitrary geometry/pixels strings must not be serialized automatically; constructor permits fabricated strings and incompletely validated fields |
+| EXISTING — verified: application/provenance/SelectedSourceFingerprint.sha256(List<Source>) | Sorts by SOPInstanceUID; rejects missing/duplicate UIDs; hashes each file through an 8192-byte buffer; aggregates framed big-endian UID byte lengths, UID bytes and binary file digests | Preserve unchanged. A selected-series identity is NOT a file content hash. It reads files and wraps causes; do not use it as the F1 per-file hashing port or expose its causes |
+| EXISTING — verified: application/validation/ConversionValidationReport | Typed output target, dimensions, scalar type, voxel count, spacing, affine, intensity transform and preservation/resampling/interpolation/order flags; checks finite spacing and dimension/count arithmetic | Reuse facts through an explicit projection, excluding its OutputTarget.reference. It records M7 runtime invariants after writing; it never establishes reopened-file verification |
+| EXISTING — verified: application/result/DicomProcessingResult and DicomToNiftiResult | Reconstruction success is volume present and no errors. Conversion success requires output and report with matching targets and no errors; failed conversion cannot carry report | Pure projection consumes these real result contracts. M6 provenance.successful alone is not conversion or job success |
+| EXISTING — verified: DefaultDicomSeriesService / DefaultDicomToNiftiService | M6 constructs geometry/pixels summary strings and wall-clock timestamps; M7 projects reconstruction provenance and creates report only after writer success | Inspect only; no callers or protected algorithms changed, wrapped into new execution services or wired to persistence in F1 |
+| EXISTING — verified: application/port/out/NiftiVolumeWriter.write(ImageVolume, AffineMatrix4, OutputTarget) | Only current application output-port file; serializes volume, not manifests | No reuse as manifest writer. EXISTING domain.port.FormatProbe and DicomInstanceReader remain where they are; no migration |
+| EXISTING — verified: domain/model/InputSource and OutputTarget | Bare String reference records with no intrinsic canonicalization/validation | OutputTarget may carry a runtime export destination only. Do not persist its reference or assume it establishes containment |
+| EXISTING — verified: FormatAssessment and five F0 enums | Immutable conservative assessment, accepted constructor/factory rules and raw DetectionResult preserved | Direct reuse in restricted source records; serialization preserves all seven components and raw extensionMismatch, without inference or READY upgrades |
+| EXISTING — verified: DetectionDiagnostic, DicomProcessingError, DicomToNiftiError | Existing phase-specific enums, including distinctions between detection failures, geometry/selection errors and output errors | Preserve DetectionDiagnostic only in FormatAssessment.initialDetection, DicomProcessingError only in ProcessingEvidence.reconstructionErrors, and DicomToNiftiError only in ProcessingEvidence.conversionErrors; no duplicate original-enum fields in ManifestFailure |
+| EXISTING — verified: AffineMatrix4, ScalarType, IntensityTransform | Finite immutable affine with get(row,column), four integer scalar types, finite nonzero intensity slope | Reuse typed M7 facts; no matrix comparison, voxel access or reader added |
+| EXISTING — verified: infrastructure/DependencyContainer | Simple register/get/contains Map<Class<?>,Object>; no actual production registration/use found; Main only prints application and Java version | No container/Main edit or artificial bootstrapping. F1 adapters are constructor-injected in tests; F9 owns eventual composition |
+| EXISTING — verified: architecture tests | DependencyDirectionTest inspects selected domain types; M6BoundaryTest selected M6 boundaries; PresentationBoundaryTest one signature; PackageStructureTest selected packages; FoundationContractBoundaryTest freezes exactly the six F0 types and generated APIs | Preserve all tests unchanged. New dedicated F1 coverage must inspect its actual declarations and generics; old gates do not automatically cover new packages |
+| EXISTING — verified: DECISIONS.md ADR-014 | Accepted UTF-8 JSON for future manifests, application-owned semantics, M7 in-memory report sufficient, no M7 sidecar or implied reopening | Governs F1 serialization. No new ADR or change to M7 required for the proposed separate dataset manifest |
+| EXISTING — verified: ARCHITECTURE-REVISION-1.0.md | AR-01/03/04/08/10, sections 10/16/17/18/20/26: application semantics, infrastructure I/O, small real ports, privacy and machine-readable traceability | Proposed ManifestWriter/ProvenanceManifest/JsonManifestWriter names in architecture are target concepts, not existing implementations. Historical M6 API mismatch and unresolved JSON choice have been superseded by accepted M6/M7/ADR-014; do not repair protected components based on stale prose |
+| EXISTING — verified: pom.xml | Java release 21; dcm4che-core 5.33.0, FlatLaf 3.6.1, test-scoped JUnit 5.12.2; compiler 3.14.1 and Surefire 3.5.3; no declared JSON library | No dependency/version/build change proposed. Do not rely on accidental transitive JSON libraries |
+| EXISTING — verified: accepted PM8-D08/D09/D15 | Versioned UTF-8 JSON, controlled facts, planned/actual separation, checkpointing, stop on persistence failure; mandatory restricted relative source-to-destination mapping with per-file hashes; public export may omit sensitive fields; recovery must reconcile filesystem | Inherited normative constraints. F1 defines the persistence capability and supplied-evidence model; F6/F9 own mutation sequencing and filesystem reconciliation |
+
+Additional read-only context: AGENTS.md, PROJECT.md, MILESTONES.md and latest DEVELOPMENT_LOG.md entries. MILESTONES still names M8 next; accepted tracker controls the Pre-M8 sequence. These files are protected from this audit's edits.
+
+### F1-S0.2 Revised behavioral contract and ownership
+
+All new symbols, signatures, schemas, test names, strategies and budgets below are **PROPOSED**, not implementation or acceptance evidence.
+
+F1 owns immutable reporting values, explicit projection of supplied M6/M7 facts, a restricted plan/journal persistence boundary, deterministic replay, a limited public export and canonical UTF-8 JSON. It does not perform imaging-file hashing, discovery, metadata reading, parsing, grouping, destination planning, copying, conversion, reopened-output verification or filesystem recovery execution.
+
+- F5 supplies the accepted immutable logical organization layout: source identities/references, operation IDs and destinations. F5 performs no hashing. F6 pre-execution verifies current sources and computes/revalidates per-file ContentDigest evidence without changing F5's approved destinations, operation IDs or layout semantics.
+- F6/F9 composes the F1 ProvenanceManifest from that accepted F5 logical plan plus supplied F6 digest evidence, then publishes it through the F1 store. ProvenanceManifest is the immutable execution-evidence plan; it need not be the same Java object/type as the eventual F5 logical planning model. Composition preserves every approved F5 mapping/key and adds supplied evidence; it does not replan.
+- Required order: F5 logical plan -> F6 pre-execution source verification/digests -> F6/F9 execution-evidence plan composition -> F1 publication of plan.json -> known plan receipt acknowledged -> first imaging mutation permitted only after its own acknowledged IN_PROGRESS intent. An ambiguous/failed publication cannot authorize mutation. Missing digests are permissible only for deliberately nonexecuting sources/operations; later evidence that changes the published plan requires a new owner-approved plan/job.
+- F1 validates supplied evidence shape/coherence only; it never hashes an imaging file, reads a SOURCE imaging file, calls SelectedSourceFingerprint or introduces a digest I/O boundary. SHA-256 of serialized plan/checkpoint bytes remains F1's journal-integrity mechanism, distinct from imaging-file content hashing.
+- The plan is published once and immutable. Subsequent checkpoint records contain one operation observation or one job-state observation, never the full plan/current manifest. Replay joins these facts with the plan to produce a current in-memory report on request. No full-manifest snapshot is persisted after each operation.
+- Every relocated COPY source must remain individually traceable through its immutable SOURCE relative key, expected supplied digest, planned OUTPUT destination and completed/identical-existing observation with matching output digest. Distinct source paths are never merged because content matches. Conversion has explicit many-source mapping and WRITTEN_UNVERIFIED observations; F8 remains the owner of reopened-output verification and any future schema extension permitting verified conversion success.
+- Recognition does not establish validity/support/readiness. F1 preserves all seven F0 components and raw DetectionResult, including extensionMismatch; it never emits new recognition-derived evidence or bypasses M6/M7.
+- Public export is a separate allowlisted aggregate value, not a redacted privileged manifest. Restricted source/destination paths remain mandatory. No dedicated UID/patient metadata fields or raw exception/text payloads are persisted, but a mandatory restricted relative path may itself contain a name, patient identifier or UID-like text. Public export omits all such paths.
+- Persist plan before executing; persist IN_PROGRESS intent before mutation; persist actual outcome after the operation; require known acknowledgment before the next mutation. This sequencing is a later F6/F9 obligation tested with controlled owner fixtures, not an F1 executor.
+- Publication uncertainty, corruption, invalid chain, unsupported schema, unsafe access/containment or exhausted reporting budget stops continuation. Never overwrite earlier accepted evidence, infer success from intent or silently choose an older successful prefix.
+
+Supported: initial empty/nonempty plans; unavailable/corrupt/unrecognized source assessments; supplied digests and missing digests on nonexecuting records; blocked/skip/partial/failure jobs; COPY completion or identical-existing with supplied matching digests; factual M6/M7 result projection; written-unverified conversion; idempotent plan/append requests; bounded replay and public summaries.
+
+Rejected: invalid/null/duplicate/unresolved values; unsafe relative reference; executable operation without every expected source digest; invalid state/phase/chronology; mutable plan changes; fabricated successful operation from a plan or M7 report; invalid/noncanonical/unsupported journal; stale receipt or different same-sequence bytes; unsafe publication/access; excessive resource use; arbitrary metadata/message/throwable payloads. Contract misuse uses fixed non-identifying argument errors; external persistence failures use typed fixed-message errors. F1 does not assert that supplied digest or phase evidence is truthful; the owning F6/M6/M7/F8 contracts establish that evidence.
+
+### F1-S0.3 Immutable restricted job/plan schema
+
+PROPOSED fixed execution-evidence plan schema: org.cbihi.mrinormalizer.provenance-plan; schemaVersion integer 1. Composed by F6/F9 from accepted F5 logical mappings plus F6 pre-execution evidence. Published once as plan.json inside the private job directory. Its canonical byte SHA-256 is the immutable plan anchor and receipt sequence 0; it is not embedded in its own bytes.
+
+| Canonical key order | Exact value |
+| --- | --- |
+| schema, schemaVersion | Fixed identifier and integer 1 |
+| jobId, createdAt | Supplied canonical lowercase UUID and UTC Instant.toString timestamp; not generated by codec |
+| roots | Fixed ordered logical descriptors SOURCE then OUTPUT; no absolute location, account, hostname or device |
+| sources | Canonically ordered SourceFileRecord objects: source, digest, assessment, failures |
+| operations | Canonically ordered ManifestOperation objects: operationId, kind, sources, destination |
+
+source={root:SOURCE,path:canonical relative path}; destination={root:OUTPUT,path:canonical relative path}. digest is null or {sizeBytes,sha256}, supplied by F6/pre-execution. assessment is the complete unchanged F0 value, including its raw detection and reasons. failures is a copied ordered list of workflow-only {phase,code} objects, not a text field or second original-diagnostic location. COPY requires exactly one source; CONVERT_DICOM_TO_NIFTI one or more. All source keys must resolve. An operation missing expected source digests can only be reported as nonexecuting/blocked/skipped under this plan. Filling or changing a missing/known plan digest later requires a new owner-approved plan/job, not mutation of the accepted plan.
+
+Operation IDs are owner-supplied unique lowercase 64-hex stable plan keys. F1 does not generate layouts, series identities, naming counters or operation IDs. Repeated destinations are permitted only for explicitly supplied COPY mappings with identical known expected source digests, preserving every distinct source; different/unknown digests or conversion overlaps reject. Case/provider alias collision decisions remain F5/F6 obligations.
+
+Schema documents are PROPOSED Draft 2020-12 documents with additionalProperties:false on every object. They document wire shape; executable model/codec/replay validation is authoritative. No runtime JSON-schema library or remote schema lookup is introduced.
+
+### F1-S0.4 Append-only factual checkpoint schema
+
+PROPOSED fixed schema: org.cbihi.mrinormalizer.provenance-checkpoint; schemaVersion integer 1. Each record describes exactly one operation observation or one job observation, not a full snapshot, changed source inventory or repeated plan.
+
+| Canonical key order | Exact value |
+| --- | --- |
+| schema, schemaVersion | Fixed checkpoint identifier and integer 1 |
+| jobId, sequence | Same job UUID; positive signed long sequence, strictly consecutive from 1 |
+| previousRecordSha256 | Sequence 1 references the plan-byte hash; later records reference immediately preceding record-byte hash |
+| recordedAt, kind | Supplied nondecreasing UTC Instant; kind=OPERATION_OBSERVED or JOB_OBSERVED |
+| operationId, observation, jobState | OPERATION_OBSERVED has planned ID plus Observation and jobState=null; JOB_OBSERVED has operationId=null, observation=null and explicit jobState |
+| failures | Workflow-only {phase,code} list for this observation, empty only when coherent; no original M5/M6/M7 enum fields or identifying message |
+
+Observation keys, in order: state, startedAt, finishedAt, outputDigest, matchedExpectedSourceCount, disposition, processingEvidence. This small record refers to plan source/destination data by operationId. matchedExpectedSourceCount is supplied F6 observation, not an F1 verification: IN_PROGRESS/COMPLETED/IDENTICAL_EXISTING/WRITTEN_UNVERIFIED must equal the immutable planned source count; other states use 0 unless retaining prior uncertain facts. It means the owner established every expected source digest match. F1 must not treat a caller-supplied number as independently verified bytes.
+
+processingEvidence is null or the explicit restricted M6/M7 projection below. Source/path/destination inventories are never copied into the record. One immutable plan plus its valid record chain therefore preserves the mandatory restricted mapping. Absence of a completed observation cannot imply relocation occurred.
+
+Every object has fixed keys/order; optional values use explicit JSON null, lists use arrays. Enum wire names are exact names, not ordinals. Missing/extra/duplicate keys, unsupported version/enum or implicit defaults reject. Schema 1 never reports reopened-output verification: conversion facts include the fixed literal postWriteValidation=NOT_PERFORMED. F8 must review/version a later verified-output schema before validated conversion publication/job-success claims.
+
+### F1-S0.5 Processing evidence and authoritative error location
+
+Schema 1 has exactly one authoritative restricted home for each original diagnostic:
+
+| Original diagnostic type | Sole persisted evidence location |
+| --- | --- |
+| DetectionDiagnostic | SourceFileRecord.assessment.initialDetection().diagnostic(), inside the unchanged FormatAssessment raw DetectionResult |
+| DicomProcessingError | ProcessingEvidence.reconstructionErrors |
+| DicomToNiftiError | ProcessingEvidence.conversionErrors |
+
+ProcessingEvidence has phase scope, phaseSuccessful, optional SourceSummary, one reconstructionErrors list, one conversionErrors list and optional ConversionFacts. SourceSummary has no errors member. Existing ProvenanceRecord.errors is cross-checked against result.errors where supplied; mismatch rejects projection rather than silently choose conflicting evidence. Projection persists the actual result's original errors once in the appropriate ProcessingEvidence list. Neither source.failures, checkpoint.failures nor jobFailures may duplicate/recode those original facts. ManifestFailure has only workflow phase/code and cannot store an original enum. A genuinely new F6 hashing/execution or F1 persistence failure remains a separate owner-supplied fact, not a translation of M5/M6/M7 evidence. M5 INPUT_TOO_LARGE retains its F0 inconclusive meaning.
+
+SourceSummary fields: optional selectedSourceFingerprint, softwareVersion, dcm4cheVersion, completedAt, provenanceSuccessful, inputCount, acceptedSlices. Fingerprint is explicitly tagged SELECTED_SERIES_SHA256 by a fixed serialization literal and never treated as a per-file digest. Drop geometry and pixels strings unconditionally; do not parse or sanitize arbitrary legacy free text. Build version strings are bounded safe tokens from trusted build configuration. SourceSummary.provenanceSuccessful preserves the exact existing ProvenanceRecord.successful flag, which M7 output failure can set false; it does not independently assert M6 reconstruction failure. ProcessingEvidence.phaseSuccessful comes from the actual result for its scope. Neither is overall job success.
+
+ConversionFacts contains the typed report's dimensions, scalarType, voxelCount, finite spacing, row-major 4x4 RAS affine, intensityTransform and preservation/resampling/interpolation/order flags. It excludes OutputTarget/reference. Pure conversion projection uses DicomToNiftiResult.successful() and validates report/target consistency without persisting the runtime path. Failed phase evidence forbids conversion facts. A completed M7 phase may remain recorded in an operation that subsequently fails in another phase; do not erase prior factual completion or turn it into overall success.
+
+No UID/patient metadata field is projected or persisted. That prohibition does not promise the mandatory relative paths contain no identifying/UID-like text.
+
+### F1-S0.6 Restricted/public privacy contract
+
+| Field class | Restricted plan/journal | Public export |
+| --- | --- | --- |
+| Source/destination relative paths and mandatory mapping | Required; may contain identifying or UID-like text | Omitted entirely |
+| Supplied file hashes and selected-series aggregate | Controlled technical evidence, still linkable/sensitive | Omitted |
+| Absolute roots, runtime OutputTarget references | Not persisted | Not persisted |
+| UID/patient metadata fields, free-text metadata, geometry/pixels summary strings, exception text/stacks | Not persisted as fields/payloads | Not persisted |
+| UUID/operation IDs, exact timestamps/byte sizes, geometry/intensity/source facts and versions | Restricted necessary controlled facts only | Omitted |
+| Job state and operation/failure aggregate counts | Derived from valid replay | Only allowlisted aggregate summary |
+
+Public report has its own schema org.cbihi.mrinormalizer.public-job-report, schemaVersion 1; canonical keys: schema, schemaVersion, state, sourceCount, operationCounts, failureCounts. Operation count objects have fixed kind/state/count keys. Failure count objects have exactly namespace/code/count keys: namespace is the controlled FailureNamespace enum, and code is an exact enum-name token validated against that namespace's closed code set. They contain no optional original diagnostic/error payloads. These are derived aggregates, never additional restricted diagnostic facts. No path, identifier, digest, timestamp, version string, geometry, arbitrary text or metadata map is a PublicJobReport component. It never replaces the restricted plan/journal.
+
+Public counts derive from each operation's current observation, source facts and current job failures, not every historical transition: a failure retained across recovery observations is not double-counted. Detection counts derive once per distinct source from assessment.initialDetection().diagnostic(), excluding NONE; reconstruction/conversion counts derive once per current operation from their respective ProcessingEvidence lists. HASHING/EXECUTION/POST_WRITE_VALIDATION/PERSISTENCE counts derive from the workflow-only source/current-operation/current-job failure lists. Namespace preserves the distinction even when different enums share a code spelling. Do not infer invalidity from a diagnostic aggregate or recode original diagnostics as workflow failures. Operation counts include all 18 kind/state combinations, including zero counts. SourceCount counts distinct source keys, even with identical bytes. Aggregate numbers do not establish cohort anonymization.
+
+Restricted store access must be established before plan/record/lock/stage visibility. Qualification remains owner-only POSIX permissions (directories 0700, files 0600), or effective Windows ACL allowing owner/required system administrators without broad-user inherited access. Unsupported restriction returns ACCESS_CONTROL_UNAVAILABLE; no public staging fallback. F1 does not change arbitrary parent ACLs/accounts or elevate privileges. Public export uses its already limited value projection and cannot write into the restricted namespace or SOURCE. Mandatory path privacy is enforced through restricted access, not removal of operational traceability.
+
+### F1-S0.7 Deterministic ordering and relative paths
+
+- RelativePath remains an immutable logical SOURCE/OUTPUT value, not java.nio.file.Path, URI, storage capability or proof of containment. Its constructor requires canonical slash-separated representation and rejects rather than normalizes away unsafe evidence.
+- Portable schema-1 path subset rejects empty/absolute/leading/trailing/repeated separators, dot/dot-dot/empty segments, backslash/colon/drive/UNC forms, NUL/control/unpaired surrogate, trailing dot/space and Windows-reserved device bases including extensions. Preserve permitted Unicode scalar values, case, interior spaces and UID-like text exactly. No case-folding, Unicode normalization, percent decoding or anonymization inference. Nonrepresentable names cannot be relocated under this contract; the owning inventory must report a blocked outcome rather than drop/rename the source identity.
+- F2/F5 supply relative references from canonical configured roots and retain exact source spelling. F1 does not walk SOURCE paths or inspect imaging files. F1 store/export adapters canonicalize only configured roots and their own persistence/export resources for containment and overlap checks; configured roots may have symlink ancestors. Do not follow discovered/final symlink resources by default or ban every configured ancestor. Fail closed if safe containment/access cannot be established.
+- Sources and source-reference arrays sort by logical role then unsigned lexicographic UTF-8 path bytes. Operations sort by operationId ASCII. Workflow failures sort by Phase then Code declared wire order; duplicate phase/code pairs reject. Original diagnostic enums occur only in their authoritative assessment/processing fields. Processing error lists use declared enum wire order. Affines are row-major. Public count arrays use fixed enum order and positive failure counts sorted by FailureNamespace declared order then their namespace-specific enum declaration order; duplicate namespace/code aggregate keys reject.
+- Canonical object order is exactly each schema table and nested record component order, with explicit fixed literal fields. Lists are copied/ordered/immutable; duplicate keys/references reject. Journal order is chronological sequence; never sort records by timestamps, filesystem listing or operation ID.
+- Same supplied plan/record/replayed public value yields identical bytes. Caller-supplied UUIDs/times/observations may differ across executions. No codec clock, locale formatting or automatic evidence upgrade. Plan/record integrity hashes cover exact canonical UTF-8 bytes including final LF; they are not authenticated signatures.
+
+### F1-S0.8 ContentDigest is supplied evidence only
+
+ContentDigest(sizeBytes,sha256) is an immutable value: nonnegative checked size and lowercase 64-hex SHA-256 of the full original stored bytes of one regular imaging file, from byte zero to EOF. F6/pre-execution computes/supplies that evidence and re-hashes/verifies at execution; F1 does not compute it. Empty-content and compressed-wrapper digests are representable without asserting recognition validity. No sampled-prefix/voxel hash, decompression/recompression, path, UID or timestamp contributes to that digest contract.
+
+No F1 filesystem hashing method, adapter, port, test, stream, SOURCE-file read or resource-binding algorithm is proposed. Missing digest means absent/unperformed evidence unless a real owner failure is supplied. Nonexecuting blocked/skip records need an applicable disposition/assessment/failure, not a fabricated hash failure. Actual-source/destination stability, safe open handles, mutation races and destination byte verification are F6 acceptance obligations; an F1 value cannot bypass them.
+
+The persistence codec/store computes SHA-256 only for serialized restricted plan/checkpoint bytes and compares canonical public bytes for idempotence. Those journal checksums do not constitute per-file imaging digest execution.
+
+### F1-S0.9 Observation and job state rules
+
+Operation State: NOT_STARTED, IN_PROGRESS, COMPLETED, IDENTICAL_EXISTING, WRITTEN_UNVERIFIED, SKIPPED_POLICY, BLOCKED, FAILED, RECOVERY_REQUIRED. Disposition: NOT_REQUESTED_BY_POLICY, VALIDATION_REQUIRED, UNSUPPORTED_INPUT, INPUT_UNAVAILABLE, RECOVERY_RECONCILIATION_REQUIRED. These do not change F0 readiness enum/state semantics.
+
+| Operation observation | Required / forbidden facts |
+| --- | --- |
+| NOT_STARTED | Derived initial state only; no record may invent a second initial state. No times/digest/disposition/phase evidence; source-match count 0 |
+| IN_PROGRESS | startedAt present, finishedAt absent; every plan source has expected digest and supplied match count equals cardinality; no output digest/disposition/failures/processingEvidence |
+| COMPLETED | COPY only; both chronological times; supplied output digest equals sole expected source digest; count matches sources; no failures/disposition/processingEvidence |
+| IDENTICAL_EXISTING | COPY only; same digest/count/timing rules, supplied independent existing-target observation; no failures/disposition/processingEvidence |
+| WRITTEN_UNVERIFIED | Conversion only; both times/output digest/source-match count; successful CONVERSION evidence with M7 facts, NOT_PERFORMED reopening; no failures/disposition |
+| SKIPPED_POLICY | finishedAt; optional startedAt <=  finishedAt; disposition NOT_REQUESTED_BY_POLICY; no output digest/failures/processingEvidence; count 0 |
+| BLOCKED | finishedAt; optional startedAt <=  finishedAt; disposition VALIDATION_REQUIRED, UNSUPPORTED_INPUT or INPUT_UNAVAILABLE; applicable plan assessment/failure required; no completed-output claim |
+| FAILED | finishedAt; optional startedAt <=  finishedAt; actual failure evidence in checkpoint failures or processing error list required; no disposition/outputDigest; completed phase facts may remain without overall success |
+| RECOVERY_REQUIRED | disposition RECOVERY_RECONCILIATION_REQUIRED and typed recovery failure; retained prior known times/digest/match count/phase facts cannot be erased or promoted to success; unfinished facts remain explicit |
+
+Times are supplied observations, not inferred. An absent successful output digest does not assert no partial/staged output physically exists. COPY observations never carry ProcessingEvidence. For conversion, phase evidence must be coherent, but a successful earlier M6/M7 phase cannot force operation success after a later failure.
+
+Allowed transitions: NOT_STARTED -> IN_PROGRESS, BLOCKED or SKIPPED_POLICY; IN_PROGRESS -> COMPLETED, IDENTICAL_EXISTING, WRITTEN_UNVERIFIED, FAILED or RECOVERY_REQUIRED; any previously observed state -> RECOVERY_REQUIRED only on explicit owner-supplied uncertainty, preserving earlier facts/failures. No RECOVERY_REQUIRED -> success, terminal retry, completed downgrade-to-failed, unblocking/replanning or return-to-NOT_STARTED is automatic or authorized under schema 1. Reconciliation/retry semantics belong to F6/F9 and may require a new plan/job or a separately reviewed future schema.
+
+JobState: PLANNED, RUNNING, COMPLETED, FAILED, RECOVERY_REQUIRED. At plan anchor sequence 0, every operation is NOT_STARTED and job PLANNED. A JOB_OBSERVED RUNNING record is required before operation observations. COMPLETED requires a nonempty plan with all operations COPY COMPLETED/IDENTICAL_EXISTING or SKIPPED_POLICY, at least one successful COPY, no source/operation/job failures, and no conversion WRITTEN_UNVERIFIED. Empty plans remain PLANNED; no synthetic success. FAILED requires actual failure evidence and no active IN_PROGRESS operation; if outcome is uncertain, use RECOVERY_REQUIRED. RECOVERY_REQUIRED requires explicit recovery facts and cannot be resumed automatically. RUNNING -> COMPLETED/FAILED/RECOVERY_REQUIRED; PLANNED -> RUNNING or explicit FAILED/RECOVERY_REQUIRED; terminal jobs may only acquire explicit RECOVERY_REQUIRED uncertainty, retaining prior facts. Operation observations after terminal job states reject except corresponding uncertainty records while RECOVERY_REQUIRED. Repeat identical job-state records with no new fact reject; retries of already committed identical bytes remain storage-idempotent.
+
+### F1-S0.10 Replay/current-state and deterministic recovery
+
+ManifestStore.replay(Optional.empty()) replays the complete valid existing plan/journal without an externally supplied acknowledged rollback floor; this is the normal restart case. ManifestStore.replay(Optional.of(receipt)) performs the same full replay and additionally proves that receipt belongs to this job/plan and still exists unchanged in the valid chain, whether it identifies the plan anchor, an earlier record or the head. A later valid head is allowed. Neither mode permits ignoring corrupt committed evidence. With no committed plan and no orphan committed records, return Optional.empty(); a supplied receipt in that case proves acknowledged loss and must fail. A committed record without its plan is corruption, never an empty job. With a plan present, an empty input argument returns Optional.of(currentState), even with no records.
+
+Replay is a pure application reducer. Validate plan once; seed every planned operation as NOT_STARTED. Validate each consecutive record, job/version/previous hash, nondecreasing recordedAt >= plan.createdAt, phase applicability and legal transition. Fold one referenced operation or job observation. Never alter plan sources/mappings/digests. Keep original typed failures and prior known facts when recording uncertainty. Current-state/public summaries are derived views, not persisted snapshots.
+
+The reducer builds source/operation indexes and eligibility facts once in O(S + O + Rf), where Rf is the total number of planned source references. Each subsequent single-operation observation validates/updates its indexed state and aggregate counters without copying/sorting the complete manifest. Job completion uses counters, not an O(O) traversal after every append. Creating an explicitly requested immutable ManifestState/current public view is O(S + O), not performed by append. Mutable reducer internals are confined to this reporting algorithm; its returned values remain immutable.
+
+Storage integrity is checked independently against actual canonical bytes; reducer checksum arguments are supplied by the persistence adapter. Hash chains detect mismatched links/content and gaps with surviving later records, not malicious re-signing. A complete terminal suffix deleted with no later link and no retained receipt cannot be detected by a plain chain alone. A caller-supplied minimum expected receipt detects missing/changed acknowledged evidence; absence of that receipt is not a claim of rollback/tamper protection.
+
+| Restart/crash/corruption condition | Deterministic result |
+| --- | --- |
+| No plan/committed records and no minimum receipt | Optional.empty() result; staging alone is not a committed plan |
+| Existing complete plan/journal, empty minimumExpectedHead argument | Replay entire valid chain and return current state; normal restart without external rollback detection |
+| Existing plan/journal, supplied minimum receipt | Replay entire valid chain plus prove unchanged acknowledged anchor/record; head may be later than receipt |
+| Only complete plan, no records | Optional.of(PLANNED current state), including with empty minimumExpectedHead argument; no operation executed inferred |
+| Complete valid contiguous prefix and no conflicting final entries | Fold exactly that prefix; return factual state and head receipt, never stronger filesystem claims |
+| Intent record exists; output work finished but outcome record absent/staged only | IN_PROGRESS remains factual; F6/F9 must reconcile actual files/hashes before continuation. Stage bytes never imply success |
+| Outcome final published but acknowledgment lost | Replay recognizes that exact record; identical retry returns same receipt. Caller still reconciles any interrupted workflow before further imaging mutation |
+| Only an owned uncommitted staging artifact for next sequence | Ignore it as authoritative evidence; no sequence reservation consumed; after explicit ownership check it may be removed by store cleanup, never replayed/promoted |
+| Final record n+2 without n+1, missing plan, wrong job/name/bucket/sequence, invalid checksum/link/time/model | CORRUPT_CHECKPOINT and stop. Do not return an older prefix as usable current state |
+| Unsupported latest or earlier plan/record version; noncanonical valid JSON | UNSUPPORTED_SCHEMA or CORRUPT_CHECKPOINT and stop; no silent migration/fallback |
+| Last acknowledged head absent/changed relative to supplied minimum receipt | CHECKPOINT_CONFLICT/CORRUPT_CHECKPOINT and stop; no rollback to older success |
+| Uncertain physical publication that cannot be classified | Persistence exception with UNKNOWN and RECOVERY_REQUIRED; no authoritative new receipt, no automatic append retry |
+
+Replay does not inspect SOURCE/output imaging files, delete outputs, reopen NIfTI or execute any recovery. Clean prefix validity is not permission to restart an interrupted operation. F9 owns reconciliation, explicit workflow stop and subsequent owner-authorized continuation. Corrupt journals are retained for controlled investigation; F1 has no repair/skip/reset API.
+
+### F1-S0.11 Resource/storage/I/O bounds and sequence arithmetic
+
+PROPOSED independent hard limits: plan <= 64 MiB canonical bytes; sources <= 100000; operations <= 100000; total planned source references <= 200000; path <= 4096 UTF-8 bytes; trusted version token <= 64 ASCII chars; per-checkpoint canonical bytes <= 16 KiB; failures <= 64 per source/observation; checkpoint count <= 300001; cumulative checkpoint bytes <= 256 MiB. Public export <= 16 MiB. Schema nesting is fixed and at most 32 levels. Values exceeding any limit reject; maxima need not be simultaneously realizable. No truncation, dropped source mapping or silent compaction.
+
+Logical persisted bytes are bounded by 64 MiB +256 MiB per job, plus small fixed lock/staging metadata; at most one current stage <= 16 KiB (plan staging up to 64 MiB during creation). Plan is written once. A successful COPY emits intent plus outcome records, each bounded below1 KiB for this fixed schema without phase/failure payload; 100000 such operations use < 200 MiB checkpoint payload plus a few job records. Longer conversion/failure histories use their actual encoded sizes and may hit the 256 MiB bound earlier. Such plans/histories stop explicitly on capacity exhaustion; the count bound is not an unlimited storage guarantee. No quadratic complete-plan write/read traffic is hidden behind checkpoints.
+
+Physical storage includes provider allocation/inode/ACL overhead: for illustration, 300001 <= 16-KiB records each occupying one 4-KiB block would consume about 1.15 GiB before metadata and records needing additional blocks; this is not a provider guarantee. Logical byte caps alone do not prove sufficient free disk. S4 qualification must measure/record allocation and directory/lock/publication behavior; disk-full remains explicit failure. No full snapshots are retained as an alternative.
+
+Store uses records/<six-digit bucket>/<20-digit sequence>.json, bucket=floor((sequence-1)/1000), to limit a bucket to 1000 records. Names are technical store metadata, not organization paths. No per-operation counter changes dataset naming. Maximum 301 record buckets at the declared count bound. Unknown/conflicting final names or unexpected directory types fail; storage traversal is confined to this private job journal, not recursive dataset discovery.
+
+A store instance owns one job's exclusive lease until close. It reads/validates the plan/chain once on open/first access, then holds a private reporting reducer/head and appends one bounded record at a time. Append does not reread the entire prefix or build an immutable current-state snapshot. Reopen intentionally performs one O(plan bytes + journal bytes + entries) integrity/replay pass, streaming records without retaining history. Live memory is plan/index/current observations plus one bounded record and an optional requested current view, not all historical records. Resource caps and checked references prevent unbounded count growth; actual peak heap/time need executable S4 qualification. Short-lived reopening before every operation is outside the intended performance contract and F9 must retain the job-scoped lease for its sequential workflow.
+
+Before an IN_PROGRESS record is admitted, preserve budget for its maximum-sized outcome record plus a maximum-sized job control/failure record (32 KiB total reserve). Keep one 16-KiB job control reserve while nonterminal work exists; accept reserved terminal/control observations instead of using reserved capacity for another operation. If capacity cannot accommodate intent+reserve, return RESOURCE_LIMIT before that operation can mutate data. The reducer's active-operation count is <= 1 in schema 1. Disk-space failure can still prevent persistence despite logical reservations; owning workflow stops and reconciles.
+
+Sequence uses Math.addExact(headSequence,1); first checkpoint=1 and plan anchor=0. Reject nonpositive, duplicate/different, skipped or overflowing sequences before stage creation. Count cap is normally reached far earlier than Long.MAX_VALUE; both limits are independently tested. Idempotent same-byte replay does not increment sequence/count or consume capacity. No wrap, reuse, slot reservation before publication or tombstone gap. Crash stage cleanup does not alter the next sequence; final gaps are corruption.
+
+### F1-S0.12 Failure taxonomy and neutral exception
+
+ManifestFailure is the workflow/reporting-only immutable pair (Phase phase, Code code). Its exact Phase set is HASHING, EXECUTION, POST_WRITE_VALIDATION, PERSISTENCE. It has no DETECTION/RECONSTRUCTION/CONVERSION phase, no original diagnostic/error fields and no free-text/message/cause payload. Original M5/M6/M7 enums remain only in the authoritative locations in F1-S0.5; there is no EXISTING_DIAGNOSTIC code. HASHING/EXECUTION facts are supplied by F6, not executed by F1. POST_WRITE_VALIDATION evidence belongs to F8; schema 1 can retain a supplied failure but cannot claim reopened-output success.
+
+Complete Code set: INVALID_MANIFEST, INVALID_REFERENCE, CONTAINMENT_UNPROVEN, INPUT_UNAVAILABLE, SOURCE_CHANGED, HASH_FAILED, CHECKPOINT_CONFLICT, WRITE_FAILED, PUBLICATION_UNAVAILABLE, READ_FAILED, UNSUPPORTED_SCHEMA, CORRUPT_CHECKPOINT, ACCESS_CONTROL_UNAVAILABLE, RESOURCE_LIMIT, CLEANUP_FAILED, RECOVERY_REQUIRED, OUTPUT_CONFLICT, VERIFICATION_FAILED.
+
+- SOURCE_CHANGED/HASH_FAILED are supplied HASHING owner failures. INVALID_REFERENCE/INPUT_UNAVAILABLE/CONTAINMENT_UNPROVEN describe new owning-workflow or persistence-resource failures, never a copied/reclassified M5 diagnostic.
+- Invalid plan/model, chain/schema corruption, CAS conflict, encoding/bounds, access, read/write/publication and recovery ambiguity are PERSISTENCE failures. RESOURCE_LIMIT may additionally represent supplied HASHING resource failure. OUTPUT_CONFLICT records EXECUTION or PERSISTENCE export conflicts; VERIFICATION_FAILED records supplied EXECUTION/POST_WRITE_VALIDATION failure evidence. The applicability matrix below is normative.
+- CLEANUP_FAILED is separate from primary failure and cannot erase it. States SKIPPED_POLICY/BLOCKED/WRITTEN_UNVERIFIED are not fabricated processing errors; their dispositions/evidence remain explicit.
+- Constructor requires nonnull phase/code and an allowed pair, with fixed non-identifying rejection messages. Containing lists copy/order pairs and reject duplicates. Canonical restricted wire object is exactly {phase,code} in that key order, with additionalProperties:false; legacy original-enum fields/codes/phases reject rather than migrate.
+
+Exact allowed Code/Phase matrix (all other pairs reject):
+
+| Code | Allowed Phase |
+| --- | --- |
+| INVALID_MANIFEST | PERSISTENCE |
+| INVALID_REFERENCE, INPUT_UNAVAILABLE | HASHING, EXECUTION, PERSISTENCE |
+| CONTAINMENT_UNPROVEN | HASHING, EXECUTION, PERSISTENCE |
+| SOURCE_CHANGED, HASH_FAILED | HASHING (supplied F6 evidence only) |
+| CHECKPOINT_CONFLICT, WRITE_FAILED, PUBLICATION_UNAVAILABLE, READ_FAILED, UNSUPPORTED_SCHEMA, CORRUPT_CHECKPOINT, ACCESS_CONTROL_UNAVAILABLE | PERSISTENCE |
+| RESOURCE_LIMIT | HASHING, PERSISTENCE |
+| CLEANUP_FAILED, RECOVERY_REQUIRED | EXECUTION, PERSISTENCE |
+| OUTPUT_CONFLICT | EXECUTION, PERSISTENCE |
+| VERIFICATION_FAILED | EXECUTION, POST_WRITE_VALIDATION |
+
+PROPOSED neutral exception: **ProvenancePersistenceException**. This neutral reporting/persistence exception is introduced only with its owning persistence contract slice. It has a copied typed failure list, PublicationOutcome NOT_PUBLISHED/PUBLISHED/UNKNOWN and optional known ManifestReceipt. Its own failures must be PERSISTENCE-phase facts. Fixed category message, null cause, suppressed payload disabled; no arbitrary message/cause constructor. Known published plan/checkpoint needs receipt; public export may be PUBLISHED without job receipt. UNKNOWN forbids a new receipt. Receipt identifies known publication bytes, not universal power-loss durability. Programmer misuse remains fixed argument error; no blanket exception swallowing.
+
+### F1-S0.13 Canonical UTF-8 codec: schema-specific decoder only
+
+No new dependency or pom.xml edit. Package-private JsonManifestCodec emits the fixed schemas and reads **only canonical internal plan/checkpoint bytes** through schema-specific typed cursor routines. Plan decoding is the anchor case of journal decoding. There is no reusable JSON tokenizer, full-grammar parser, AST, generic map/list value parser, DOM, reflection serializer, polymorphic dispatch or public JSON framework API.
+
+Decoder entry points explicitly expect fixed schema literal, key order, punctuation and known nested shapes. Primitive routines accept only emitted UTF-8 strings/escapes, exact decimal integer tokens and finite Double.toString tokens required by typed conversion fields. Each field is decoded directly to its known type/canonical constructor. Known-length/bounded arrays hold only their expected typed source/operation/error/affine values. No parse-any-value or unknown-field skipping method. Exact re-encoding must equal all input bytes including final LF; semantically equivalent valid JSON with reordered keys, alternate whitespace/escapes/number forms or unknown fields may and must be rejected.
+
+Emitter: UTF-8 without BOM; no insignificant whitespace; one final LF; quote/backslash escapes where necessary; permitted Unicode scalar values emitted losslessly; reject controls/unpaired surrogates in schema-controlled strings. Integers are exact signed long/int decimal tokens, never double. Finite doubles use Double.toString; NaN/infinity reject. No locale clock/default values. Optional fields have explicit null. Unsupported schema/version and unexpected canonical keys/tokens fail before accepting partial state. Public export encoding is introduced only in its owning slice; no public-report decoder exists.
+
+Independent Python standard-library json parsing of generated canonical fixtures remains required alongside fixed golden bytes and typed round trips. Python must verify supplementary Unicode, exact integers above 2^53, fixed fields and semantic values. This is local interoperability evidence, not a new Maven/runtime dependency. Reader/writer agreement alone is insufficient. No Java/Python execution is claimed in this revision.
+
+### F1-S0.14 Persistence and publication strategy
+
+Immutable plan.json plus one immutable file per factual checkpoint; no mutable latest pointer and no full-snapshot generation. Plan bytes anchor the chain; sequence0 receipt has planSha256=headSha256. For checkpoint n, receipt carries jobId, sequence n, planSha256 and headSha256 of that record. Compare-and-set uses expected head receipt plus record.previousRecordSha256.
+
+Job-private directory uses canonical UUID under the configured restricted OUTPUT manifest directory. Acquire restrictive permissions/effective ACL before directory/lock/stage visibility, and one exclusive cooperative job lease held until store.close(). Reads/replay require the same lease. Unsupported/concurrent/overlapping lease fails immediately; no indefinite wait. No guarantee against an owner-privileged process ignoring permissions/lock. Root/ancestor safety follows accepted PM8-D02 without blanket ancestor rejection. F1 accesses only its own persistence/export resources and never a supplied source imaging file.
+
+Create: bound/encode immutable plan, publish once; exact same existing plan may return same sequence0 receipt, but differing plan is conflict. Appending records before plan rejects. Establish/replay the existing prefix once to initialize the private reducer. Append: verify exact expected head/sequence/link/job/time and transition using validateNext without state mutation; encode one bounded record and enforce cumulative limits/reserves before touching staging.
+
+Publication: create exclusive restrictive stage on same filesystem, write complete canonical bytes, calculate journal hash, force/close, verify stage. Initial proposed no-replace mechanism remains qualified hard-link creation of final plan/record entry to the complete staged inode, followed by removal of only the owned staging link. This optional provider mechanism must pass actual Windows/POSIX no-replace, complete-visibility, lease and access tests. If unsupported/unproved, fail PUBLICATION_UNAVAILABLE; no direct-final write/copy/non-atomic fallback. Files.move ATOMIC_MOVE is not assumed to guarantee refusal of existing targets.
+
+Only after known publication accept the record into reducer and return receipt. Interrupted publication is classified under the held lease by comparing the expected final bytes: NOT_PUBLISHED, PUBLISHED with receipt, or UNKNOWN with recovery failure. On ambiguous append, poison the live store against more mutations; close/reopen and explicit owner reconciliation are required. A post-publication cleanup/close failure records its own failure and known-publication outcome, never deletes committed evidence. Retry of the exact current record returns its same receipt; stale receipt with new/different bytes conflicts. Existing earlier record identical retry may return its known receipt only without advancing head; caller must fetch current receipt before later append.
+
+One journal replay streams all final entries in sequence and rejects gaps/name/type/version/hash/model errors. Owned incomplete stages are not final evidence and do not consume a sequence. No deleting/correcting corrupt committed records. Safe owned-stage cleanup remains private implementation detail; no SOURCE/output imaging deletion. A failed stage cleanup can stop the workflow even when no journal record published.
+
+Process-interruption complete-file visibility is the initial proposed guarantee on qualified local providers. File force does not establish portable directory-entry/power-loss durability or remote-storage guarantees. Directory durability expectations require separate platform evidence/approval before acceptance; receipts do not claim universal hardware durability. Network/remote filesystem support is not silently assumed.
+
+Public export is separately derived/encoded in its own slice, staged within OUTPUT outside restricted journal namespace and published through the same qualified no-replace behavior. Runtime OutputTarget.reference is never serialized. Identical existing canonical public bytes are an explicit idempotent observation; different bytes are OUTPUT_CONFLICT. Public export cannot modify plan/journal or overwrite imaging output. Publication and cleanup failures use the same neutral persistence exception without pretending to have a checkpoint receipt.
+
+Primary references from the audited proposal remain [Java SE 21 Files](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/nio/file/Files.html), [FileChannel.force](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/nio/channels/FileChannel.html) and [RFC8259](https://www.rfc-editor.org/rfc/rfc8259). Reading documentation is not executable publication/durability evidence.
+
+### F1-S0.15 Exact proposed types and API, by owning slice
+
+Every declaration below is PROPOSED NEW; referenced Java standard types and audited F0/domain/result types are EXISTING. Models use java.util.List/Optional/UUID and java.time.Instant, not Path/stream/JSON nodes. Records expose canonical validated constructors and generated value methods only. No placeholders/forward store dependencies are introduced in earlier slices.
+
+Application package org.cbihi.mrinormalizer.application.provenance.manifest, **S1A**:
+
+```java
+public record RelativePath(Root root, String path) {
+    public enum Root { SOURCE, OUTPUT }
+}
+public record ContentDigest(long sizeBytes, String sha256) { }
+public record SourceFileRecord(
+    RelativePath source, Optional<ContentDigest> digest,
+    FormatAssessment assessment, List<ManifestFailure> failures) { }
+public record ManifestFailure(Phase phase, Code code) {
+    public enum Phase { HASHING, EXECUTION, POST_WRITE_VALIDATION, PERSISTENCE }
+    public enum Code {
+        INVALID_MANIFEST, INVALID_REFERENCE,
+        CONTAINMENT_UNPROVEN, INPUT_UNAVAILABLE, SOURCE_CHANGED, HASH_FAILED,
+        CHECKPOINT_CONFLICT, WRITE_FAILED, PUBLICATION_UNAVAILABLE,
+        READ_FAILED, UNSUPPORTED_SCHEMA, CORRUPT_CHECKPOINT,
+        ACCESS_CONTROL_UNAVAILABLE, RESOURCE_LIMIT, CLEANUP_FAILED,
+        RECOVERY_REQUIRED, OUTPUT_CONFLICT, VERIFICATION_FAILED
+    }
+}
+```
+
+Same application package, **S1B**:
+
+```java
+public record ProcessingEvidence(
+    Scope scope, boolean phaseSuccessful, Optional<SourceSummary> sourceSummary,
+    List<DicomProcessingError> reconstructionErrors,
+    List<DicomToNiftiError> conversionErrors,
+    Optional<ConversionFacts> conversionFacts) {
+    public enum Scope { RECONSTRUCTION, CONVERSION }
+    public record SourceSummary(
+        Optional<String> selectedSourceFingerprint, String softwareVersion,
+        String dcm4cheVersion, Instant completedAt, boolean provenanceSuccessful,
+        int inputCount, int acceptedSlices) { }
+    public record ConversionFacts(
+        int width, int height, int depth, ScalarType scalarType, long voxelCount,
+        double rowSpacingMm, double columnSpacingMm, double sliceSpacingMm,
+        AffineMatrix4 niftiRasVoxelToWorld, IntensityTransform intensityTransform,
+        boolean storedVoxelValuesPreserved, boolean resampled,
+        boolean interpolated, boolean voxelOrderChanged) { }
+}
+public record ManifestOperation(
+    String operationId, Kind kind, List<RelativePath> sources,
+    RelativePath destination) {
+    public enum Kind { COPY, CONVERT_DICOM_TO_NIFTI }
+}
+public record ProvenanceManifest(
+    int schemaVersion, UUID jobId, Instant createdAt,
+    List<SourceFileRecord> sources, List<ManifestOperation> operations) { }
+```
+
+Constructors copy/order lists and enforce nonnull/unique/count/type/digest/phase/finiteness rules. SourceSummary has no original-error list. Failed phase evidence requires appropriate original phase errors and forbids conversion facts; successful conversion phase requires facts/no errors; reconstruction forbids conversion fields. Conversion fact invariants reuse actual report meaning without modifying protected report constructors. Immutable plan validates references/destination compatibility and complete eligible mappings but has no store receipt/state/exception dependency.
+
+Same application package, **S2A persistence protocol**:
+
+```java
+public record CheckpointRecord(
+    int schemaVersion, UUID jobId, long sequence, String previousRecordSha256,
+    Instant recordedAt, Kind kind, Optional<String> operationId,
+    Optional<Observation> observation, Optional<ManifestState.JobState> jobState,
+    List<ManifestFailure> failures) {
+    public enum Kind { OPERATION_OBSERVED, JOB_OBSERVED }
+    public enum State {
+        NOT_STARTED, IN_PROGRESS, COMPLETED, IDENTICAL_EXISTING,
+        WRITTEN_UNVERIFIED, SKIPPED_POLICY, BLOCKED, FAILED, RECOVERY_REQUIRED
+    }
+    public enum Disposition {
+        NOT_REQUESTED_BY_POLICY, VALIDATION_REQUIRED, UNSUPPORTED_INPUT,
+        INPUT_UNAVAILABLE, RECOVERY_RECONCILIATION_REQUIRED
+    }
+    public record Observation(
+        State state, Optional<Instant> startedAt, Optional<Instant> finishedAt,
+        Optional<ContentDigest> outputDigest, int matchedExpectedSourceCount,
+        Optional<Disposition> disposition,
+        Optional<ProcessingEvidence> processingEvidence) { }
+}
+public record ManifestReceipt(
+    UUID jobId, long sequence, String planSha256, String headSha256) { }
+public record ManifestState(
+    ProvenanceManifest plan, ManifestReceipt receipt, JobState state,
+    Instant recordedAt, List<OperationState> operations,
+    List<ManifestFailure> jobFailures) {
+    public enum JobState { PLANNED, RUNNING, COMPLETED, FAILED, RECOVERY_REQUIRED }
+    public record OperationState(
+        String operationId, CheckpointRecord.Observation observation,
+        List<ManifestFailure> failures) { }
+}
+public final class ProvenancePersistenceException extends RuntimeException {
+    public enum PublicationOutcome { NOT_PUBLISHED, PUBLISHED, UNKNOWN }
+    public ProvenancePersistenceException(
+        List<ManifestFailure> failures, PublicationOutcome outcome,
+        Optional<ManifestReceipt> knownPublication);
+    public List<ManifestFailure> failures();
+    public PublicationOutcome outcome();
+    public Optional<ManifestReceipt> knownPublication();
+}
+```
+
+Application package org.cbihi.mrinormalizer.application.port.out, **S2A**:
+
+```java
+public interface ManifestStore extends AutoCloseable {
+    ManifestReceipt create(ProvenanceManifest plan);
+    ManifestReceipt append(CheckpointRecord record, ManifestReceipt expectedHead);
+    Optional<ManifestState> replay(Optional<ManifestReceipt> minimumExpectedHead);
+    @Override void close();
+}
+```
+
+Job-scoped store capability, no checked filesystem/Throwable signature or adapter/path API. An empty minimumExpectedHead argument is valid with an existing plan/journal: perform full replay with no external rollback floor. A present receipt adds proof of unchanged acknowledged plan/record evidence; it never limits replay to that prefix. An empty result denotes no committed plan and no orphan committed records, provided no supplied receipt claims acknowledged evidence; orphan records or acknowledged loss fail. Minimum receipt checks job/plan/sequence and the acknowledged anchor/record hash, even when its sequence precedes current head; it is not an external authentication token. During an initial streamed replay compare that record when encountered; during a live lease an explicitly requested older minimum receipt may require reading only its bounded record, never a prefix reread before every append. No fake store implementation in S2A.
+
+Application manifest package, **S2B pure replay**:
+
+```java
+public final class ManifestReplay {
+    public ManifestReplay(ProvenanceManifest plan, String planSha256);
+    public void validateNext(CheckpointRecord record);
+    public ManifestReceipt accept(CheckpointRecord record, String recordSha256);
+    public ManifestState current();
+}
+```
+
+This deliberately stateful reducer has private bounded indexes/counters. validateNext is side-effect free. accept validates and atomically advances only its in-memory reporting state; supplied hashes must have canonical shape and record link must match current receipt. It performs no hashing/I/O/execution. current returns a defensively copied immutable view on request. Persistence validates before publication and accepts only after known committed bytes. No public transition helper/ready shortcut or file utility is introduced.
+
+Infrastructure package org.cbihi.mrinormalizer.infrastructure.filesystem, **S3 canonical codec**:
+
+```java
+final class JsonManifestCodec {
+    JsonManifestCodec();
+    byte[] encode(ProvenanceManifest plan);
+    ProvenanceManifest decodePlan(byte[] canonicalUtf8);
+    byte[] encode(CheckpointRecord checkpoint);
+    CheckpointRecord decodeCheckpoint(byte[] canonicalUtf8);
+}
+```
+
+These are package-private schema-specific cursor/encoding APIs; no AST/parser framework or public export reference/stub is present in S3. Individual bounded byte arrays and typed decoding follow the fixed schemas; no arbitrary input value parser.
+
+Infrastructure filesystem package, **S4 store publication adapter**:
+
+```java
+public final class JsonManifestStore implements ManifestStore {
+    public JsonManifestStore(
+        Path sourceRoot, Path outputRoot, Path manifestDirectory, UUID jobId);
+    public ManifestReceipt create(ProvenanceManifest plan);
+    public ManifestReceipt append(CheckpointRecord record, ManifestReceipt expectedHead);
+    public Optional<ManifestState> replay(Optional<ManifestReceipt> minimumExpectedHead);
+    @Override public void close();
+}
+```
+
+Path is allowed only on concrete infrastructure construction. Constructor establishes one job-scoped lease or fails explicitly. Private/package-private publication/cursor/fault seams remain in the budgeted adapter/codec, without added helper files/interfaces. No imaging-file digest API. Resource-scope close must release its lease; failure is fixed typed, never silently ignored as accepted workflow success.
+
+Application manifest package, **S5A projection/export value**:
+
+```java
+public record PublicJobReport(
+    int schemaVersion, ManifestState.JobState state, long sourceCount,
+    List<OperationCount> operationCounts, List<FailureCount> failureCounts) {
+    public record OperationCount(
+        ManifestOperation.Kind kind, CheckpointRecord.State state, long count) { }
+    public enum FailureNamespace {
+        DETECTION, RECONSTRUCTION, CONVERSION, HASHING,
+        EXECUTION, POST_WRITE_VALIDATION, PERSISTENCE
+    }
+    public record FailureCount(
+        FailureNamespace namespace, String code, long count) { }
+}
+public final class ManifestProjection {
+    private ManifestProjection();
+    public static ProcessingEvidence reconstruction(DicomProcessingResult result);
+    public static ProcessingEvidence conversion(DicomToNiftiResult result);
+    public static PublicJobReport publicReport(ManifestState current);
+}
+```
+
+FailureCount accepts only positive counts and exact controlled enum-name code tokens: DETECTION uses DetectionDiagnostic excluding NONE; RECONSTRUCTION uses DicomProcessingError; CONVERSION uses DicomToNiftiError; the four workflow namespaces use only ManifestFailure.Code values allowed for that corresponding ManifestFailure.Phase. No arbitrary code text, optional raw enum fields or message fields. Its public wire shape is exactly {namespace,code,count}; schema alternatives enumerate each namespace's closed allowed codes. PublicJobReport constructor validates aggregate shape/order/uniqueness; projection establishes counts from coherent replay and the authoritative locations in F1-S0.5. No original enum is duplicated in restricted failure storage. No constructor can authenticate caller-supplied fact origin. No public-report value is declared before S5A.
+
+Application output-port package and infrastructure filesystem package respectively, **S5B export I/O**:
+
+```java
+public interface PublicReportWriter {
+    void write(PublicJobReport report, OutputTarget target);
+}
+public final class JsonPublicReportWriter implements PublicReportWriter {
+    public JsonPublicReportWriter(Path sourceRoot, Path outputRoot, Path manifestDirectory);
+    public void write(PublicJobReport report, OutputTarget target);
+}
+```
+
+Only in S5B add package-private byte[] JsonManifestCodec.encode(PublicJobReport report). No such method/ref/stub in S3; no public-report decoder. No new concrete composition/use-case call is proposed. Existing DependencyContainer/Main/M6/M7 remain unchanged; F9 owns wiring.
+
+### F1-S0.16 Dedicated test matrix, revised responsibilities
+
+Every method below is PROPOSED, not authored/executed. No imaging-file hashing test is part of F1. Parameterized rows exhaust the named enum/field/state combinations; real provider qualification is separate from controlled fault mocks.
+
+| ID | Proposed test method(s) | Required evidence |
+| --- | --- | --- |
+| V01 | ManifestValueTest.rejectsNullMalformedAndOversizedValues | Required fields/Optional/list entries; supplied digest shape/size; fixed messages; every core field boundary |
+| V02 | ManifestValueTest.relativePathsPreserveAllowedTextAndRejectUnsafeForms | All portable path rejection classes; exact permitted Unicode/case/spaces and synthetic identifying/UID-like path retained restricted, never treated as anonymized |
+| V03 | ManifestValueTest.suppliedDigestDoesNotReadOrValidateFiles | Construct digest/source values with synthetic nonexistent SOURCE path; no I/O/probe/hash/readiness inference; empty-content or gzip-wrapper digest remains supplied bytes evidence |
+| V04 | ManifestValueTest.workflowFailuresHaveOnlyApprovedPhaseCodePairs | Exact two components/four phases/18 codes; exhaustive allowed/rejected Phase/Code pairs; null/fixed-message/copy/order cases; no original-enum/source/path/message/Throwable payload; supplied F6 hash failure kept without execution |
+| V05 | ManifestValueTest.collectionsAreCopiedCanonicalAndUnique | Every supplied list mutation/unmodifiable/duplicate case and small fixture permutation |
+| M01 | ManifestPlanTest.plansResolveAllReferencesAndMappings | Kind/source cardinality, root role, duplicate IDs/references, unknown keys, total references bound, shared equal-digest COPY destination with distinct sources; conflicts rejected |
+| M02 | ManifestPlanTest.frozenPlanSeparatesExpectedEvidenceFromExecution | Synthetic accepted F5 layout plus supplied F6 digests compose immutable execution-evidence plan with unchanged source/operation/destination semantics; absent hash only on nonexecuting input, published digest cannot be filled/replaced, no hashing/receipt/state/actual observation in plan, complete plan not operation success |
+| M03 | ManifestPlanTest.assessmentPreservesAcceptedF0Combinations | All 14 accepted raw pairs × both extension hints; full F0 fields/reason order unchanged; no factory promotion |
+| M04 | ProcessingEvidenceTest.originalErrorsHaveOneAuthoritativeHome | Exact reconstructionErrors/conversionErrors components once, no SourceSummary.errors or original-enum ManifestFailure fields; defensive order/copy; M5 raw diagnostics solely in assessment; phase errors not duplicated/reclassified into workflow failure payload |
+| M05 | ProcessingEvidenceTest.validatesPhaseAndTypedConversionFacts | Both scopes success/failure, dimension/count/finite affine/spacing/intensity, source count/version/fingerprint, conversion fact presence/absence; no reopening implication |
+| C01 | PersistenceContractTest.recordKindAndObservationMatrixIsExhaustive | Both record kinds, all9 states, nullability/times/digest/source-count/disposition/phase error variants; NOT_STARTED derived-only; conversion WRITTEN_UNVERIFIED |
+| C02 | PersistenceContractTest.receiptsAndNeutralFailuresAreFrozen | Plan sequence0 vs positive heads, hash shapes, all 3 publication outcomes/receipt applicability; neutral exception fixed message/null cause/no suppressed payload |
+| C03 | PersistenceContractTest.currentViewCopiesAndRetainsExactPlan | Returned immutable state joins distinct mappings; no plan rewrite/repeated snapshots; phase diagnostics authoritative |
+| L01 | ManifestReplayTest.initialPlanAndConsecutiveRecordsReplayExactly | Source/operation seed, JOB RUNNING, intent/outcome, counters/current receipt; sequence/time/hash/job/version validation |
+| L02 | ManifestReplayTest.transitionPairsAndJobStatesAreExhaustive | Every 9×9 operation pair and 5×5 job pair with predicates; <= 1 active op, copy completion/identical/skip/failure, conversions never completed verified jobs |
+| L03 | ManifestReplayTest.uncertaintyPreservesFactsWithoutRecoveryExecution | Intent/outcome crash gap, recovery observations retain known facts/failures; no automatic success/retry/unblock/mutation or SOURCE inspection |
+| L04 | ManifestReplayTest.validateNextIsPureAndAcceptAdvancesOnlyOnce | Failed validation leaves reducer/current receipt unchanged; accept idempotence is controlled by store, no double fold; current only snapshots on request |
+| L05 | ManifestReplayTest.limitsAndCheckedSequenceNeverWrapOrDropFacts | Count/reference/failure limits, Long.MAX_VALUE overflow and gap despite smaller normal cap; state/counters remain unchanged on rejection |
+| J01 | JsonManifestCodecTest.planAndCheckpointGoldenBytesAreCanonical | Exact literal/key/record ordering, UTF-8 noBOM, oneLF, explicitnull, quoted supplementary Unicode, both schemas and every observation kind |
+| J02 | JsonManifestCodecTest.onlyFixedCanonicalSchemaFormsDecode | Direct typed cursor forms only; valid JSON reordered/spaced/alternate-escaped/alternate-number forms, generic structures/unknown/missing/duplicate keys/trailing tokens rejected; removed original-enum ManifestFailure keys, old phases/EXISTING_DIAGNOSTIC and space-corrupted digest/hash identifiers reject; no general parser/AST dependency |
+| J03 | JsonManifestCodecTest.numbersUnicodeAndBoundsRemainExact | Integer > 2^53/long boundaries, finite doubles, malformed UTF-8/unpaired/control, fixed nesting, plan/record/string/count bounds; no unbounded allocation |
+| J04 | JsonManifestCodecTest.roundTripsEverySupportedInternalRecord | Exact encode/decode/re-encode equality; typed constructors enforce invalid model; unknown version/enum fail, no default/migration |
+| P01 | ManifestProjectionTest.projectsRealM6AndM7WithoutDuplicatedErrors | Actual result fixtures/provenance cross-check; original M6/M7 codes only in their respective ProcessingEvidence lists, no optional original-enum workflow fields or SourceSummary.errors; legacy provenance flag distinct from actual phase success, WRITTEN_UNVERIFIED/NOT_PERFORMED only |
+| P02 | ManifestProjectionTest.restrictedPathsRemainSensitivePublicFieldsDoNot | Synthetic name/patient/UID-like relative paths remain exact restricted; legacy free text/runtime absolute targets omitted; public fields/bytes omit all paths/hashes/IDs/times/metadata |
+| P03 | ManifestProjectionTest.countsCurrentObservationsNotRepeatedHistory | Repeated recovery fact not double-counted; each non-NONE raw M5 diagnostic counted once per source from assessment; M6/M7 errors once per current observation from authoritative lists; workflow pairs only from their own lists, no recoded original failure; exact namespace/code/count shape and allowlist/rejected arbitrary tokens, zero failures omitted, canonical order/duplicates/checked positive aggregate sums; distinct equal-byte sources counted separately |
+| S01 | ManifestStoreTest.onePlanAndSmallRecordsPublishWithExactReceipts | Plan published once; consecutive hash-linked records and exact receipt checksums; no full-plan serialization after each operation; supported prefix facts; controlled F6/F9 owner fixture requires acknowledged plan receipt and IN_PROGRESS intent before first simulated mutation, without changing logical layout or hashing in F1 |
+| S02 | ManifestStoreTest.planAndAppendIdempotenceNeverOverwrite | Identical plan/current/earlierrecord retries, stale/new/different same-sequence request, wrong expected head/job/hash, absent plan; no head advancement on an old retry |
+| S03 | ManifestStoreTest.restartWithoutReceiptAndMinimumReceiptReplayExactly; ManifestStoreTest.corruptionUnsupportedAndAcknowledgedLossNeverFallBack | Empty input with plan only/existing full journal returns current state; no plan/records returns empty result; matching anchor/older/head minimum receipts allow full replay; absent/changed/wrong-job/wrong-plan receipt rejects, including no-plan acknowledged loss; gaps, wrong bucket/name/type/version, canonical/link/digest/model corruption, final symlink, missing/changed minimum receipt; Fail closed; no older success returned as usable current state |
+| S04 | ManifestStoreTest.intentOutcomeAndAcknowledgmentCrashBoundariesAreFactual | Inject before/after staging, forcing, publication and acknowledgment; incomplete stages ignored as authoritative evidence; absent outcome retains IN_PROGRESS; known published retry; UNKNOWN blocks further appends |
+| S05 | ManifestStoreTest.primaryCleanupAndCloseFailuresRemainExplicit | NOT_PUBLISHED/PUBLISHED/UNKNOWN including cleanup; retained committedbytes; lease release/closefailure; no source/output deletion or swallowed failure |
+| S06 | ManifestStoreTest.privateCreationAndJobLeaseAreQualified | Effective POSIX/Windows stage/final/lockaccess, configuredrootcanonicalcontainment, forbidden entrylinks, concurrent, overlapping and unsupported leases; no blanket configured-ancestor ban |
+| S07 | ManifestStoreTest.budgetReservationsSequenceAndBucketsAreBounded | Exact byte/count/reference bounds; reserved outcome/control capacity; overflow/cap rejection before staging; bucket boundaries; staging consumes no sequence; disk-full stop |
+| S08 | ManifestStoreTest.appendDoesNotReencodeOrRereplayFullPlan | Instrument actual adapter/codec boundaries: plan encoded once; prefix read once per lease; one bounded record per append; no complete current view per append; many-operation fixture linear work and retained-history absence |
+| S09 | ManifestStoreTest.supportedLocalProviderPublicationIsExecutable | Actual Windows local NTFS / supported POSIX: hard-link no-replace, complete visibility, lease and access guarantees, allocation and startup/replay measurements; unsupported fails; no accepted evidence from skipped tests |
+| E01 | PublicReportWriterTest.publicGoldenBytesAndTargetsAreLimited | Public schema golden bytes, no privileged decoder, no sensitive identifiers, OUTPUT containment/namespace protection; identical existing bytes are idempotent, different bytes conflict |
+| E02 | PublicReportWriterTest.exportFailuresPreserveRestrictedEvidence | Stage/publication/cleanup faults; neutral failure outcomes; unchanged plan/journal/imaging bytes; no manufactured checkpoint receipt |
+| B01 | ProvenanceContractBoundaryTest.actualApisGenericsAndResponsibilitiesAreConfined | Actual/nested constructors/records/methods/generics/enumsets; no application Path/stream/bytes/JSON/outerlib/Throwable payload, no digest I/O capability; explicitly scoped replay reducer |
+| B02 | ProvenanceContractBoundaryTest.phaseErrorsPrivacyAndOwnedSliceShapeAreFrozen | Sole original diagnostic homes: assessment.initialDetection, reconstructionErrors, conversionErrors; SourceSummary has no errors; exact workflow-only ManifestFailure components/phase/code sets and public aggregate namespace allowlist; immutable execution-evidence plan and delta-only checkpoint shape; no imaging processing/readiness shortcuts or protected API change |
+| R01 | Independent local Python JSON interoperability | Generated plan/checkpoint/public fixtures parsed by Python json, exact Unicode/integers/semantics/golden expectations; actual commands recorded, no dependency |
+| R02 | Protected regression/source comparison | Existing F0/M5/architecture and M6/M7 unchanged; exact baseline protected diff; no added production caller/build dependency |
+| R03 | Final exact-tree closure | Actual Java 21/Maven clean test, zero failures/errors/skips, actual tested tree/count; criterion mappings, provider evidence and whitespace checks; stop before F2 |
+
+No test/parser/schema is authored now. Fault seams remain private/package-private inside the budgeted adapter/codec, not extra helper types/files/ports. Bounds/performance claims require executable measurements when their owning slice is authorized. Corpus interoperability remains independent of the canonical decoder.
+
+### F1-S0.17 Revised small-slice plan and exact per-slice budgets
+
+Budgets count distinct paths within that slice, including the tracker. All ADDs are proposed later work; only S0 tracker edits are authorized now. A later MODIFY applies only to explicitly named files added in earlier accepted F1 slices. No placeholder/class/interface/method for a later slice is introduced early.
+
+| Slice | Tests first and limited ownership | ADD paths | MODIFY paths | Slice total |
+| --- | --- | --- | --- | --- |
+| S0 final correction | Repository/specification only; final architectural review | 0 | tracker1 | 1 |
+| S1A core evidence values | RelativePath, ContentDigest, SourceFileRecord, ManifestFailure; ManifestValueTest | 4 production +1 test | tracker1 | 6 |
+| S1B immutable plan/phase values | ProcessingEvidence, ManifestOperation, ProvenanceManifest; ManifestPlanTest and ProcessingEvidenceTest | 3 production +2 tests | tracker1 | 6 |
+| S2A persistence protocol contracts | CheckpointRecord, ManifestReceipt, ManifestState, ProvenancePersistenceException and ManifestStore port; PersistenceContractTest. No adapter/replay/codec | 5 production +1 test | tracker1 | 7 |
+| S2B pure replay | ManifestReplay reducer and ManifestReplayTest; no filesystem or persisted current snapshot | 1 production +1 test | tracker1 | 3 |
+| S3 internal canonical codec | JsonManifestCodec and its test; plan/checkpoint schema documents; independent JSON fixtures | 1 production +1 test +2 schema docs | tracker1 | 5 |
+| S4 restricted store adapter/publication | JsonManifestStore and ManifestStoreTest only; actual job lease, delta journal, limits/private access/qualification; no export | 1 production +1 test | tracker1 | 3 |
+| S5A privacy projection/export model | PublicJobReport, ManifestProjection and ManifestProjectionTest; public schema document. No export adapter/port/codec reference added | 2 production +1 test +1 schema doc | tracker1 | 5 |
+| S5B public export boundary/adapter | PublicReportWriter, JsonPublicReportWriter and its test; add only owned public encode method/tests to accepted codec | 2 production +1 test | JsonManifestCodec1 +JsonManifestCodecTest1 +tracker1 | 6 |
+| S6 architecture/closure | Dedicated ProvenanceContractBoundaryTest and fullclosure mapping/evidence; no refactor/wiring | 1 test | tracker1 | 2 |
+
+Each slice stops for its own executable/protected regression review and acceptance. S4 specifically blocks on unproved Windows/private-access/publication/resource behavior; do not weaken the contract or merge slices to hide that gap. S1A/S1B introduce no receipts, persistence exception, store state/protocol or public-report types. PublicJobReport first appears in S5A. Persistence contracts and adapter are separately reviewable. F1-S1A remains unauthorized; none of the proposed slices is started by this revision.
+
+### F1-S0.18 Recalculated exact full F1 file budget
+
+**33 distinct paths: ADD 32 / MODIFY1 =19 new production files +10 new tests +3 new schema documents +1 existing tracker.** Schema documents are proposals only; none exists yet. Relative to the rejected proposal: remove 2 filesystem digest production files and 1 digest test; add 3 reporting journal/replay/current-state production files, 4 smaller protocol/model/replay tests, and 1 separate checkpoint schema. This increase comes from explicit smaller slices and delta-journal semantics, not hidden hashing/utility work. The latest S0 re-review approved this 33-path full F1 ceiling and the owning-slice allocations. These final corrections change no path or slice budget; they add only a nested public aggregate namespace within the already-budgeted PublicJobReport, not a file/helper/placeholder. The ceiling does not authorize a single 33-path change set or any implementation.
+
+| Action | Exact path | First owning slice |
+| --- | --- | --- |
+| ADD | src/main/java/org/cbihi/mrinormalizer/application/provenance/manifest/RelativePath.java | S1A |
+| ADD | src/main/java/org/cbihi/mrinormalizer/application/provenance/manifest/ContentDigest.java | S1A |
+| ADD | src/main/java/org/cbihi/mrinormalizer/application/provenance/manifest/SourceFileRecord.java | S1A |
+| ADD | src/main/java/org/cbihi/mrinormalizer/application/provenance/manifest/ManifestFailure.java | S1A |
+| ADD | src/main/java/org/cbihi/mrinormalizer/application/provenance/manifest/ProcessingEvidence.java | S1B |
+| ADD | src/main/java/org/cbihi/mrinormalizer/application/provenance/manifest/ManifestOperation.java | S1B |
+| ADD | src/main/java/org/cbihi/mrinormalizer/application/provenance/manifest/ProvenanceManifest.java | S1B |
+| ADD | src/main/java/org/cbihi/mrinormalizer/application/provenance/manifest/CheckpointRecord.java | S2A |
+| ADD | src/main/java/org/cbihi/mrinormalizer/application/provenance/manifest/ManifestReceipt.java | S2A |
+| ADD | src/main/java/org/cbihi/mrinormalizer/application/provenance/manifest/ManifestState.java | S2A |
+| ADD | src/main/java/org/cbihi/mrinormalizer/application/provenance/manifest/ProvenancePersistenceException.java | S2A |
+| ADD | src/main/java/org/cbihi/mrinormalizer/application/port/out/ManifestStore.java | S2A |
+| ADD | src/main/java/org/cbihi/mrinormalizer/application/provenance/manifest/ManifestReplay.java | S2B |
+| ADD | src/main/java/org/cbihi/mrinormalizer/infrastructure/filesystem/JsonManifestCodec.java | S3 |
+| ADD | src/main/java/org/cbihi/mrinormalizer/infrastructure/filesystem/JsonManifestStore.java | S4 |
+| ADD | src/main/java/org/cbihi/mrinormalizer/application/provenance/manifest/PublicJobReport.java | S5A |
+| ADD | src/main/java/org/cbihi/mrinormalizer/application/provenance/manifest/ManifestProjection.java | S5A |
+| ADD | src/main/java/org/cbihi/mrinormalizer/application/port/out/PublicReportWriter.java | S5B |
+| ADD | src/main/java/org/cbihi/mrinormalizer/infrastructure/filesystem/JsonPublicReportWriter.java | S5B |
+| ADD | src/test/java/org/cbihi/mrinormalizer/ManifestValueTest.java | S1A |
+| ADD | src/test/java/org/cbihi/mrinormalizer/ManifestPlanTest.java | S1B |
+| ADD | src/test/java/org/cbihi/mrinormalizer/ProcessingEvidenceTest.java | S1B |
+| ADD | src/test/java/org/cbihi/mrinormalizer/PersistenceContractTest.java | S2A |
+| ADD | src/test/java/org/cbihi/mrinormalizer/ManifestReplayTest.java | S2B |
+| ADD | src/test/java/org/cbihi/mrinormalizer/infrastructure/filesystem/JsonManifestCodecTest.java | S3 |
+| ADD | src/test/java/org/cbihi/mrinormalizer/infrastructure/filesystem/ManifestStoreTest.java | S4 |
+| ADD | src/test/java/org/cbihi/mrinormalizer/ManifestProjectionTest.java | S5A |
+| ADD | src/test/java/org/cbihi/mrinormalizer/infrastructure/filesystem/PublicReportWriterTest.java | S5B |
+| ADD | src/test/java/org/cbihi/mrinormalizer/architecture/ProvenanceContractBoundaryTest.java | S6 |
+| ADD | docs/schemas/provenance-plan-v1.schema.json | S3 |
+| ADD | docs/schemas/provenance-checkpoint-v1.schema.json | S3 |
+| ADD | docs/schemas/public-job-report-v1.schema.json | S5A |
+| MODIFY | docs/planning/PRE-M8-FOUNDATION-TRACKER.md | S0 and specifically authorized slices |
+
+No helpers, additional adapters/ports, generic parser/AST, source hashing execution, new dependency, fixtures/scripts/resource files or composition change is hidden outside this budget. Nested records/enums remain in their owning files. Golden/fault fixtures live in listed tests; controlled seams stay in listed adapters/codec. S5B's named codec/test modifications reuse already counted paths. No slice may add a later-owned API placeholder or unbudgeted helper type.
+
+### F1-S0.19 Architecture/protected files and unresolved gates
+
+Application owns supplied values, phase/error semantics, plan/journal/replay/current-state interpretation, privacy projection and two real persistence/export output ports. Infrastructure owns canonical persistence bytes, its own journal integrity hashes, restricted access/lease/containment/publication and export. Domain gets no new dependency/type. Path exists only on infrastructure construction; application APIs expose no concrete adapter, NIO stream/byte/JSON AST or framework payload. Explicit ManifestReplay is a bounded reporting reducer, not imaging validation/orchestration. Existing architecture tests remain unchanged; dedicated actual declaration/generic checks are added only in S6.
+
+Protected unchanged: every F0 file/test, FoundationContractBoundaryTest, M5/M6/M7 source/tests including ProvenanceRecord/SelectedSourceFingerprint/ConversionValidationReport, existing ports/domain models, existing architecture tests, Main, DependencyContainer, pom.xml, AGENTS.md, PROJECT.md, README/MILESTONES/DEVELOPMENT_LOG/DECISIONS, all architecture documents and .roomodes/RC2/RC3. No patient data enters Git. F2/F3/F5/F6/F8/F9 ownership work, GUI and M8 remain blocked.
+
+Final specification review concerns the corrected identifiers, logical-plan/evidence composition sequence, receipt-free restart and sole diagnostic authority with revised failure/count signatures and schema descriptions. The remaining S0 design choices, 33-path ceiling and small-slice allocations are approved at specification level. Later executable acceptance gates remain: capacity/lease/startup/heap/physical-allocation qualification; hard-link/private-access/containment support on actual Windows/POSIX; directory durability/power-loss expectations. The decoder's narrow accepted language must stay explicit and independently JSON-interoperable. If any approved budget/contract cannot be implemented, stop/revise rather than add a dependency/helper or weaken evidence.
+
+F8 must separately version extended reopened-output verification; schema 1 cannot mark a validated conversion job complete. F5 owns the immutable logical organization layout/keys/destinations without hashing. F6 owns pre-execution digest computation/revalidation and later supplied match observations. F6/F9 composes the immutable F1 execution-evidence plan without altering F5 semantics, obtains the F1 plan publication receipt before any imaging mutation, then acknowledges operation intent. F9 owns recovery and sequential lifetime-store composition. An interrupted/corrupt log cannot auto-authorize continuation. No production caller/container wiring is part of F1.
+
+### F1-S0.20 Historical revision evidence and stop (superseded for S1A only)
+
+Current work is specification only. Complete final-correction review diff is generated against the tracker at the start of this final-review request; the repository Git diff also captures the cumulative tracker change from 0757d72. Actual change this revision must be exactly docs/planning/PRE-M8-FOUNDATION-TRACKER.md; all other existing files, including any pre-existing untracked review copy, remain unchanged. No Java/test/schema/dependency/helper implementation, commit or executable Java verification is claimed. Whitespace/protected-file/budget checks are Git/source documentation evidence only.
+
+    F0 ACCEPTED / CLOSED
+    F1-S0 ORIGINAL REVIEW — REVISE
+    F1-S0 FINAL REVIEW PREPARED — final architectural review pending
+    F1-S1A / F1-S1B NOT AUTHORIZED
+    F1 IMPLEMENTATION NOT STARTED
+    F2-F11 BLOCKED
+    GUI BLOCKED
+    M8 BLOCKED
+
+**STOP FOR FINAL ARCHITECTURAL REVIEW. Modify only the tracker; do not implement any proposed Java, test, dependency or schema, introduce placeholders or commit.**
+
+
+## F1-S1A executable verification passed — checkpoint pending
+
+Authorization on 2026-10-04: the user explicitly accepts the immediately preceding S0 specification and authorizes **S1A only**, tests first for V01-V05, with exactly six paths. No S1B placeholder or later-owned type/method is authorized. The earlier S0 planning/stop statements above are historical: the accepted specification remains the contract, while this section and program control record current authorization/evidence. S1B and all later slices remain blocked.
+
+### Baseline and exact changed-file budget
+
+The available local Git Java baseline is 0757d7290ee8443062960392658ff1702817dfc5, with all accepted F0 Java/test files. The exact accepted S0 tracker from the preceding final-correction review was retained before S1A editing. The user identifies an immediately preceding docs-only approval checkpoint but supplies no hash for it; this assistant does not invent or claim verification of that hash. Work is isolated from the pre-existing dirty worktrees. The deliverable patch is incremental against the accepted S0 tracker and the unchanged Java baseline, rather than repeating S0 specification additions. No commit or staging is performed.
+
+| Action | Exact repository path |
+| --- | --- |
+| ADD | src/main/java/org/cbihi/mrinormalizer/application/provenance/manifest/RelativePath.java |
+| ADD | src/main/java/org/cbihi/mrinormalizer/application/provenance/manifest/ContentDigest.java |
+| ADD | src/main/java/org/cbihi/mrinormalizer/application/provenance/manifest/SourceFileRecord.java |
+| ADD | src/main/java/org/cbihi/mrinormalizer/application/provenance/manifest/ManifestFailure.java |
+| ADD | src/test/java/org/cbihi/mrinormalizer/ManifestValueTest.java |
+| MODIFY | docs/planning/PRE-M8-FOUNDATION-TRACKER.md |
+
+**S1A: exactly 6 paths = 4 production additions +1 test addition +1 tracker modification.** Full F1 ceiling remains 33 distinct paths; every later path retains its approved owning slice. No additional path/dependency is required or authorized.
+
+### Source behavior and invariant-to-test mapping
+
+All four records retain exactly the approved components and generated record APIs plus canonical constructors. RelativePath has only the approved Root enum; ManifestFailure has only its approved Phase/Code enums. Production code has no explicit public factory/convenience/upgrade/I/O API or utility/helper type.
+
+ManifestValueTest was authored and source-reviewed before any of the four production files existed; a source snapshot records that order. This is tests-first authorship, **not an executed red/green cycle**. There are 17 authored @Test methods. Historical source preparation was STATIC REVIEW ONLY; that pending-execution status is superseded by the user-reported 17/17 focused pass and 191-test full regression below. V01-V05 and the mapped test methods are PASS under those executable gates; no accepted checkpoint is implied.
+
+| Criterion / constructor invariant | Authored ManifestValueTest method(s) |
+| --- | --- |
+| V01: every required record component, Optional/list and list entry is nonnull; fixed non-identifying argument errors with null cause/no suppressed payload | rejectsNullCoreComponentsWithFixedMessages; shared reject helper used across negative cases |
+| V01: ContentDigest size is nonnegative through Long.MAX_VALUE; exactly 64 lowercase hex characters, preserved as supplied | suppliedDigestRejectsMalformedHashesAndNegativeSizes; suppliedDigestAcceptsExactSizeAndHexBoundaries |
+| V01: source uses SOURCE root; failures bounded at 64 before copying; no truncation | sourceRecordRequiresSourceRootAndBoundsFailures; allApplicableFailuresFitTheSourceLimitWithoutLoss |
+| V01/V04: exact four record shapes, generic Optional<ContentDigest>/List<ManifestFailure> signatures, sole canonical public constructors, exact enum sets, no explicit public methods | approvedRecordAndEnumShapesHaveNoExplicitPublicMethods |
+| V02: reject empty/absolute/drive/UNC/URI/backslash/colon references, empty/dot/dot-dot segments, trailing dot/space, controls/NUL and unpaired surrogates | relativePathsRejectUnsafeReferenceForms |
+| V02: reserved device bases rejected case-insensitively, including extensions and nested segments; numeric/superscript COM/LPT device suffixes and console device names | relativePathsRejectReservedDeviceBasesIncludingExtensions |
+| V02: preserve allowed Unicode scalar spelling, case, spaces and synthetic identifying/UID-like paths; no normalization, case folding, percent decoding or anonymization inference | relativePathsPreserveAllowedTextAndIdentityExactly |
+| V02: path maximum 4096 UTF-8 bytes, counted without byte arrays; exact 1/2/3/4-byte scalar widths and one-byte-over rejection | relativePathUtf8LimitCountsScalarWidthsExactly |
+| V03: supplied digests/source references perform no file read/hash/probe; keep original assessment/raw detection/extensionMismatch and conservative readiness unchanged | suppliedDigestAndSyntheticSourceDoNotUpgradeAssessment |
+| V03: absent digest does not fabricate HASH_FAILED; supplied empty-content/wrapper digest does not assert validity/readiness; unavailable assessment and empty workflow failures are representable | absentDigestAndSuppliedEmptyOrWrapperDigestDoNotInventFailures |
+| V03/V04: new owner-supplied workflow fact does not translate or replace original M5 evidence; INPUT_TOO_LARGE remains inconclusive | suppliedWorkflowFailureDoesNotTranslateRawDetectionEvidence |
+| V04: exact approved four phases/eighteen codes and exhaustive 72-pair matrix; 29 permitted/43 rejected pairs; no original diagnostic fields or free-text failure payload | workflowFailuresHaveOnlyApprovedPhaseCodePairs; approvedRecordAndEnumShapesHaveNoExplicitPublicMethods |
+| V05: defensively copy failures, sort by phase then code declaration order, return unmodifiable list, reject repeated equal phase/code pairs | collectionsAreCopiedCanonicalAndUnique |
+| V05: all six permutations of a three-failure fixture produce equal values/hashCode/canonical order | allFailurePermutationsProduceTheSameValue |
+| V05: same code in distinct applicable phases is distinct evidence, ordered deterministically | equalCodesInDifferentAllowedPhasesRemainDistinct |
+| V05: preserve all 29 distinct applicable pairs without loss; cap 64 does not permit duplicates (no valid 64-distinct-pair list exists in this frozen matrix) | allApplicableFailuresFitTheSourceLimitWithoutLoss; sourceRecordRequiresSourceRootAndBoundsFailures |
+
+Null/malformed/coherence failures are fixed IllegalArgumentException messages. No input path, hash, source, enum-value rendering, underlying exception text or other supplied content is interpolated. RelativePath validates a logical string only and establishes no actual containment. ContentDigest validates supplied shape only; original imaging bytes are not hashed. SourceFileRecord accepts optional digest and any already-valid F0 assessment without inferring evidence authenticity or processing success. Canonical failures use phase/code declaration order, matching the frozen wire-order proposal, and value equality for duplicate detection.
+
+### Static review and actual user-supplied executable evidence
+
+Static review checks the six-path budget, tests-first source ordering, constructor matrix and fixed messages, dependency/public shapes, lack of I/O/hash/probe/future-symbol APIs, and protected existing-file byte equality. git diff --check passes; the complete incremental patch includes all five new files as well as tracker edits. Git diff does not show untracked additions unless explicitly included, so the review patch includes them rather than omitting their source.
+
+No existing F0/M5/M6/M7 Java/test, architecture test, output port, composition file, build/dependency file, schema or architecture document changed. The four new production files import only Java language/library value/collection types plus the existing FormatAssessment. No Path, stream, byte-array, JSON or SelectedSourceFingerprint API/call is added. No S1B-or-later model, parser/serializer/schema/store/receipt/checkpoint/replay/projection/public-report symbol is implemented, referenced or stubbed in S1A Java.
+
+Historical assistant source-preparation environment: OpenJDK 17.0.20; Maven unavailable. The assistant performed static review only and did not compile or execute Java/JUnit. The earlier pending-execution requirement is superseded by the actual user-supplied results recorded below; these are user-reported executable evidence, not assistant-run tests.
+
+**F1-S1A EXECUTABLE VERIFICATION PASSED — checkpoint pending**
+
+User-reported verification environment:
+
+- OpenJDK Temurin 21.0.12.1 LTS.
+- Maven 3.9.16.
+- Windows 11 amd64.
+
+| Gate | Actual command | Tests | Failures | Errors | Skipped | Result |
+| --- | --- | --- | --- | --- | --- | --- |
+| Focused S1A / V01-V05 | mvn "-Dtest=ManifestValueTest" test | 17 | 0 | 0 | 0 | BUILD SUCCESS |
+| Full regression | mvn clean test | 191 | 0 | 0 | 0 | BUILD SUCCESS |
+
+The full clean regression compiled **63 production source files, release 21**, and **22 test source files, release 21**. The user also reports **git diff --check passed**. The tracker-only bookkeeping update additionally passes the assistant's local git diff --check; no Maven rerun is claimed for this documentation edit.
+
+Exact S1A scope remains four production additions (RelativePath, ContentDigest, SourceFileRecord, ManifestFailure), ManifestValueTest and this tracker. No existing Java/test/dependency/build file changed. This evidence update modifies only docs/planning/PRE-M8-FOUNDATION-TRACKER.md; all five S1A Java/test additions and every other repository file remain byte-identical to their pre-update state. No schema, pom.xml, later-slice implementation or dependency change is made.
+
+No commit SHA exists for S1A, so checkpoint status is pending and **no accepted S1A checkpoint is claimed**. This instruction authorizes bookkeeping only: no commit/push, no S1B or later slice authorization. F1 remains incomplete.
+
+    F0 ACCEPTED / CLOSED
+    F1-S0 ACCEPTED
+    F1-S1A EXECUTABLE VERIFICATION PASSED — checkpoint pending
+    F1-S1A CHECKPOINT NOT CREATED / NOT ACCEPTED
+    F1 INCOMPLETE
+    F1-S1B AND LATER SLICES NOT AUTHORIZED
+    F2-F11 BLOCKED
+    GUI BLOCKED
+    M8 BLOCKED
+
+**STOP AFTER THE TRACKER-ONLY EVIDENCE UPDATE. No accepted S1A checkpoint, commit or push; F1-S1B and later slices remain NOT AUTHORIZED; F1 remains incomplete.**
