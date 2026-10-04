@@ -2,6 +2,7 @@ package org.cbihi.mrinormalizer;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrowsExactly;
 
@@ -21,7 +22,7 @@ import org.cbihi.mrinormalizer.domain.model.DetectionResult;
 import org.cbihi.mrinormalizer.domain.model.ImagingFormat;
 import org.junit.jupiter.api.Test;
 
-/** S1 constructor contracts only; no factory or real validator is exercised. */
+/** S1 constructor and S2 pure-factory contracts; no real validator is exercised. */
 class FormatAssessmentTest {
 
     private static final List<UnknownCase> UNKNOWN_CASES = List.of(
@@ -509,6 +510,137 @@ class FormatAssessmentTest {
         reject(raw, ImagingFormat.NIFTI, FormatVariant.NIFTI_2_SINGLE_FILE,
                 ValidityStatus.VALID, SupportStatus.UNSUPPORTED, ConversionReadiness.BLOCKED,
                 List.of(AssessmentReason.UNSUPPORTED_FORMAT_VARIANT, AssessmentReason.VALIDATION_FAILED));
+    }
+
+    // U01: every raw outcome, with explicit expected conservative states.
+    @Test
+    void factoryMapsAllFiveRawOutcomesConservatively() {
+        assertFactoryAssessment(DetectionResult.identified(DetectionOutcome.DICOM),
+                ImagingFormat.DICOM, FormatVariant.DICOM_UNSPECIFIED, ValidityStatus.NOT_ASSESSED,
+                ConversionReadiness.REQUIRES_VALIDATION, AssessmentReason.VALIDATION_NOT_PERFORMED);
+        assertFactoryAssessment(DetectionResult.identified(DetectionOutcome.NIFTI),
+                ImagingFormat.NIFTI, FormatVariant.NIFTI_UNSPECIFIED, ValidityStatus.NOT_ASSESSED,
+                ConversionReadiness.REQUIRES_VALIDATION, AssessmentReason.VALIDATION_NOT_PERFORMED);
+        assertFactoryAssessment(DetectionResult.identified(DetectionOutcome.NIFTI_GZ),
+                ImagingFormat.NIFTI, FormatVariant.NIFTI_UNSPECIFIED, ValidityStatus.NOT_ASSESSED,
+                ConversionReadiness.REQUIRES_VALIDATION, AssessmentReason.VALIDATION_NOT_PERFORMED);
+        assertFactoryAssessment(DetectionResult.corrupt(DetectionDiagnostic.INVALID_NIFTI),
+                ImagingFormat.UNKNOWN, FormatVariant.UNDETERMINED, ValidityStatus.INVALID,
+                ConversionReadiness.BLOCKED, AssessmentReason.INPUT_RECOGNIZED_AS_CORRUPT);
+        assertFactoryAssessment(DetectionResult.unknown(DetectionDiagnostic.UNSUPPORTED_FORMAT),
+                ImagingFormat.UNKNOWN, FormatVariant.UNDETERMINED, ValidityStatus.NOT_ASSESSED,
+                ConversionReadiness.BLOCKED, AssessmentReason.FORMAT_NOT_RECOGNIZED);
+    }
+
+    // U02: the accepted UNKNOWN diagnostic table is shared with constructor fixtures.
+    @Test
+    void factoryMapsExactlyEightAcceptedUnknownDiagnostics() {
+        assertEquals(8, UNKNOWN_CASES.size());
+        for (var entry : UNKNOWN_CASES) {
+            assertFactoryAssessment(DetectionResult.unknown(entry.diagnostic()),
+                    ImagingFormat.UNKNOWN, FormatVariant.UNDETERMINED, entry.validity(),
+                    ConversionReadiness.BLOCKED, entry.reason());
+        }
+    }
+
+    // U03-S2: no malformed raw result may be coerced into a blocked assessment.
+    @Test
+    void factoryRejectsMalformedUnknownEvidence() {
+        for (var diagnostic : List.of(DetectionDiagnostic.NONE, DetectionDiagnostic.INVALID_DICOM,
+                DetectionDiagnostic.INVALID_NIFTI, DetectionDiagnostic.INVALID_GZIP)) {
+            for (boolean mismatch : new boolean[] {false, true}) {
+                var raw = new DetectionResult(DetectionOutcome.UNKNOWN, diagnostic, mismatch);
+                assertThrowsExactly(IllegalArgumentException.class, () -> FormatAssessment.fromDetection(raw));
+            }
+        }
+    }
+
+    // U03-S2
+    @Test
+    void factoryRejectsNullDetectionAndRawComponents() {
+        var error = assertThrowsExactly(IllegalArgumentException.class,
+                () -> FormatAssessment.fromDetection(null));
+        assertEquals("Detection must be non-null", error.getMessage());
+        assertThrowsExactly(IllegalArgumentException.class,
+                () -> FormatAssessment.fromDetection(new DetectionResult(null, DetectionDiagnostic.NONE, false)));
+        assertThrowsExactly(IllegalArgumentException.class,
+                () -> FormatAssessment.fromDetection(new DetectionResult(DetectionOutcome.NIFTI, null, false)));
+    }
+
+    // U03-S2: preserve the accepted raw-coherence contract for positive outcomes.
+    @Test
+    void factoryRejectsPositiveOutcomesWithNonNoneDiagnostic() {
+        for (var outcome : List.of(DetectionOutcome.DICOM, DetectionOutcome.NIFTI, DetectionOutcome.NIFTI_GZ)) {
+            for (var diagnostic : DetectionDiagnostic.values()) {
+                if (diagnostic != DetectionDiagnostic.NONE) {
+                    for (boolean mismatch : new boolean[] {false, true}) {
+                        var raw = new DetectionResult(outcome, diagnostic, mismatch);
+                        assertThrowsExactly(IllegalArgumentException.class,
+                                () -> FormatAssessment.fromDetection(raw));
+                    }
+                }
+            }
+        }
+    }
+
+    // U03-S2
+    @Test
+    void factoryRejectsCorruptWithNonCorruptDiagnostic() {
+        for (var diagnostic : DetectionDiagnostic.values()) {
+            if (!List.of(DetectionDiagnostic.INVALID_DICOM, DetectionDiagnostic.INVALID_NIFTI,
+                    DetectionDiagnostic.INVALID_GZIP).contains(diagnostic)) {
+                for (boolean mismatch : new boolean[] {false, true}) {
+                    var raw = new DetectionResult(DetectionOutcome.CORRUPT, diagnostic, mismatch);
+                    assertThrowsExactly(IllegalArgumentException.class,
+                            () -> FormatAssessment.fromDetection(raw));
+                }
+            }
+        }
+    }
+
+    // U11: all accepted raw pairs, both extension hints, complete state and identity checks.
+    @Test
+    void factoryExhaustsAcceptedCombinationsAndPreservesRawEvidence() {
+        for (boolean mismatch : new boolean[] {false, true}) {
+            assertFactoryAssessment(new DetectionResult(DetectionOutcome.DICOM, DetectionDiagnostic.NONE, mismatch),
+                    ImagingFormat.DICOM, FormatVariant.DICOM_UNSPECIFIED, ValidityStatus.NOT_ASSESSED,
+                    ConversionReadiness.REQUIRES_VALIDATION, AssessmentReason.VALIDATION_NOT_PERFORMED);
+            for (var outcome : List.of(DetectionOutcome.NIFTI, DetectionOutcome.NIFTI_GZ)) {
+                assertFactoryAssessment(new DetectionResult(outcome, DetectionDiagnostic.NONE, mismatch),
+                        ImagingFormat.NIFTI, FormatVariant.NIFTI_UNSPECIFIED, ValidityStatus.NOT_ASSESSED,
+                        ConversionReadiness.REQUIRES_VALIDATION, AssessmentReason.VALIDATION_NOT_PERFORMED);
+            }
+            for (var diagnostic : List.of(DetectionDiagnostic.INVALID_DICOM, DetectionDiagnostic.INVALID_NIFTI,
+                    DetectionDiagnostic.INVALID_GZIP)) {
+                assertFactoryAssessment(new DetectionResult(DetectionOutcome.CORRUPT, diagnostic, mismatch),
+                        ImagingFormat.UNKNOWN, FormatVariant.UNDETERMINED, ValidityStatus.INVALID,
+                        ConversionReadiness.BLOCKED, AssessmentReason.INPUT_RECOGNIZED_AS_CORRUPT);
+            }
+            for (var entry : UNKNOWN_CASES) {
+                assertFactoryAssessment(new DetectionResult(DetectionOutcome.UNKNOWN, entry.diagnostic(), mismatch),
+                        ImagingFormat.UNKNOWN, FormatVariant.UNDETERMINED, entry.validity(),
+                        ConversionReadiness.BLOCKED, entry.reason());
+            }
+        }
+    }
+
+    private static void assertFactoryAssessment(DetectionResult raw, ImagingFormat format, FormatVariant variant,
+            ValidityStatus validity, ConversionReadiness readiness, AssessmentReason reason) {
+        var value = FormatAssessment.fromDetection(raw);
+        assertSame(raw, value.initialDetection());
+        assertEquals(raw, value.initialDetection());
+        assertEquals(raw.outcome(), value.initialDetection().outcome());
+        assertEquals(raw.diagnostic(), value.initialDetection().diagnostic());
+        assertEquals(raw.extensionMismatch(), value.initialDetection().extensionMismatch());
+        assertEquals(format, value.format());
+        assertEquals(variant, value.variant());
+        assertEquals(validity, value.validity());
+        assertEquals(SupportStatus.NOT_ASSESSED, value.support());
+        assertEquals(readiness, value.readiness());
+        assertEquals(List.of(reason), value.reasons());
+        assertFalse(value.readiness() == ConversionReadiness.READY);
+        assertFalse(value.validity() == ValidityStatus.VALID);
+        assertFalse(value.support() == SupportStatus.SUPPORTED);
     }
 
     private static FormatAssessment assessment(DetectionResult raw, ImagingFormat format, FormatVariant variant,

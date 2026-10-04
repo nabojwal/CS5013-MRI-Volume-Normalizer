@@ -104,6 +104,41 @@ public record FormatAssessment(
         }
     }
 
+    /**
+     * Conservatively adapts bounded recognition evidence without inspecting input.
+     * Recognition never establishes full validity, supported profile or READY.
+     * The existing constructor enforces the resulting assessment invariants.
+     */
+    public static FormatAssessment fromDetection(DetectionResult detection) {
+        require(detection != null, "Detection must be non-null");
+        require(detection.outcome() != null && detection.diagnostic() != null,
+                "Raw detection components must be non-null");
+        validateRawDetection(detection);
+
+        return switch (detection.outcome()) {
+            case DICOM -> new FormatAssessment(detection, ImagingFormat.DICOM, FormatVariant.DICOM_UNSPECIFIED,
+                    ValidityStatus.NOT_ASSESSED, SupportStatus.NOT_ASSESSED,
+                    ConversionReadiness.REQUIRES_VALIDATION, List.of(AssessmentReason.VALIDATION_NOT_PERFORMED));
+            case NIFTI, NIFTI_GZ -> new FormatAssessment(detection, ImagingFormat.NIFTI,
+                    FormatVariant.NIFTI_UNSPECIFIED, ValidityStatus.NOT_ASSESSED, SupportStatus.NOT_ASSESSED,
+                    ConversionReadiness.REQUIRES_VALIDATION, List.of(AssessmentReason.VALIDATION_NOT_PERFORMED));
+            case CORRUPT -> new FormatAssessment(detection, ImagingFormat.UNKNOWN, FormatVariant.UNDETERMINED,
+                    ValidityStatus.INVALID, SupportStatus.NOT_ASSESSED, ConversionReadiness.BLOCKED,
+                    List.of(AssessmentReason.INPUT_RECOGNIZED_AS_CORRUPT));
+            case UNKNOWN -> {
+                var validity = detection.diagnostic() == DetectionDiagnostic.INPUT_TOO_LARGE
+                        ? ValidityStatus.INCONCLUSIVE : ValidityStatus.NOT_ASSESSED;
+                var reason = switch (detection.diagnostic()) {
+                    case INPUT_TOO_LARGE -> AssessmentReason.DETECTION_INCONCLUSIVE;
+                    case UNSUPPORTED_FORMAT -> AssessmentReason.FORMAT_NOT_RECOGNIZED;
+                    default -> AssessmentReason.DETECTION_NOT_COMPLETED;
+                };
+                yield new FormatAssessment(detection, ImagingFormat.UNKNOWN, FormatVariant.UNDETERMINED,
+                        validity, SupportStatus.NOT_ASSESSED, ConversionReadiness.BLOCKED, List.of(reason));
+            }
+        };
+    }
+
     private static void validateRawDetection(DetectionResult detection) {
         boolean coherent = switch (detection.outcome()) {
             case DICOM, NIFTI, NIFTI_GZ -> detection.diagnostic() == DetectionDiagnostic.NONE;

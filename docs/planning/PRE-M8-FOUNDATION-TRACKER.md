@@ -9,8 +9,8 @@
 - Canonical baseline: 0b91666c03d6247a6882c164aa6b033d9b761101.
 - M6 protected checkpoint: cb7769e; protected tag: pre-demo-m6-2026-10-02.
 - M7 protected checkpoint: d9ad7ea; protected tag: pre-demo-m7-2026-10-03.
-- Current authorization: corrected F0 specification approved; production implementation authorized for F0-S1 only. S2/S3 and later workstreams are not authorized.
-- F0: S1 SOURCE PREPARED / STATIC REVIEW ONLY; not accepted or complete. Java 21/Maven evidence is required before any accepted S1 checkpoint. No S1 commit authorized before user supplies actual results.
+- Current authorization: corrected F0 specification approved; S1 accepted at 76b676d; production implementation authorized for F0-S2 only. S3 and later workstreams are not authorized.
+- F0: S1 ACCEPTED at 76b676d using user-supplied Java 21/Maven results; S2 SOURCE PREPARED / STATIC REVIEW ONLY. S2 compilation/tests remain pending. Do not commit S2 or start S3. F0 remains incomplete.
 - F1-F11: NOT STARTED / BLOCKED by sequential review and acceptance.
 - M8: BLOCKED until the complete Pre-M8 acceptance freeze.
 - GUI: frozen. No reverse conversion, dataset execution, or imaging implementation in this setup change.
@@ -33,7 +33,7 @@ Runtime check: OpenJDK 17.0.20; mvn is unavailable. The project requires Java 21
 
 | ID | Contract/outcome | Dependency | Status | Verified checkpoint |
 | --- | --- | --- | --- | --- |
-| F0 | Architectural contracts and policies | Baseline audit and design approval | S1 AUTHORIZED; EXECUTABLE EVIDENCE PENDING | None |
+| F0 | Architectural contracts and policies | Baseline audit and design approval | S1 ACCEPTED; S2 AUTHORIZED / SOURCE PREPARED; S2 EXECUTABLE EVIDENCE PENDING | S1: 76b676d; no S2 checkpoint |
 | F1 | Persistent provenance/reporting | Accepted F0 | NOT STARTED | None |
 | F2 | Deterministic recursive inventory | F0/F1 | NOT STARTED | None |
 | F3 | Metadata-only DICOM inspection | F0/F1 | NOT STARTED | None |
@@ -89,11 +89,11 @@ Record without editing now: README.md and MILESTONES.md still identify M8 as nex
 
 Tracker/setup checkpoint: 1147129, docs: establish Pre-M8 foundation tracker and F0 review gate. It changes only this tracker. Local commit only; no remote push. The F0 specification below is a subsequent uncommitted documentation change for review. No implementation or workstream closure is represented by the setup commit.
 
-Corrected specification approved and S1 production implementation authorized. S2/S3 require separate authorization; F0 acceptance remains pending. After approval, implement one coherent slice at a time, tests first where feasible; focused tests, failure inspection, subsystem regression, displayed diff and responsibility review after each slice. F0 closure additionally requires full regression, whitespace check, criterion-to-test mapping, updated tracker and one coherent proposed commit. Stop before F1.
+Corrected specification approved; S1 accepted at 76b676d; S2 production implementation authorized only. S3 requires separate authorization; full F0 acceptance remains pending. After approval, implement one coherent slice at a time, tests first where feasible; focused tests, failure inspection, subsystem regression, displayed diff and responsibility review after each slice. F0 closure additionally requires full regression, whitespace check, criterion-to-test mapping, updated tracker and one coherent proposed commit. Stop before F1.
 
 ## F0 repository-grounded implementation review
 
-The approved specification below is normative. S1 source has been added for review, but compilation and executable behavior are unverified; S2 factory and later work remain unimplemented. All project Java symbols below carry one of the exact classifications EXISTING — verified or PROPOSED — new. Standard Java language/library syntax in proposed signatures does not imply a new project API. A verified symbol means its declaration, implementation and relevant callers/tests were inspected; it does not mean those tests were executed here. The proposed positive readiness state records evidence supplied by a later owner; it is never recognition-derived conversion authorization.
+The approved specification below is normative. S1 is accepted at 76b676d with user-reported executable evidence. S2 factory and tests are authored below; S2 compilation and executable behavior are unverified. S3 and later work remain unimplemented. All project Java symbols below carry one of the exact classifications EXISTING — verified or PROPOSED — new. Standard Java language/library syntax in proposed signatures does not imply a new project API. A verified symbol means its declaration, implementation and relevant callers/tests were inspected; it does not mean those tests were executed here. The proposed positive readiness state records evidence supplied by a later owner; it is never recognition-derived conversion authorization.
 
 ### Grounding findings and limitations
 
@@ -145,7 +145,7 @@ The constructor can describe refined evidence supplied by a later owning service
 
 ### 4. Invariants and policy decisions for review
 
-All PM8 decisions in this table are PROPOSED — new decisions awaiting approval, except explicitly inherited ADR constraints. Approval of F0 makes these program constraints; it does not start their implementations.
+All PM8 decisions in this table were PROPOSED — new relative to the original audit and are now approved, except explicitly inherited ADR constraints. Approval makes these program constraints; it does not start their later owning implementations.
 
 | Decision | Exact policy | Owner of executable evidence |
 | --- | --- | --- |
@@ -315,28 +315,28 @@ New test symbols are PROPOSED — new: FormatAssessmentTest (unit), FormatAssess
 
 | Criterion / test ID | Executable test contract proposed | Kind | Current evidence |
 | --- | --- | --- | --- |
-| F0-A01 / U01 | All five raw outcomes map conservatively; preserve raw outcome/diagnostic and both extensionMismatch values; all three coherent corrupt diagnostics covered | Unit, new assessment test | NOT IMPLEMENTED / NOT RUN |
-| F0-A02 / U02 | Exhaust exactly the eight allowed UNKNOWN diagnostics: five input/access/I/O failures and EMPTY_INPUT map to DETECTION_NOT_COMPLETED; UNSUPPORTED_FORMAT alone to FORMAT_NOT_RECOGNIZED; INPUT_TOO_LARGE to INCONCLUSIVE/DETECTION_INCONCLUSIVE; preserve raw evidence; no fabricated INVALID/SUPPORTED/READY | Parameterized unit table | NOT IMPLEMENTED / NOT RUN |
-| F0-A03 / U03-S1 | Constructor rejects null components/raw enums/reason entries, duplicate reasons and contradictory raw combinations, including UNKNOWN + NONE and UNKNOWN + each INVALID_DICOM/INVALID_NIFTI/INVALID_GZIP, even with otherwise coherent refined state | S1 constructor unit table | S1 TEST SOURCE WRITTEN; NOT COMPILED / NOT RUN |
-| F0-A03 / U03-S2 | fromDetection() rejects the same malformed raw combinations; factory contract is unchanged and belongs exclusively to S2 | S2 factory unit table | NOT IMPLEMENTED / NOT RUN |
-| F0-A04 / U04 | Reject incompatible family/variant, invalid/unsupported/unknown nonblocked states, contradictory reasons and unexplained BLOCKED; recognized family with NOT_ASSESSED validity/support deterministically uses REQUIRES_VALIDATION; include coherent known-family INCONCLUSIVE with applicable reason; exact readiness members are REQUIRES_VALIDATION, BLOCKED and READY | Unit positive/negative table | S1 TEST SOURCE WRITTEN; NOT COMPILED / NOT RUN |
-| F0-A05 / U05 | Valid unsupported NIfTI-2/pair represented as blocked with applicable reason; reject READY for either; unspecified NIfTI cannot be SUPPORTED/READY | Unit positive/negative pairs | S1 TEST SOURCE WRITTEN; NOT COMPILED / NOT RUN |
-| F0-A06 / U06 | Source-list mutation cannot change reasons; returned empty/nonempty lists unmodifiable; input permutation yields canonical reason order | Unit mutation/determinism | S1 TEST SOURCE WRITTEN; NOT COMPILED / NOT RUN |
-| F0-A07 / U07 | Raw UNKNOWN budget/input-failure/non-match permits explicit later known-family evidence without rewriting raw diagnostic; remove unresolved-detection reason after refinement; raw CORRUPT cannot be rehabilitated | Unit positive/negative pairs | S1 TEST SOURCE WRITTEN; NOT COMPILED / NOT RUN |
-| F0-A14 / U08 | Coherent owner-supplied DICOM and NIfTI-1 VALID/SUPPORTED/READY states accept empty reasons; test raw positive and refined UNKNOWN evidence; synthetic constructor fixtures make no claim of implemented later validator | Unit positive table | S1 TEST SOURCE WRITTEN; NOT COMPILED / NOT RUN |
-| F0-A14 / U09 | Reject READY with UNKNOWN family, unspecified/unsupported variant, NOT_ASSESSED/INCONCLUSIVE/INVALID validity, NOT_ASSESSED/UNSUPPORTED support, or any pending/blocking reason | Unit negative table | S1 TEST SOURCE WRITTEN; NOT COMPILED / NOT RUN |
-| F0-A15 / U10 | Reject empty reasons for each pending, BLOCKED, UNSUPPORTED, INVALID and INCONCLUSIVE case; require applicable causes, not any arbitrary reason; reject FORMAT_NOT_RECOGNIZED for unavailable input, EMPTY_INPUT and budget exhaustion | Unit reason-applicability table | S1 TEST SOURCE WRITTEN; NOT COMPILED / NOT RUN |
-| F0-A14 / U11 | Exhaust every accepted raw outcome/diagnostic and both extension hints through fromDetection(): exactly REQUIRES_VALIDATION or BLOCKED, never READY; no VALID/SUPPORTED claim; raw evidence unchanged; applicable nonempty reasons; UNKNOWN + NONE/each INVALID_* rejected without producing any assessment or mapped reason | Unit exhaustive factory table | NOT IMPLEMENTED / NOT RUN |
-| F0-A08 / I01 | Actual complete NIfTI-1/2 headers through real M5 remain unspecified-version/unvalidated; never READY | Real temporary-file integration | NOT IMPLEMENTED / NOT RUN |
-| F0-A08 / I02 | Recognizable gzip header with truncated trailer never becomes VALID/SUPPORTED/READY | Real temporary-file negative integration | NOT IMPLEMENTED / NOT RUN |
-| F0-A08 / I03 | Wrong/extensionless DICOM identifying metadata produces validation-required assessment, never READY; F0 does not load pixels | Real M5 fixture integration; no cohort discovery claim | NOT IMPLEMENTED / NOT RUN |
-| F0-A02 / I04 | Actual missing file, directory, invalid reference, empty file and random non-match through existing service preserve distinct diagnostics and revised reasons | Real M5 temporary-file/input integration | NOT IMPLEMENTED / NOT RUN |
-| F0-A02 / I05 | Controlled existing probe boundary returns IO_ERROR or INPUT_TOO_LARGE: service result preserved; factory yields DETECTION_NOT_COMPLETED or DETECTION_INCONCLUSIVE respectively; no permission-dependent unreadability claim | Existing service with test probe; raw INPUT_NOT_READABLE covered by U02 | NOT IMPLEMENTED / NOT RUN |
+| F0-A01 / U01 | All five raw outcomes map conservatively; preserve raw outcome/diagnostic and both extensionMismatch values; all three coherent corrupt diagnostics covered | Unit, new assessment test | S2 SOURCE WRITTEN / STATIC REVIEW; NOT COMPILED / NOT RUN |
+| F0-A02 / U02 | Exhaust exactly the eight allowed UNKNOWN diagnostics: five input/access/I/O failures and EMPTY_INPUT map to DETECTION_NOT_COMPLETED; UNSUPPORTED_FORMAT alone to FORMAT_NOT_RECOGNIZED; INPUT_TOO_LARGE to INCONCLUSIVE/DETECTION_INCONCLUSIVE; preserve raw evidence; no fabricated INVALID/SUPPORTED/READY | Parameterized unit table | S2 SOURCE WRITTEN / STATIC REVIEW; NOT COMPILED / NOT RUN |
+| F0-A03 / U03-S1 | Constructor rejects null components/raw enums/reason entries, duplicate reasons and contradictory raw combinations, including UNKNOWN + NONE and UNKNOWN + each INVALID_DICOM/INVALID_NIFTI/INVALID_GZIP, even with otherwise coherent refined state | S1 constructor unit table | S1 ACCEPTED at 76b676d; user-reported 26/26 focused pass |
+| F0-A03 / U03-S2 | fromDetection() rejects the same malformed raw combinations; factory contract is unchanged and belongs exclusively to S2 | S2 factory unit table | S2 SOURCE WRITTEN / STATIC REVIEW; NOT COMPILED / NOT RUN |
+| F0-A04 / U04 | Reject incompatible family/variant, invalid/unsupported/unknown nonblocked states, contradictory reasons and unexplained BLOCKED; recognized family with NOT_ASSESSED validity/support deterministically uses REQUIRES_VALIDATION; include coherent known-family INCONCLUSIVE with applicable reason; exact readiness members are REQUIRES_VALIDATION, BLOCKED and READY | Unit positive/negative table | S1 ACCEPTED at 76b676d; user-reported 26/26 focused pass |
+| F0-A05 / U05 | Valid unsupported NIfTI-2/pair represented as blocked with applicable reason; reject READY for either; unspecified NIfTI cannot be SUPPORTED/READY | Unit positive/negative pairs | S1 ACCEPTED at 76b676d; user-reported 26/26 focused pass |
+| F0-A06 / U06 | Source-list mutation cannot change reasons; returned empty/nonempty lists unmodifiable; input permutation yields canonical reason order | Unit mutation/determinism | S1 ACCEPTED at 76b676d; user-reported 26/26 focused pass |
+| F0-A07 / U07 | Raw UNKNOWN budget/input-failure/non-match permits explicit later known-family evidence without rewriting raw diagnostic; remove unresolved-detection reason after refinement; raw CORRUPT cannot be rehabilitated | Unit positive/negative pairs | S1 ACCEPTED at 76b676d; user-reported 26/26 focused pass |
+| F0-A14 / U08 | Coherent owner-supplied DICOM and NIfTI-1 VALID/SUPPORTED/READY states accept empty reasons; test raw positive and refined UNKNOWN evidence; synthetic constructor fixtures make no claim of implemented later validator | Unit positive table | S1 ACCEPTED at 76b676d; user-reported 26/26 focused pass |
+| F0-A14 / U09 | Reject READY with UNKNOWN family, unspecified/unsupported variant, NOT_ASSESSED/INCONCLUSIVE/INVALID validity, NOT_ASSESSED/UNSUPPORTED support, or any pending/blocking reason | Unit negative table | S1 ACCEPTED at 76b676d; user-reported 26/26 focused pass |
+| F0-A15 / U10 | Reject empty reasons for each pending, BLOCKED, UNSUPPORTED, INVALID and INCONCLUSIVE case; require applicable causes, not any arbitrary reason; reject FORMAT_NOT_RECOGNIZED for unavailable input, EMPTY_INPUT and budget exhaustion | Unit reason-applicability table | S1 ACCEPTED at 76b676d; user-reported 26/26 focused pass |
+| F0-A14 / U11 | Exhaust every accepted raw outcome/diagnostic and both extension hints through fromDetection(): exactly REQUIRES_VALIDATION or BLOCKED, never READY; no VALID/SUPPORTED claim; raw evidence unchanged; applicable nonempty reasons; UNKNOWN + NONE/each INVALID_* rejected without producing any assessment or mapped reason | Unit exhaustive factory table | S2 SOURCE WRITTEN / STATIC REVIEW; NOT COMPILED / NOT RUN |
+| F0-A08 / I01 | Actual complete NIfTI-1/2 headers through real M5 remain unspecified-version/unvalidated; never READY | Real temporary-file integration | S2 SOURCE WRITTEN / STATIC REVIEW; NOT COMPILED / NOT RUN |
+| F0-A08 / I02 | Recognizable gzip header with truncated trailer never becomes VALID/SUPPORTED/READY | Real temporary-file negative integration | S2 SOURCE WRITTEN / STATIC REVIEW; NOT COMPILED / NOT RUN |
+| F0-A08 / I03 | Wrong/extensionless DICOM identifying metadata produces validation-required assessment, never READY; F0 does not load pixels | Real M5 fixture integration; no cohort discovery claim | S2 SOURCE WRITTEN / STATIC REVIEW; NOT COMPILED / NOT RUN |
+| F0-A02 / I04 | Actual missing file, directory, invalid reference, empty file and random non-match through existing service preserve distinct diagnostics and revised reasons | Real M5 temporary-file/input integration | S2 SOURCE WRITTEN / STATIC REVIEW; NOT COMPILED / NOT RUN |
+| F0-A02 / I05 | Controlled existing probe boundary returns IO_ERROR or INPUT_TOO_LARGE: service result preserved; factory yields DETECTION_NOT_COMPLETED or DETECTION_INCONCLUSIVE respectively; no permission-dependent unreadability claim | Existing service with test probe; raw INPUT_NOT_READABLE covered by U02 | S2 SOURCE WRITTEN / STATIC REVIEW; NOT COMPILED / NOT RUN |
 | F0-A09 / B01 | Inspect new fields/constructors/methods including generic signatures; allow Java/new model/existing detection-domain types only; reject infrastructure/UI/dcm4che/path/byte/throwable/free-text exposure | Dedicated architecture test and diff review | NOT IMPLEMENTED / NOT RUN |
 | F0-A10 / B02 | Approved readiness enum set is exactly REQUIRES_VALIDATION, BLOCKED and READY; reason set includes DETECTION_NOT_COMPLETED; pure factory emits only REQUIRES_VALIDATION or BLOCKED; record exposes no converter/validator/bypass API; no production M6/M7 caller changes; package placement preserved | Architecture, U11 and source/diff review | NOT IMPLEMENTED / NOT RUN |
-| F0-A11 | Existing M5 and relevant M6/M7/architecture regressions pass without weakening or modifying tests | Existing regression commands | NOT RUN for revised F0 |
-| F0-A12 | Actual Java 21 mvn clean test with zero failures/errors/skips; git diff --check; protected paths unchanged | Closure commands and Git comparison | NOT RUN for F0 implementation |
-| F0-A13 | Revised decisions approved; criterion-to-executed-test mapping and coherent checkpoint recorded; no later implementation | Review/tracker/Git evidence | SPECIFICATION APPROVED; S1 ONLY AUTHORIZED; FULL CLOSURE PENDING |
+| F0-A11 | Existing M5 and relevant M6/M7/architecture regressions pass without weakening or modifying tests | Existing regression commands | S1: user-reported 56/56 M5+architecture and 79/79 M6/M7; S2: NOT RUN |
+| F0-A12 | Actual Java 21 mvn clean test with zero failures/errors/skips; git diff --check; protected paths unchanged | Closure commands and Git comparison | S2 whitespace/protected-tree source checks passed; Java 21/Maven and full F0 closure pending |
+| F0-A13 | Revised decisions approved; criterion-to-executed-test mapping and coherent checkpoint recorded; no later implementation | Review/tracker/Git evidence | SPECIFICATION APPROVED; S1 ACCEPTED; S2 ONLY AUTHORIZED; FULL CLOSURE PENDING |
 
 Policy evidence remains assigned to its owning workstream. F0 reviews the specification; it must not claim the following future runtime checks pass:
 
@@ -351,9 +351,9 @@ These tests exercise missing behavior and guard externally meaningful boundaries
 
 After explicit approval:
 
-1. Slice F0-S1 (authorized only): tests first for U03-S1 and U04-U10, then six immutable contract types and only constructor invariants. Run the unit test, inspect each failure, run M5+architecture subsystem, display diff and confirm no adapters/algorithms appeared. Do not declare, stub or implement the conservative factory until S2. For this environment perform static/source review only; no compilation/test claim. Stop after S1 and wait for actual Java 21/Maven results before any accepted checkpoint.
-2. Slice F0-S2 (not authorized): tests first for U01-U02/U03-S2/U11/I01-I05, then only the conservative factory in the existing new record. Run focused unit/integration tests; rerun M5 and M6/M7 relevant regression; show diff and inspect readiness/privacy responsibility.
-3. Slice F0-S3: add B01/B02, review all public/generic references and constant messages. Run focused architecture tests and relevant subsystem; show diff. No extra production abstraction.
+1. Slice F0-S1 (accepted at 76b676d): tests first for U03-S1 and U04-U10, then six immutable contract types and only constructor invariants. Run the unit test, inspect each failure, run M5+architecture subsystem, display diff and confirm no adapters/algorithms appeared. Do not declare, stub or implement the conservative factory until S2. For this environment perform static/source review only; no compilation/test claim. Stop after S1 and wait for actual Java 21/Maven results before any accepted checkpoint.
+2. Slice F0-S2 (authorized only; source prepared, executable verification pending): tests first for U01-U02/U03-S2/U11/I01-I05, then only the conservative factory in the existing new record. Run focused unit/integration tests; rerun M5 and M6/M7 relevant regression; show diff and inspect readiness/privacy responsibility.
+3. Slice F0-S3 (not authorized): add B01/B02, review all public/generic references and constant messages. Run focused architecture tests and relevant subsystem; show diff. No extra production abstraction.
 4. Close only with actual full regression, diff check, criterion mapping, protected-file proof and coherent proposed F0 commit. Stop before F1.
 
 Proposed commands (NOT executed here for new tests):
@@ -370,9 +370,9 @@ All existing test classes named in these commands are EXISTING — verified; Pre
 
 ### 11. Expected file-change budget
 
-S1 changes **eight repository paths**: this tracker, six approved new production files and one approved new test file. No pre-existing source/test/build file is changed. The standalone tracker contains identical bytes. Source remains uncommitted; no accepted checkpoint is claimed.
+S1 accepted checkpoint 76b676d contains the eight budgeted paths: this tracker, six approved production files and one test file. S2 changes exactly four paths relative to that checkpoint: modify this tracker, FormatAssessment.java and FormatAssessmentTest.java; add FormatAssessmentIntegrationTest.java. S2 remains uncommitted. The standalone tracker contains identical bytes.
 
-Approved full F0 budget is at most ten paths, all explicitly named; S1 uses eight. The integration and architecture tests are deferred:
+Approved full F0 budget is at most ten paths, all explicitly named; S1 uses eight. S2 uses the already-budgeted integration test; the architecture test remains deferred to S3. The table below retains the original full-F0 additions relative to the audit baseline:
 
 | Action | Exact path | Classification |
 | --- | --- | --- |
@@ -387,7 +387,7 @@ Approved full F0 budget is at most ten paths, all explicitly named; S1 uses eigh
 | Add | src/test/java/org/cbihi/mrinormalizer/FormatAssessmentIntegrationTest.java | PROPOSED — new |
 | Add | src/test/java/org/cbihi/mrinormalizer/architecture/FoundationContractBoundaryTest.java | PROPOSED — new |
 
-Budget unchanged: six production files, three test files and this tracker (ten repository paths). READY adds one member to the already budgeted ConversionReadiness enum; DETECTION_NOT_COMPLETED adds one reason to the already budgeted AssessmentReason enum. No additional Java file, public method, component or dependency is required.
+Budget unchanged: six production files, three test files and this tracker (ten repository paths). READY adds one member to the already budgeted ConversionReadiness enum; DETECTION_NOT_COMPLETED adds one reason to the already budgeted AssessmentReason enum. No file or dependency beyond this approved budget is required. S2 adds only the already-approved public factory method in the accepted record.
 
 No dependency, version, packaging, broad formatter, documentation sweep or module migration. If implementation needs an extra path, altered public contract, early ADR or different responsibility, explain and review that scope adjustment first.
 
@@ -399,11 +399,11 @@ No dependency, version, packaging, broad formatter, documentation sweep or modul
 - Preserve the uploaded archive and attached source text/PDF. In its separate extracted working copy, do not stage, delete, rename or edit .roomodes, docs/architecture/ARCHITECTURE-REVISION-1.0-RC2.md or docs/architecture/ARCHITECTURE-REVISION-1.0-RC3.md. Do not copy them into the canonical change set.
 - Preserve M6/M7 tags/history; no force push, reset, rebase, squash or M8 branch work. The ZIP's existing M8 branch name is historical, not implementation authorization.
 
-## F0-S1 source review and pending executable evidence
+## Historical F0-S1 source review (superseded by acceptance evidence below)
 
-Authorization: S1 only, granted on 2026-10-04. U03 responsibilities were split before Java edits: U03-S1 constructor rejection; U03-S2 factory rejection. This is bookkeeping only, with no semantic or budget change. Tests were authored before the six production files, then refined during static review. No red/green test cycle was executed.
+Historical S1 authorization: S1 only, granted on 2026-10-04. The following records the original source review before the user supplied successful executable results and accepted 76b676d. U03 responsibilities were split before Java edits: U03-S1 constructor rejection; U03-S2 factory rejection. This is bookkeeping only, with no semantic or budget change. Tests were authored before the six production files, then refined during static review. No red/green test cycle was executed.
 
-S1 implemented source: five enum declarations and the seven-component record with canonical-constructor validation, private pure validation helpers, defensive copying and lexical reason ordering. No fromDetection declaration, stub or implementation exists in production source. No adapters, ports, paths, byte parsing, hashing, persistence, metadata reader, convenience upgrade method, evidence token, conversion algorithm or dependency was added. Only S1 test source is present; S2 factory/integration and S3 architecture tests remain deferred.
+S1 implemented source: five enum declarations and the seven-component record with canonical-constructor validation, private pure validation helpers, defensive copying and lexical reason ordering. At the S1 checkpoint, no fromDetection declaration, stub or implementation exists in production source. No adapters, ports, paths, byte parsing, hashing, persistence, metadata reader, convenience upgrade method, evidence token, conversion algorithm or dependency was added. At that checkpoint only S1 test source is present; S2 factory/integration and S3 architecture tests were deferred.
 
 Every newly added type/test method in this section is PROPOSED — new relative to the audited baseline; source existence and static inspection do not mean compilation or runtime verification. Referenced existing raw detection types remain EXISTING — verified.
 
@@ -422,13 +422,46 @@ Reason applicability coverage: unresolvedUnknownEvidenceRequiresExactValidityAnd
 
 Static evidence executed: protected tracked-file SHA-256 comparison against the S1 starting tree; exactly six new production files plus one test; only tracker modified among previously tracked files; source imports/public API reviewed; no production factory symbol; no staged changes; HEAD remains 1147129. git diff --check and baseline whitespace checks passed. The full S1 diff includes untracked Java files and tracker changes from the approved pre-S1 specification; it is not limited to Git's tracked-file diff.
 
-Java 21/Maven verification still required (commands below are proposed, NOT executed here):
+At that original S1 review, Java 21/Maven verification was still required (commands below were proposed, NOT executed here):
 
     mvn -Dtest=FormatAssessmentTest test
     mvn -Dtest=FormatAssessmentTest,FormatDetectionServiceTest,DependencyDirectionTest,M6BoundaryTest,PackageStructureTest,PresentationBoundaryTest test
     mvn -Dtest=DicomSeriesServiceTest,DicomToNiftiServiceTest,DicomToNiftiServiceHardeningTest,ConversionValidationReportTest,Nifti1VolumeWriterTest,Nifti1VolumeWriterHardeningTest,NiftiAffineMapperTest test
 
-The focused run must establish compilation/test discovery and every constructor case; subsystem runs must establish no regressions. Record actual results, executed counts, failures/errors/skips and the tested tree before S1 acceptance. F0 closure still requires actual mvn clean test after the remaining authorized slices. This task supplies no Java compiler output, test-pass result or accepted checkpoint. No S1 commit, S2 implementation or later workstream is authorized by the source review.
+The focused run must establish compilation/test discovery and every constructor case; subsystem runs must establish no regressions. Record actual results, executed counts, failures/errors/skips and the tested tree before S1 acceptance. F0 closure still requires actual mvn clean test after the remaining authorized slices. That original source review supplied no Java compiler output, test-pass result or accepted checkpoint. It did not authorize S2 or later work. The subsequent user acceptance and S2 authorization are recorded below.
+
+## F0-S1 acceptance and F0-S2 source review
+
+S1 is accepted by the user at remote checkpoint 76b676dfb2bfa7376839e99fb390c2579f9cc783. User-reported evidence: Java 21.0.12.1 / Maven 3.9.16; FormatAssessmentTest 26/26; M5 plus architecture gate 56/56; protected M6/M7 regression 79/79; zero failures/errors/skips; git diff --check passed. These executions were not performed in this environment. Fresh Git fetch verified the remote feature/pre-m8-foundation ref at that exact checkpoint; a clean isolated S2 worktree was created there.
+
+Authorization: F0-S2 only. Tests were authored first, followed by the pure factory. No compilation or red/green test execution occurred here. The only production API addition is public static FormatAssessment fromDetection(DetectionResult detection) in the existing FormatAssessment.java. It rejects null/malformed raw evidence with fixed argument errors, reuses the existing raw-coherence helper and canonical constructor, preserves the original DetectionResult object and extensionMismatch, and emits only REQUIRES_VALIDATION or BLOCKED. It never infers NIfTI version, VALID, SUPPORTED or READY. There is no filename inspection, filesystem access, probe invocation, parsing or pixel decoding in the factory.
+
+EXISTING — verified at 76b676d: the S1 record components, constructor, all private validation helpers, five enum member sets and all 26 S1 test methods. PROPOSED — new relative to that checkpoint: the factory, appended S2 unit methods and FormatAssessmentIntegrationTest. All accepted S1 production source and test bodies outside the factory/test additions are unchanged.
+
+| ID | Authored test methods | Source status / pending executable evidence |
+| --- | --- | --- |
+| U01 | FormatAssessmentTest.factoryMapsAllFiveRawOutcomesConservatively | Written; all five raw outcomes; NOT COMPILED / NOT RUN |
+| U02 | FormatAssessmentTest.factoryMapsExactlyEightAcceptedUnknownDiagnostics | Written; exactly eight UNKNOWN diagnostics and distinct mappings; NOT COMPILED / NOT RUN |
+| U03-S2 | FormatAssessmentTest.factoryRejectsMalformedUnknownEvidence; factoryRejectsNullDetectionAndRawComponents; factoryRejectsPositiveOutcomesWithNonNoneDiagnostic; factoryRejectsCorruptWithNonCorruptDiagnostic | Written; all malformed UNKNOWN combinations, fixed null error, raw component nulls, positive/corrupt contradictions; both extension hints for all non-null invalid pairs; NOT COMPILED / NOT RUN |
+| U11 | FormatAssessmentTest.factoryExhaustsAcceptedCombinationsAndPreservesRawEvidence | Written; all 14 accepted raw pairs with both extension hints (28 fixtures); exact state/reason plus raw identity/fields; never READY/VALID/SUPPORTED; NOT COMPILED / NOT RUN |
+| I01 | FormatAssessmentIntegrationTest.nifti1RecognitionRemainsUnspecifiedAndUnvalidated; nifti2RecognitionDoesNotInferVersionSupportOrReadiness | Written; real M5 recognition of both header versions remains unspecified/unassessed/requires validation; NOT COMPILED / NOT RUN |
+| I02 | FormatAssessmentIntegrationTest.truncatedGzipTrailerRecognitionDoesNotBecomeValid | Written; real M5 recognition of truncated trailer never establishes validity/support/readiness; NOT COMPILED / NOT RUN |
+| I03 | FormatAssessmentIntegrationTest.wrongAndExtensionlessDicomRequireValidation | Written; real M5 synthetic identifying metadata with no Pixel Data, both mismatching extension cases retained; NOT COMPILED / NOT RUN |
+| I04 | FormatAssessmentIntegrationTest.missingDirectoryAndInvalidReferenceKeepDistinctDiagnostics; emptyAndRandomNonmatchKeepDistinctReasons | Written; actual missing file, directory, NUL reference, empty input and random non-match preserve distinct diagnostics/reasons; NOT COMPILED / NOT RUN |
+| I05 | FormatAssessmentIntegrationTest.controlledIoAndBudgetDiagnosticsRemainBlockedAndDistinct | Written; real M5 service with controlled test probe and existing NIfTI probe preserves IO_ERROR/INPUT_TOO_LARGE; no permission assumptions; NOT COMPILED / NOT RUN |
+
+The integration fixture helpers only create synthetic recognition inputs in temporary test directories using existing test dependencies. They are not production readers/validators. INPUT_NOT_READABLE is exhaustively covered as raw evidence by U02/U11; a permission-dependent integration fixture is deliberately not claimed.
+
+Static evidence: removing the added factory block restores FormatAssessment.java byte-for-byte to 76b676d; removing the appended tests/import and restoring the class comment restores FormatAssessmentTest.java byte-for-byte. SHA-256 comparison covers every other tracked file, including all enums, M5/M6/M7 source/tests, architecture tests, build and other documentation. Only the three authorized existing paths changed; the only new repository file is the authorized integration test. HEAD remains 76b676d; no staging or commit. git diff --check and git diff 76b676d --check passed; the complete four-file patch also passed whitespace review and git apply --check against an isolated baseline copy. These are source/Git checks, not executable Java evidence.
+
+Required local Java 21/Maven verification (NOT executed here):
+
+    mvn -Dtest=FormatAssessmentTest,FormatAssessmentIntegrationTest test
+    mvn -Dtest=FormatDetectionServiceTest,DependencyDirectionTest,M6BoundaryTest,PackageStructureTest,PresentationBoundaryTest test
+    mvn -Dtest=DicomSeriesServiceTest,DicomToNiftiServiceTest,DicomToNiftiServiceHardeningTest,ConversionValidationReportTest,Nifti1VolumeWriterTest,Nifti1VolumeWriterHardeningTest,NiftiAffineMapperTest test
+    git diff --check
+
+Actual compilation, test discovery, all added unit/integration assertions (including dcm4che fixture writing, gzip trailer recognition and controlled service fallback), and protected regressions remain unverified for S2. Record actual tested tree, counts and zero failures/errors/skips before acceptance. Do not commit S2 as an accepted checkpoint before the user provides these results. S3 architecture coverage and full F0 closure remain separate gates; S3, F1-F11 and M8 are blocked.
 
 ## Current evidence, defects and approval gate
 
@@ -453,13 +486,16 @@ Confirmed code defects: none newly established by executable reproduction in thi
 
 - [x] Repository-grounded review/specification prepared with source/caller/test inspection.
 - [x] Tracker/setup committed locally, isolated from the dirty ZIP working copy.
-- [x] Corrected F0 specification approved; user authorizes production implementation for S1 only.
-- [x] S1 source and constructor tests prepared; static/source review performed.
-- [ ] S1 compiled and tests/regressions executed under Java 21/Maven; actual results pending from user.
-- [ ] S1 accepted after those results; no accepted implementation commit yet.
-- [ ] S2/S3 explicitly authorized; no factory declaration/stub/implementation in S1.
+- [x] Corrected F0 specification approved; S1 source and constructor tests prepared.
+- [x] User supplies passing Java 21/Maven S1 focused and protected-regression evidence.
+- [x] S1 accepted at 76b676d; remote checkpoint verified through Git.
+- [x] S2 explicitly authorized; tests first and pure factory source prepared within four-path budget.
+- [x] S2 static review, complete diff, protected-source comparison and whitespace checks prepared.
+- [ ] S2 compiled and tests/regressions executed under Java 21/Maven; actual results pending.
+- [ ] S2 accepted after those results; no S2 commit yet.
+- [ ] S3 explicitly authorized; architecture coverage remains unimplemented. No factory declaration/stub/implementation was introduced in S1.
 - [ ] F0 implementation authorized and completed under the test matrix.
 - [ ] F0 full closure evidence and coherent commit proposal reviewed.
 - [ ] F1 authorized only after F0 closure.
 
-**STOP AFTER S1: wait for actual Java 21/Maven results and acceptance; no S1 accepted checkpoint commit, S2 implementation, or later workstream. F0 remains incomplete. F1-F11 and M8 remain blocked.**
+**STOP AFTER S2 SOURCE REVIEW: wait for actual local Java 21/Maven verification; do not commit S2 or start S3. S1 remains accepted at 76b676d. F0 remains incomplete; S3, F1-F11 and M8 remain blocked.**
