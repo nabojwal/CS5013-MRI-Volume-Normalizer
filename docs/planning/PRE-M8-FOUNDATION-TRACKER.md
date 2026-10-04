@@ -9,9 +9,9 @@
 - Canonical baseline: 0b91666c03d6247a6882c164aa6b033d9b761101.
 - M6 protected checkpoint: cb7769e; protected tag: pre-demo-m6-2026-10-02.
 - M7 protected checkpoint: d9ad7ea; protected tag: pre-demo-m7-2026-10-03.
-- Current authorization: tracker-only recording of user-supplied S1B executable evidence. F1-S1A ACCEPTED — b7a327d55ac26265474378fec00ae9a03ba7784e. F1-S1B EXECUTABLE VERIFICATION PASSED — checkpoint pending. No accepted S1B checkpoint exists. No commit/push or S2A-or-later implementation is authorized; F1 remains incomplete; F2-F11, GUI and M8 remain blocked.
+- Current authorization: tracker-only recording of user-supplied S2A executable evidence. F1-S2A EXECUTABLE VERIFICATION PASSED — checkpoint pending; no accepted S2A checkpoint exists. F1-S1A ACCEPTED — b7a327d55ac26265474378fec00ae9a03ba7784e. F1-S1B ACCEPTED — 8b57b48e2a677a08a1d2f11f9eb760b0d3b8f00c. No commit/push or S2B-or-later implementation is authorized; F1 remains incomplete; F2-F11, GUI and M8 remain blocked.
 - F0: S1 ACCEPTED at 76b676d; S2 ACCEPTED — ea40616 using user-supplied Java 21/Maven results. S2 was committed and pushed; the accepted remote checkpoint is ea4061672a293745ac5f5fc1b0d8d240d217e64e. S3 ACCEPTED — 8b6e714; F0 IMPLEMENTATION COMPLETE; F0 CLOSURE EVIDENCE PASSED; F0 ACCEPTED.
-- F1: S0 ACCEPTED; F1-S1A ACCEPTED — b7a327d55ac26265474378fec00ae9a03ba7784e; F1-S1B EXECUTABLE VERIFICATION PASSED — checkpoint pending; F1 INCOMPLETE. S2A and later slices remain NOT AUTHORIZED.
+- F1: S0 ACCEPTED; F1-S1A ACCEPTED — b7a327d55ac26265474378fec00ae9a03ba7784e; F1-S1B ACCEPTED — 8b57b48e2a677a08a1d2f11f9eb760b0d3b8f00c; F1 INCOMPLETE. S2A EXECUTABLE VERIFICATION PASSED — checkpoint pending; S2B and later slices remain NOT AUTHORIZED.
 - F2-F11: NOT STARTED / BLOCKED by sequential review and acceptance.
 - M8: BLOCKED until the complete Pre-M8 acceptance freeze.
 - GUI: BLOCKED; interface remains frozen and no GUI implementation is authorized.
@@ -35,7 +35,7 @@ Historical assistant runtime check: OpenJDK 17.0.20; mvn is unavailable. The pro
 | ID | Contract/outcome | Dependency | Status | Verified checkpoint |
 | --- | --- | --- | --- | --- |
 | F0 | Architectural contracts and policies | Baseline audit and design approval | ACCEPTED; IMPLEMENTATION COMPLETE; CLOSURE EVIDENCE PASSED; S1/S2/S3 ACCEPTED | S1: 76b676d; S2: ea40616; S3/tested implementation: 8b6e714; closure evidence: a2554ab |
-| F1 | Persistent provenance/reporting | Accepted F0 | S0 ACCEPTED; S1A ACCEPTED; S1B EXECUTABLE VERIFICATION PASSED — checkpoint pending; F1 INCOMPLETE; S2A BLOCKED | S1A: b7a327d55ac26265474378fec00ae9a03ba7784e; S1B checkpoint pending; no commit SHA or accepted checkpoint |
+| F1 | Persistent provenance/reporting | Accepted F0 | S0 ACCEPTED; S1A ACCEPTED; S1B ACCEPTED — 8b57b48e2a677a08a1d2f11f9eb760b0d3b8f00c; F1 INCOMPLETE; S2A EXECUTABLE VERIFICATION PASSED — checkpoint pending | S1A: b7a327d55ac26265474378fec00ae9a03ba7784e; S1B: 8b57b48e2a677a08a1d2f11f9eb760b0d3b8f00c; S2A checkpoint pending; no commit SHA or accepted checkpoint |
 | F2 | Deterministic recursive inventory | F0/F1 | NOT STARTED | None |
 | F3 | Metadata-only DICOM inspection | F0/F1 | NOT STARTED | None |
 | F4 | Candidate series discovery | F2/F3 | NOT STARTED | None |
@@ -584,8 +584,9 @@ Confirmed code defects: none newly established by executable reproduction in thi
 - [x] F0 ACCEPTED.
 - [x] F1-S0 specification/repository audit and final corrections accepted by the user before explicit S1A authorization; historical review preparation retained below.
 - [x] F1-S1A implementation explicitly authorized for the six listed paths only; executable verification passed and ACCEPTED at b7a327d55ac26265474378fec00ae9a03ba7784e.
-- [x] F1-S1B explicitly authorized for exactly the six listed paths; source prepared and user-supplied executable verification passed: focused 27, combined value/plan 44 and full regression 218 tests, zero failures/errors/skips; BUILD SUCCESS. Checkpoint pending; no commit SHA or accepted S1B checkpoint.
-- [ ] F1-S2A explicitly authorized; currently BLOCKED.
+- [x] F1-S1B explicitly authorized for exactly the six listed paths; source prepared and user-supplied executable verification passed: focused 27, combined value/plan 44 and full regression 218 tests, zero failures/errors/skips; BUILD SUCCESS. ACCEPTED — 8b57b48e2a677a08a1d2f11f9eb760b0d3b8f00c.
+- [x] F1-S1B ACCEPTED — 8b57b48e2a677a08a1d2f11f9eb760b0d3b8f00c; supplied passing focused/combined/full results retained below.
+- [x] F1-S2A explicitly authorized for exactly the seven listed paths; tests-first source prepared and user-supplied executable verification passed: focused 27, combined manifest contracts 71 and full clean regression 245 tests, zero failures/errors/skips; BUILD SUCCESS. Checkpoint pending; no commit SHA or accepted S2A checkpoint. S2B and later slices NOT AUTHORIZED.
 
 **Historical F0 reconciliation stop (superseded only by the F1-S0 audit authorization below): S1 ACCEPTED — 76b676d; S2 ACCEPTED — ea40616; S3 ACCEPTED — 8b6e714; F0 IMPLEMENTATION COMPLETE; F0 CLOSURE EVIDENCE PASSED; F0 ACCEPTED; F1-F11 BLOCKED; GUI BLOCKED; M8 BLOCKED. No F1 authorization is implied.**
 
@@ -1345,11 +1346,11 @@ The full clean regression must include unchanged F0/M5/M6/M7/architecture gates 
 
 **Historical source-preparation stop, superseded by the executable evidence below: no commit or push was authorized; S2A and later work remained blocked.**
 
-### F1-S1B actual executable evidence supplied by the user
+### F1-S1B actual executable evidence supplied by the user (historical checkpoint-pending record)
 
 **F1-S1B EXECUTABLE VERIFICATION PASSED — checkpoint pending**
 
-The user supplied the following actual executable results. These are user-reported Java release 21/Maven evidence, not an assistant-local rerun. No S1B commit SHA exists yet, so no accepted S1B checkpoint is claimed.
+The historical checkpoint-pending statements in this section are superseded by **F1-S1B ACCEPTED — 8b57b48e2a677a08a1d2f11f9eb760b0d3b8f00c** and the S2A-only authorization below. The user supplied the following actual executable results. These are user-reported Java release 21/Maven evidence, not an assistant-local rerun. No S1B commit SHA exists yet, so no accepted S1B checkpoint is claimed.
 
 | Gate | Exact command | Tests | Failures | Errors | Skipped | Result |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -1373,3 +1374,120 @@ Exact S1B scope remains **3 production additions +2 test additions +tracker**: P
     M8 BLOCKED
 
 **STOP AFTER TRACKER-ONLY EVIDENCE UPDATE. No commit or push; no S2A or later work is authorized.**
+
+
+## F1-S2A authorization and source preparation
+
+First tracker update: **F1-S1B ACCEPTED — 8b57b48e2a677a08a1d2f11f9eb760b0d3b8f00c**. The accepted parent was fetched and checked out in an isolated clean worktree before S2A edits. User-reported S1B executable evidence remains focused 27/27, combined S1A/S1B 44/44 and clean full regression 218/218, zero failures/errors/skips, BUILD SUCCESS; 66 production and 24 test sources compiled under Java release 21. No standalone bookkeeping commit is made.
+
+F1-S2A is explicitly authorized for CheckpointRecord, ManifestReceipt, ManifestState, ProvenancePersistenceException, ManifestStore, PersistenceContractTest and this tracker only. Tests first for C01-C03; source/static review only, no compilation, commit or push. S2B and all later slices remain NOT AUTHORIZED; F1 INCOMPLETE; F2-F11, GUI and M8 BLOCKED.
+
+
+### S2A protocol values and ownership
+
+The five production additions preserve the exact accepted S0 record/nested-enum components and ManifestStore method signatures. All added model behavior is canonical-constructor validation or private constructor support; no factory/upgrade/transition or other public convenience API is introduced.
+
+CheckpointRecord is one supplied record value: schemaVersion 1, nonnull components, positive long sequence, exact lowercase 64-hex previous hash/operation ID, exclusive OPERATION_OBSERVED versus JOB_OBSERVED fields. Initial NOT_STARTED/PLANNED states are derived only and cannot be checkpoint records. Observation checks its local state/fact matrix, nonnegative source-match count bounded by the 100000-source plan cap, time ordering and successful CONVERSION facts for WRITTEN_UNVERIFIED. A record's supplied start/finish/SourceSummary completion cannot exceed recordedAt; a supplied phase summary cannot complete after the observation's finishedAt. These are comparisons of supplied values, not clock calls or proof of actual execution.
+
+Failure lists are nonnull, copied, unique, canonical by Phase/Code declaration order and bounded at 64 before copying. Operation successes/progress/policy skip forbid failures; FAILED requires a new workflow failure or errors in the already-authoritative ProcessingEvidence lists; RECOVERY_REQUIRED requires an applicable typed recovery failure. BLOCKED can be locally represented without a new failure because its applicable plan assessment is checked by S2B. RUNNING/FAILED job records can retain supplied failures; actual prior-operation failure and legal job progression remain S2B responsibilities. COMPLETED job records forbid their own failure list, and RECOVERY_REQUIRED requires explicit typed recovery evidence. Original M5/M6/M7 enum evidence is not recoded or duplicated.
+
+ManifestReceipt checks nonnull identity/hash components, nonnegative sequence and exact hash spelling. At sequence zero, headSha256 equals planSha256. Positive sequences through Long.MAX_VALUE remain representable; no sequence increment, checksum computation or chain-membership assertion occurs. Checkpoint count/cap, consecutive sequence/overflow arithmetic, link equality, prior observation preservation, legal transitions, source eligibility/count/digest matching, COPY/conversion kind checks and job completion eligibility belong to S2B/S4. No isolated model performs these global checks.
+
+ManifestState is an immutable complete current-view value, retaining the exact plan instance. Its receipt must refer to the same job; source mappings/digests are never rebuilt or changed. Its operation list must have exactly the plan's unique operation keys and is copied/sorted by ASCII ID; operation/job failure lists are canonical immutable copies. Local operation failure coherence and supplied view chronology are checked. A sequence-zero anchor is PLANNED at plan.createdAt with every operation NOT_STARTED and no job failure. Positive-receipt job states do not constitute proof of a legal journal history; that proof is the owning reducer/store's task. No mutable accumulator, history, reducer, snapshot generation or current-view factory is added.
+
+ProvenancePersistenceException is final, has the sole approved typed constructor/accessors, requires a nonempty canonical unique bounded PERSISTENCE-phase failure list and uses the fixed message `Provenance persistence failed`. Its cause is initialized to null, suppression disabled and stack trace nonwritable; no arbitrary message/cause constructor or raw exception field exists. A known receipt is permitted only with PUBLISHED; NOT_PUBLISHED/UNKNOWN forbid it. PUBLISHED without a job receipt remains the accepted later public-export failure case. Actual plan/checkpoint publication requires its known receipt through the eventual store protocol, not an S2A execution claim.
+
+ManifestStore is only the application output port, extending AutoCloseable with abstract create/append/replay/close and no checked exception signature, default body or implementation. Its documented replay contract permits Optional.empty() with an existing complete valid plan/journal for ordinary restart without an external rollback floor. A supplied receipt adds proof of unchanged acknowledged evidence in the complete valid chain, including when a later head exists. No plan and no orphan evidence may yield an empty result only without a supplied receipt claiming acknowledged evidence; corrupt/orphan/acknowledged-loss evidence must fail rather than return a usable older prefix. These are interface semantics only; no fake store or replay implementation is added.
+
+### Exact S2A seven-path budget
+
+| Action | Exact repository path |
+| --- | --- |
+| ADD | src/main/java/org/cbihi/mrinormalizer/application/provenance/manifest/CheckpointRecord.java |
+| ADD | src/main/java/org/cbihi/mrinormalizer/application/provenance/manifest/ManifestReceipt.java |
+| ADD | src/main/java/org/cbihi/mrinormalizer/application/provenance/manifest/ManifestState.java |
+| ADD | src/main/java/org/cbihi/mrinormalizer/application/provenance/manifest/ProvenancePersistenceException.java |
+| ADD | src/main/java/org/cbihi/mrinormalizer/application/port/out/ManifestStore.java |
+| ADD | src/test/java/org/cbihi/mrinormalizer/PersistenceContractTest.java |
+| MODIFY | docs/planning/PRE-M8-FOUNDATION-TRACKER.md |
+
+Exactly **7 paths: 5 production additions +1 test addition +tracker**; the accepted full 33-path F1 ceiling and slice allocations are unchanged. S1A/S1B and every existing F0/M5/M6/M7 source/test remain unchanged, as do pom.xml, dependencies, build files, architecture tests/docs and composition. No replay, codec, adapter, filesystem/Path, hard-link/ACL/publication implementation, hashing, schema, projection, public export, dependency or later-slice placeholder/stub is introduced.
+
+### C01-C03 authored test mapping
+
+PersistenceContractTest was authored before any of the five S2A production paths existed, with a retained source snapshot. This is tests-first source preparation, not an executed red/green cycle. Static review then refined only this new test: RUNNING job facts remain locally representable because global job validation belongs to S2B; all accepted failure pairs and complete reflection types/generics were added. No accepted test was modified. Final test source contains **27 authored @Test methods**. The initial source/static-only status is historical and superseded by the user-supplied 27-test focused executable PASS below, covering C01-C03. No accepted S2A checkpoint is claimed.
+
+| Criterion / invariant | Authored PersistenceContractTest method(s) | Coverage |
+| --- | --- | --- |
+| C01 local observation matrix | recordKindAndObservationMatrixIsExhaustive; observationNullabilityAndCountBoundsReject | All 9 states × presence of start/finish/digest × 0/1/100000 matched counts × all dispositions/absence × absent/successful/failed reconstruction/conversion evidence; required Optionals and count limits |
+| C01 record components and exclusivity | recordKindsRequireExclusiveFields; checkpointRequiredComponentsVersionSequenceAndHashesReject; initialStatesAreDerivedAndNeverJournalRecords | Both kinds × 8 presence combinations; nulls, schema 1, positive sequence, exact hash/ID shape, NOT_STARTED and PLANNED derived-only |
+| C01 supplied chronology and phase facts | suppliedChronologyRejectsReversedAndFutureFacts; writtenUnverifiedRequiresSuccessfulConversionFacts; originalPhaseErrorsSatisfyFailureWithoutDuplication | Equality/reversed/future times including SourceSummary; M7 written-unverified remains distinct; either original error list satisfies a failed observation without recoding; successful earlier phase retained with a later workflow failure |
+| C01 failures/recovery | checkpointFailureApplicabilityIsExhaustive; checkpointFailuresAreCopiedCanonicalUniqueAndBounded; recoveryRetainsSuppliedFactsWithoutPromotingOrExecuting; everyApprovedWorkflowFailureRemainsCanonicalWithoutTruncation | Every observable operation/job state with empty/generic/recovery failure; null/duplicate/cap/copy/order; explicit uncertainty retains known supplied facts; all 29 approved workflow pairs and persistence-only subset copied without truncation |
+| C01 no global reducer | localRecordsDoNotValidateGlobalSequenceLinksOrEligibility | Positive long including Long.MAX_VALUE and sequence beyond store count cap are local values; no prior link, transition, plan/kind/eligibility or hash computation |
+| C02 receipt shape and exception boundary | receiptsAndNeutralFailuresAreFrozen; receiptSequenceAndHashShapeAreExact | Exact receipt components/types; sequence-zero equal hashes, positive heads, null/negative/malformed hashes; final neutral exception's sole typed constructor/accessors and generic signatures |
+| C02 outcome/receipt and payload policy | publicationOutcomeAndKnownReceiptMatrixIsExhaustive; persistenceExceptionIsFixedAndCannotCarryCauseOrSuppressedPayload; persistenceExceptionFailuresAreRequiredPersistenceOnlyAndCanonical | All 3 outcomes × receipt presence; fixed message/null nonreplaceable cause, disabled suppression/nonwritable stack; nonempty/nonnull/unique/PERSISTENCE-only/bounded canonical failures; PUBLISHED export-without-receipt case |
+| C02 application port | storeIsOnlyTheFrozenApplicationOutputPort | Exact 4 abstract methods, generics, AutoCloseable, no defaults or checked Throwable signature; no fake store; restart meaning documented on actual port |
+| C03 immutable exact plan/current arrays | currentViewCopiesAndRetainsExactPlan; currentViewRequiresNonNullComponentsAndMatchingJob; currentViewRequiresUniqueCompletePlannedOperationKeys | Same immutable plan, distinct equal-byte source mappings retained, copied/unmodifiable/sorted operation/job lists, all nulls, job mismatch, complete unique planned key set and bounds |
+| C03 supplied current chronology/anchor | currentViewChronologyAndPlanAnchorAreCoherent | View time >= plan creation and observed facts; exact sequence-zero PLANNED time/initial operations/empty failure shape; empty plan anchor allowed |
+| C03 failure lists/original authority | operationStateFailuresAreImmutableAndStateApplicable; jobFailureListsAreCanonicalUniqueBoundedAndCopied; currentViewRetainsOriginalEvidenceAndDoesNotImplementReducer | Operation nulls/ID/copy/order/dup/cap/all state failure pairs; job failure null/dup/cap; original phase instance/errors remain only in ProcessingEvidence; no global job eligibility/reducer in a supplied positive-receipt view |
+| C01-C03 frozen public shapes | allProtocolRecordShapesEnumsAndGenericsRemainFrozen | Exact 5 record/nested component lists/types, all Kind/State/Disposition/JobState members, relevant Optional/List generic types, canonical constructors and generated record methods only |
+
+### Historical S2A source/static evidence and proposed executable verification
+
+The following pre-execution record is retained as historical evidence. Its pending-verification statements are superseded by the actual user-supplied results below; no assistant-local Maven run is claimed.
+
+Static review covers actual declarations, private constructor support, state/fact/failure applicability and chrono guards, controlled fixed messages, immutable canonical copies, sole original diagnostic authority and dependency direction. Parent/source comparison confirms all existing files except the tracker are byte-identical to **8b57b48e2a677a08a1d2f11f9eb760b0d3b8f00c**, including S1A/S1B/F0/M5/M6/M7 Java/tests/build/dependencies. git diff --check passes; the complete seven-path patch also passes git apply --check --whitespace=error-all against the parent tracker and absent new paths. No staging, commit or push occurs.
+
+**No compilation or Java/JUnit execution is performed for S2A**, as explicitly requested. Constructor/reflection compilation, all 27 authored tests (including the exhaustive observation matrix), exception inherited-payload behavior, port generics and protected/full regressions require local Java 21/Maven verification on the exact applied tree. Proposed commands:
+
+    mvn "-Dtest=PersistenceContractTest" test
+    mvn "-Dtest=ManifestValueTest,ManifestPlanTest,ProcessingEvidenceTest,PersistenceContractTest" test
+    mvn clean test
+    git diff --check
+
+No expected compilation/test total is recorded as an actual result. Stop and report an executable contract defect rather than modify accepted S1A/S1B/protected files or introduce a dependency/helper path.
+
+    F0 ACCEPTED / CLOSED
+    F1-S0 ACCEPTED
+    F1-S1A ACCEPTED — b7a327d55ac26265474378fec00ae9a03ba7784e
+    F1-S1B ACCEPTED — 8b57b48e2a677a08a1d2f11f9eb760b0d3b8f00c
+    HISTORICAL F1-S2A SOURCE PREPARED / EXECUTABLE VERIFICATION PENDING
+    F1-S2A CHECKPOINT NOT CREATED / NOT ACCEPTED
+    F1 INCOMPLETE
+    F1-S2B AND LATER SLICES NOT AUTHORIZED
+    F2-F11 BLOCKED
+    GUI BLOCKED
+    M8 BLOCKED
+
+**Historical source-preparation stop, superseded by the executable evidence below: no compilation, commit or push was authorized; S2B and later work remained blocked.**
+
+
+### F1-S2A actual executable evidence supplied by the user
+
+**F1-S2A EXECUTABLE VERIFICATION PASSED — checkpoint pending**
+
+The user supplied the following actual executable results. These are user-reported Java release 21/Maven evidence, not an assistant-local rerun. No S2A commit SHA exists yet, so no accepted S2A checkpoint is claimed.
+
+| Gate | Exact command | Tests | Failures | Errors | Skipped | Result |
+| --- | --- | --- | --- | --- | --- | --- |
+| Focused S2A / C01-C03 | mvn "-Dtest=PersistenceContractTest" test | 27 | 0 | 0 | 0 | BUILD SUCCESS |
+| Combined S1A/S1B/S2A manifest contracts | mvn "-Dtest=ManifestValueTest,ManifestPlanTest,ProcessingEvidenceTest,PersistenceContractTest" test | 71 | 0 | 0 | 0 | BUILD SUCCESS |
+| Full clean regression | mvn clean test | 245 | 0 | 0 | 0 | BUILD SUCCESS |
+
+The full clean regression compiled **71 production source files with Java release 21** and **25 test source files with Java release 21**. The user reports **git diff --check passed**, with only the known LF→CRLF informational warning on the tracker and no whitespace errors. The tracker-only evidence update additionally passes the assistant's local git diff --check; no Maven rerun is claimed for this documentation edit.
+
+Exact S2A scope remains **five production additions +PersistenceContractTest +tracker**: CheckpointRecord, ManifestReceipt, ManifestState, ProvenancePersistenceException, ManifestStore, PersistenceContractTest and this tracker. All S1A/S1B and existing F0/M5/M6/M7 Java/tests/build/dependency files remain unchanged. This evidence update modifies only docs/planning/PRE-M8-FOUNDATION-TRACKER.md; all six S2A Java/test additions and every other repository file remain byte-identical to their pre-update state. No Java/test/build/schema/pom.xml/dependency file or later-slice implementation changed.
+
+    F0 ACCEPTED / CLOSED
+    F1-S0 ACCEPTED
+    F1-S1A ACCEPTED — b7a327d55ac26265474378fec00ae9a03ba7784e
+    F1-S1B ACCEPTED — 8b57b48e2a677a08a1d2f11f9eb760b0d3b8f00c
+    F1-S2A EXECUTABLE VERIFICATION PASSED — checkpoint pending
+    F1-S2A ACCEPTED CHECKPOINT NOT CLAIMED — no commit SHA exists yet
+    F1 INCOMPLETE
+    F1-S2B AND LATER SLICES NOT AUTHORIZED
+    F2-F11 BLOCKED
+    GUI BLOCKED
+    M8 BLOCKED
+
+**STOP AFTER TRACKER-ONLY EVIDENCE UPDATE. No commit or push; no S2B or later work is authorized.**
