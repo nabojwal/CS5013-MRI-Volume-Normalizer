@@ -1,0 +1,12 @@
+package org.cbihi.mrinormalizer.application.dataset.model;
+
+public enum AssessmentReason {
+    FORMAT_NOT_RECOGNIZED,
+    DETECTION_NOT_COMPLETED,
+    DETECTION_INCONCLUSIVE,
+    INPUT_RECOGNIZED_AS_CORRUPT,
+    VALIDATION_NOT_PERFORMED,
+    UNSUPPORTED_FORMAT_VARIANT,
+    UNSUPPORTED_PROFILE,
+    VALIDATION_FAILED
+}
