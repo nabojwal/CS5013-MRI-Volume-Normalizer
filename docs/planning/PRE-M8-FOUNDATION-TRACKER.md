@@ -9,8 +9,8 @@
 - Canonical baseline: 0b91666c03d6247a6882c164aa6b033d9b761101.
 - M6 protected checkpoint: cb7769e; protected tag: pre-demo-m6-2026-10-02.
 - M7 protected checkpoint: d9ad7ea; protected tag: pre-demo-m7-2026-10-03.
-- Current authorization: tracker-only recording of S2 executable evidence and acceptance. S1 is accepted at 76b676d; S2 is ACCEPTED at ea40616. S3 and later workstreams are not authorized.
-- F0: S1 ACCEPTED at 76b676d; S2 ACCEPTED — ea40616 using user-supplied Java 21/Maven results. S2 was committed and pushed; the accepted remote checkpoint is ea4061672a293745ac5f5fc1b0d8d240d217e64e. S3 remains blocked and F0 remains incomplete.
+- Current authorization: F0-S3 only, granted on 2026-10-04. Add the dedicated B01/B02 architecture test and update only this tracker; no production or existing test changes. F1-F11, GUI and M8 remain blocked.
+- F0: S1 ACCEPTED at 76b676d; S2 ACCEPTED — ea40616 using user-supplied Java 21/Maven results. S2 was committed and pushed; the accepted remote checkpoint is ea4061672a293745ac5f5fc1b0d8d240d217e64e. S3 SOURCE PREPARED / EXECUTABLE VERIFICATION PENDING; F0 remains incomplete.
 - F1-F11: NOT STARTED / BLOCKED by sequential review and acceptance.
 - M8: BLOCKED until the complete Pre-M8 acceptance freeze.
 - GUI: frozen. No reverse conversion, dataset execution, or imaging implementation in this setup change.
@@ -33,7 +33,7 @@ Historical assistant runtime check: OpenJDK 17.0.20; mvn is unavailable. The pro
 
 | ID | Contract/outcome | Dependency | Status | Verified checkpoint |
 | --- | --- | --- | --- | --- |
-| F0 | Architectural contracts and policies | Baseline audit and design approval | INCOMPLETE; S1 ACCEPTED; S2 ACCEPTED — ea40616; S3 NOT AUTHORIZED | S1: 76b676d; S2: ea40616 |
+| F0 | Architectural contracts and policies | Baseline audit and design approval | INCOMPLETE; S1 ACCEPTED; S2 ACCEPTED; S3 SOURCE PREPARED / EXECUTABLE VERIFICATION PENDING | S1: 76b676d; S2: ea40616; tracker: 14207bc; no S3 checkpoint |
 | F1 | Persistent provenance/reporting | Accepted F0 | NOT STARTED | None |
 | F2 | Deterministic recursive inventory | F0/F1 | NOT STARTED | None |
 | F3 | Metadata-only DICOM inspection | F0/F1 | NOT STARTED | None |
@@ -89,11 +89,11 @@ Record without editing now: README.md and MILESTONES.md still identify M8 as nex
 
 Historical tracker/setup record (superseded by S1/S2 acceptance): 1147129, docs: establish Pre-M8 foundation tracker and F0 review gate. It changes only this tracker. Local commit only; no remote push. The F0 specification below is a subsequent uncommitted documentation change for review. No implementation or workstream closure is represented by the setup commit.
 
-Corrected specification approved; S1 accepted at 76b676d; S2 ACCEPTED — ea40616 after user-supplied executable verification. This update authorizes only tracker bookkeeping. S3 requires separate authorization; full F0 acceptance remains pending. After approval, implement one coherent slice at a time, tests first where feasible; focused tests, failure inspection, subsystem regression, displayed diff and responsibility review after each slice. F0 closure additionally requires full regression, whitespace check, criterion-to-test mapping, updated tracker and one coherent proposed commit. Stop before F1.
+Corrected specification approved; S1 accepted at 76b676d; S2 ACCEPTED — ea40616 after user-supplied executable verification. S3 is now authorized only for the two-path architecture-test slice; full F0 acceptance remains pending. After approval, implement one coherent slice at a time, tests first where feasible; focused tests, failure inspection, subsystem regression, displayed diff and responsibility review after each slice. F0 closure additionally requires full regression, whitespace check, criterion-to-test mapping, updated tracker and one coherent proposed commit. Stop before F1.
 
 ## F0 repository-grounded implementation review
 
-The approved specification below is normative. S1 is accepted at 76b676d with user-reported executable evidence. S2 factory and tests are accepted using the user-reported executable evidence below; the accepted S2 checkpoint is ea40616. S3 and later work remain unimplemented. All project Java symbols below carry one of the exact classifications EXISTING — verified or PROPOSED — new. Standard Java language/library syntax in proposed signatures does not imply a new project API. A verified symbol means its declaration, implementation and relevant callers/tests were inspected; it does not mean those tests were executed here. The proposed positive readiness state records evidence supplied by a later owner; it is never recognition-derived conversion authorization.
+The approved specification below is normative. S1 is accepted at 76b676d with user-reported executable evidence. S2 factory and tests are accepted using the user-reported executable evidence below; the accepted S2 checkpoint is ea40616. S3 test source is prepared below, with executable verification pending; later work remains unimplemented. All project Java symbols below carry one of the exact classifications EXISTING — verified or PROPOSED — new. Standard Java language/library syntax in proposed signatures does not imply a new project API. A verified symbol means its declaration, implementation and relevant callers/tests were inspected; it does not mean those tests were executed here. The proposed positive readiness state records evidence supplied by a later owner; it is never recognition-derived conversion authorization.
 
 ### Grounding findings and limitations
 
@@ -332,8 +332,8 @@ New test symbols are PROPOSED — new: FormatAssessmentTest (unit), FormatAssess
 | F0-A08 / I03 | Wrong/extensionless DICOM identifying metadata produces validation-required assessment, never READY; F0 does not load pixels | Real M5 fixture integration; no cohort discovery claim | PASS / ACCEPTED: user-reported focused S2 run, 40 tests, zero failures/errors/skips |
 | F0-A02 / I04 | Actual missing file, directory, invalid reference, empty file and random non-match through existing service preserve distinct diagnostics and revised reasons | Real M5 temporary-file/input integration | PASS / ACCEPTED: user-reported focused S2 run, 40 tests, zero failures/errors/skips |
 | F0-A02 / I05 | Controlled existing probe boundary returns IO_ERROR or INPUT_TOO_LARGE: service result preserved; factory yields DETECTION_NOT_COMPLETED or DETECTION_INCONCLUSIVE respectively; no permission-dependent unreadability claim | Existing service with test probe; raw INPUT_NOT_READABLE covered by U02 | PASS / ACCEPTED: user-reported focused S2 run, 40 tests, zero failures/errors/skips |
-| F0-A09 / B01 | Inspect new fields/constructors/methods including generic signatures; allow Java/new model/existing detection-domain types only; reject infrastructure/UI/dcm4che/path/byte/throwable/free-text exposure | Dedicated architecture test and diff review | NOT IMPLEMENTED / NOT RUN |
-| F0-A10 / B02 | Approved readiness enum set is exactly REQUIRES_VALIDATION, BLOCKED and READY; reason set includes DETECTION_NOT_COMPLETED; pure factory emits only REQUIRES_VALIDATION or BLOCKED; record exposes no converter/validator/bypass API; no production M6/M7 caller changes; package placement preserved | Architecture, U11 and source/diff review | NOT IMPLEMENTED / NOT RUN |
+| F0-A09 / B01 | Inspect new fields/constructors/methods including generic signatures; allow Java/new model/existing detection-domain types only; reject infrastructure/UI/dcm4che/path/byte/throwable/free-text exposure | Dedicated architecture test and diff review | S3 SOURCE PREPARED / STATIC REVIEW; NOT COMPILED / NOT RUN |
+| F0-A10 / B02 | Approved readiness enum set is exactly REQUIRES_VALIDATION, BLOCKED and READY; reason set includes DETECTION_NOT_COMPLETED; pure factory emits only REQUIRES_VALIDATION or BLOCKED; record exposes no converter/validator/bypass API; no production M6/M7 caller changes; package placement preserved | Architecture, U11 and source/diff review | S3 SOURCE PREPARED / STATIC REVIEW; NOT COMPILED / NOT RUN |
 | F0-A11 | Existing M5 and relevant M6/M7/architecture regressions pass without weakening or modifying tests | Existing regression commands | S2 user-reported combined assessment/M5/architecture gate: 70 tests; protected M6/M7: 79 tests; both BUILD SUCCESS, zero failures/errors/skips |
 | F0-A12 | Actual Java 21 mvn clean test with zero failures/errors/skips; git diff --check; protected paths unchanged | Closure commands and Git comparison | S2 focused/gate/regression and whitespace checks passed as reported; full F0 mvn clean test and S3 closure evidence remain pending |
 | F0-A13 | Revised decisions approved; criterion-to-executed-test mapping and coherent checkpoint recorded; no later implementation | Review/tracker/Git evidence | SPECIFICATION APPROVED; S1 ACCEPTED; S2 ACCEPTED — ea40616; FULL F0 CLOSURE PENDING |
@@ -353,7 +353,7 @@ Historical slice plan and remaining gates (S1/S2 instructions superseded by reco
 
 1. Slice F0-S1 (accepted at 76b676d): tests first for U03-S1 and U04-U10, then six immutable contract types and only constructor invariants. Run the unit test, inspect each failure, run M5+architecture subsystem, display diff and confirm no adapters/algorithms appeared. Do not declare, stub or implement the conservative factory until S2. For this environment perform static/source review only; no compilation/test claim. Stop after S1 and wait for actual Java 21/Maven results before any accepted checkpoint.
 2. Slice F0-S2 (ACCEPTED at ea40616; executable results recorded below): tests first for U01-U02/U03-S2/U11/I01-I05, then only the conservative factory in the existing new record. Run focused unit/integration tests; rerun M5 and M6/M7 relevant regression; show diff and inspect readiness/privacy responsibility.
-3. Slice F0-S3 (not authorized): add B01/B02, review all public/generic references and constant messages. Run focused architecture tests and relevant subsystem; show diff. No extra production abstraction.
+3. Slice F0-S3 (authorized only; source prepared; executable verification pending): add B01/B02, review all public/generic references and constant messages. Run focused architecture tests and relevant subsystem; show diff. No extra production abstraction.
 4. Close only with actual full regression, diff check, criterion mapping, protected-file proof and coherent proposed F0 commit. Stop before F1.
 
 Historical command plan (S1/S2 superseded by user-reported results below; S3 and full F0 remain future gates; commands not executed in the assistant environment):
@@ -372,7 +372,7 @@ All existing test classes named in these commands are EXISTING — verified; Pre
 
 S1 accepted checkpoint 76b676d contains the eight budgeted paths: this tracker, six approved production files and one test file. S2 changes exactly four paths relative to that checkpoint: modify this tracker, FormatAssessment.java and FormatAssessmentTest.java; add FormatAssessmentIntegrationTest.java. S2 is ACCEPTED at ea40616; the S2 checkpoint was committed and pushed. This tracker-only update creates no additional commit. The standalone tracker contains identical bytes.
 
-Approved full F0 budget is at most ten paths, all explicitly named; S1 uses eight. S2 uses the already-budgeted integration test; the architecture test remains deferred to S3. The table below retains the original full-F0 additions relative to the audit baseline:
+Approved full F0 budget is at most ten paths, all explicitly named; S1 uses eight and S2 uses the already-budgeted integration test. S3 adds only the budgeted architecture test and modifies this tracker: exactly two paths relative to 14207bc. The table below retains the original full-F0 additions relative to the audit baseline:
 
 | Action | Exact path | Classification |
 | --- | --- | --- |
@@ -473,7 +473,36 @@ On 2026-10-04 the user reports that F0-S2 executable verification passed and acc
 
 The user also reports `git diff --check` passed, with only the known LF→CRLF working-copy warning on the tracker and no whitespace errors. The three run counts belong to their respective commands and are not added into a unique-test total because the runs overlap.
 
-This evidence covers S2 compilation, focused unit/integration execution and the specified assessment/M5/architecture and protected M6/M7 regression gates. U01/U02/U03-S2/U11/I01-I05 are accepted under the 40-test focused run. S3's new architecture coverage was not implemented or tested by these existing architecture gates. F0 remains incomplete; full F0 closure and S3 authorization remain separate pending steps. The S2 checkpoint is accepted and recorded above. This tracker-only update makes no Java source/test change and creates no commit. S3, F1-F11 and M8 remain blocked.
+Historical S2 acceptance/bookkeeping context (S3 authorization below supersedes the then-pending S3 gate): this evidence covers S2 compilation, focused unit/integration execution and the specified assessment/M5/architecture and protected M6/M7 regression gates. U01/U02/U03-S2/U11/I01-I05 are accepted under the 40-test focused run. S3's new architecture coverage was not implemented or tested by these existing architecture gates. F0 remains incomplete; full F0 closure and S3 authorization remain separate pending steps. The S2 checkpoint is accepted and recorded above. This tracker-only update makes no Java source/test change and creates no commit. S3, F1-F11 and M8 remain blocked.
+
+## F0-S3 source review and pending executable verification
+
+Authorization: F0-S3 only. Accepted anchors: S1 76b676dfb2bfa7376839e99fb390c2579f9cc783; S2 ea4061672a293745ac5f5fc1b0d8d240d217e64e; tracker checkpoint 14207bcd494509584b9dfba3ebd3be62b73367d2. Fresh Git fetch resolved the remote branch to 14207bc; S3 was prepared in a clean isolated worktree at that checkpoint. S1/S2 acceptance and their actual user-reported results above remain unchanged.
+
+Status: **S3 SOURCE PREPARED / EXECUTABLE VERIFICATION PENDING**. Only FoundationContractBoundaryTest.java and this tracker change. The new test uses the existing JUnit dependency and Java reflection; no production type, dependency, port, service, adapter or separate utility is added. No compilation, test execution or red/green cycle was performed in this environment. No S3 acceptance or checkpoint is claimed.
+
+| Criterion | Authored method in FoundationContractBoundaryTest | Coverage / evidence |
+| --- | --- | --- |
+| B01 | publicBoundaryReferencesOnlyApprovedValueTypes | Inspects all six actual compiled type declarations: record components, public fields/constructors/methods, generic parameter/return types, type parameters, declared exception types and generic supertypes. Exact allowlist limits project references to six F0 types plus DetectionResult/ImagingFormat. String/Object are permitted only in required generated record/enum methods; enum values arrays are the only approved array boundary. Unexpected types, generic forms, free-text fields and exception signatures fail. SOURCE REVIEW ONLY; NOT COMPILED / NOT RUN |
+| B02 | readinessAndReasonMembersRemainExactlyApproved | Exact readiness and assessment-reason sets. SOURCE REVIEW ONLY; NOT COMPILED / NOT RUN |
+| B02 | assessmentRecordAndCanonicalConstructorRemainFrozen | Actual record status, all seven ordered component names/types, exact List<AssessmentReason> generic argument and sole public canonical constructor. SOURCE REVIEW ONLY; NOT COMPILED / NOT RUN |
+| B02 | publicDeclarationsRemainOnlyApprovedValueApis | Actual package placement and record/enum declarations; exact declared public method sets permit generated accessors/equals/hashCode/toString and enum values/valueOf. The sole explicit public factory has exact static signature fromDetection(DetectionResult) -> FormatAssessment. Extra setters, factories, readiness shortcuts, conversion/validation/I/O methods or public data fields fail. SOURCE REVIEW ONLY; NOT COMPILED / NOT RUN |
+| B01/B02 | constructorAndFactoryFailuresUseFixedNonIdentifyingMessages | Representative null/raw-coherence, duplicate-reason, family, READY and reason-applicability failures assert exact fixed IllegalArgumentException messages, null cause and no suppressed payload. Both extension hints retain the same raw-contract message. Combined with the typed API checks, there is no path/free-text input or throwable payload channel. SOURCE REVIEW ONLY; NOT COMPILED / NOT RUN |
+
+The allowlist intentionally rejects arbitrary java.* types: filesystem/path, byte/stream payload, Throwable and serializer/processing abstractions are not approved merely because they are Java types. Reflection inspects declarations, not comments. Inherited Object/Enum language scaffolding is not treated as a new explicit API; declared/generated methods are handled explicitly. These tests constrain the public value boundary, not the authenticity of later validator evidence or the internals of the approved DetectionResult leaf type.
+
+B02 conservative factory behavior reuses the accepted S2 U11 method FormatAssessmentTest.factoryExhaustsAcceptedCombinationsAndPreservesRawEvidence, plus the other accepted S2 unit/integration tests, in the proposed combined verification command. S3 does not duplicate the exhaustive mapping table or modify those tests. Protected M5/M6/M7 implementations/callers are covered by the source comparison and existing regression gates; this reflective test does not invoke Git or read source paths at runtime.
+
+Static review: all previously tracked files except this tracker are byte-identical to 14207bc, including all six F0 production types, both assessment tests, every existing architecture test, M5/M6/M7 source/tests, pom.xml, other tracked documentation. The separately extracted .roomodes/RC2/RC3 files were not touched. The only new Java file is src/test/java/org/cbihi/mrinormalizer/architecture/FoundationContractBoundaryTest.java. No production Java changed. git diff --check passed; the complete two-file patch includes the untracked new test and passes whitespace/applicability checks against an isolated 14207bc copy. HEAD remains 14207bc; no staging or commit. These are source/Git checks, not Java executable evidence.
+
+Required local Java 21.0.12.1 / Maven 3.9.16 verification (NOT executed here):
+
+    mvn "-Dtest=FoundationContractBoundaryTest" test
+    mvn "-Dtest=FoundationContractBoundaryTest,FormatAssessmentTest,FormatAssessmentIntegrationTest,FormatDetectionServiceTest,DependencyDirectionTest,M6BoundaryTest,PackageStructureTest,PresentationBoundaryTest" test
+    mvn "-Dtest=DicomSeriesServiceTest,DicomToNiftiServiceTest,DicomToNiftiServiceHardeningTest,ConversionValidationReportTest,Nifti1VolumeWriterTest,Nifti1VolumeWriterHardeningTest,NiftiAffineMapperTest" test
+    git diff --check
+
+Compilation/test discovery, Java 21 reflection shapes and generic handling, fixed-message assertions, reused conservative-factory coverage and regressions remain unverified for S3. Record actual tested tree, counts and failures/errors/skips before acceptance. Full F0 closure still requires the actual mvn clean test and remaining closure evidence; it is not granted by source preparation. Do not commit S3 or start F1. F0 is INCOMPLETE; F1-F11, GUI and M8 remain BLOCKED.
 
 ## Current evidence, defects and approval gate
 
@@ -510,9 +539,11 @@ Confirmed code defects: none newly established by executable reproduction in thi
 - [x] S2 static review, complete diff, protected-source comparison and whitespace checks prepared.
 - [x] User reports S2 Java 21/Maven executable verification: focused 40 tests, combined assessment/M5/architecture 70 tests and protected M6/M7 79 tests; all BUILD SUCCESS with zero failures/errors/skips.
 - [x] S2 ACCEPTED — ea40616; full checkpoint ea4061672a293745ac5f5fc1b0d8d240d217e64e was committed and pushed; remote ref verified through Git.
-- [ ] S3 NOT AUTHORIZED; architecture coverage remains unimplemented. No factory declaration/stub/implementation was introduced in S1.
+- [x] S3 explicitly authorized for exactly the dedicated B01/B02 architecture test and this tracker.
+- [x] S3 SOURCE PREPARED; reflective API/shape and fixed-message tests authored; protected-source static review completed.
+- [ ] S3 EXECUTABLE VERIFICATION PENDING under local Java 21/Maven; not accepted and no S3 commit. No factory declaration/stub/implementation was introduced in S1.
 - [ ] F0 implementation authorized and completed under the test matrix.
 - [ ] F0 full closure evidence and coherent commit proposal reviewed.
 - [ ] F1 authorized only after F0 closure.
 
-**STOP: S2 is ACCEPTED at ea40616. This update changes only the tracker; no Java changes, additional commit or S3 implementation. S1 ACCEPTED — 76b676d; S2 ACCEPTED — ea40616; S3 NOT AUTHORIZED; F0 INCOMPLETE; F1-F11 BLOCKED; M8 BLOCKED.**
+**STOP AFTER S3 SOURCE REVIEW: local Java 21/Maven verification required; do not commit or start F1. S1 ACCEPTED — 76b676d; S2 ACCEPTED — ea40616; S3 SOURCE PREPARED / EXECUTABLE VERIFICATION PENDING; F0 INCOMPLETE; F1-F11, GUI and M8 BLOCKED.**
