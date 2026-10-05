@@ -1,0 +1,955 @@
+{
+  "type": "object",
+  "properties": {
+    "schema": {
+      "const": "org.cbihi.mrinormalizer.provenance-checkpoint"
+    },
+    "schemaVersion": {
+      "const": 1
+    },
+    "jobId": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    },
+    "sequence": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9223372036854775807
+    },
+    "previousRecordSha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "minLength": 64,
+      "maxLength": 64
+    },
+    "recordedAt": {
+      "type": "string",
+      "maxLength": 40,
+      "pattern": "^[+-]?[0-9]{4,10}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\\.[0-9]{3}(?:[0-9]{3}){0,2})?Z$",
+      "description": "Exact Instant.toString UTC spelling, including extended years; calendar/range/canonical spelling are checked by the codec."
+    },
+    "kind": {
+      "type": "string",
+      "enum": [
+        "OPERATION_OBSERVED",
+        "JOB_OBSERVED"
+      ]
+    },
+    "operationId": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "minLength": 64,
+          "maxLength": 64
+        }
+      ]
+    },
+    "observation": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "#/$defs/observation"
+        }
+      ]
+    },
+    "jobState": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "string",
+          "enum": [
+            "RUNNING",
+            "COMPLETED",
+            "FAILED",
+            "RECOVERY_REQUIRED"
+          ]
+        }
+      ]
+    },
+    "failures": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/failure"
+      },
+      "maxItems": 64,
+      "uniqueItems": true
+    }
+  },
+  "required": [
+    "schema",
+    "schemaVersion",
+    "jobId",
+    "sequence",
+    "previousRecordSha256",
+    "recordedAt",
+    "kind",
+    "operationId",
+    "observation",
+    "jobState",
+    "failures"
+  ],
+  "additionalProperties": false,
+  "description": "Restricted factual delta only; <=16 KiB. Canonical byte form follows fixed property order shown here, exact tokens and one LF. No source inventory, arbitrary error text or original enum duplication; corruption/replay semantics are authoritative in the accepted reducer and later store.",
+  "oneOf": [
+    {
+      "properties": {
+        "kind": {
+          "const": "OPERATION_OBSERVED"
+        },
+        "operationId": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "minLength": 64,
+          "maxLength": 64
+        },
+        "observation": {
+          "$ref": "#/$defs/observation"
+        },
+        "jobState": {
+          "type": "null"
+        }
+      }
+    },
+    {
+      "properties": {
+        "kind": {
+          "const": "JOB_OBSERVED"
+        },
+        "operationId": {
+          "type": "null"
+        },
+        "observation": {
+          "type": "null"
+        },
+        "jobState": {
+          "type": "string",
+          "enum": [
+            "RUNNING",
+            "COMPLETED",
+            "FAILED",
+            "RECOVERY_REQUIRED"
+          ]
+        }
+      }
+    }
+  ],
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:org.cbihi.mrinormalizer:provenance-checkpoint:1",
+  "$defs": {
+    "digest": {
+      "type": "object",
+      "properties": {
+        "sizeBytes": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9223372036854775807
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "minLength": 64,
+          "maxLength": 64
+        }
+      },
+      "required": [
+        "sizeBytes",
+        "sha256"
+      ],
+      "additionalProperties": false
+    },
+    "failure": {
+      "type": "object",
+      "properties": {
+        "phase": {
+          "type": "string",
+          "enum": [
+            "HASHING",
+            "EXECUTION",
+            "POST_WRITE_VALIDATION",
+            "PERSISTENCE"
+          ]
+        },
+        "code": {
+          "type": "string",
+          "enum": [
+            "INVALID_MANIFEST",
+            "INVALID_REFERENCE",
+            "CONTAINMENT_UNPROVEN",
+            "INPUT_UNAVAILABLE",
+            "SOURCE_CHANGED",
+            "HASH_FAILED",
+            "CHECKPOINT_CONFLICT",
+            "WRITE_FAILED",
+            "PUBLICATION_UNAVAILABLE",
+            "READ_FAILED",
+            "UNSUPPORTED_SCHEMA",
+            "CORRUPT_CHECKPOINT",
+            "ACCESS_CONTROL_UNAVAILABLE",
+            "RESOURCE_LIMIT",
+            "CLEANUP_FAILED",
+            "RECOVERY_REQUIRED",
+            "OUTPUT_CONFLICT",
+            "VERIFICATION_FAILED"
+          ]
+        }
+      },
+      "required": [
+        "phase",
+        "code"
+      ],
+      "additionalProperties": false,
+      "description": "New workflow/reporting facts only; no original diagnostic/error payload or free text.",
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "code": {
+                "const": "INVALID_MANIFEST"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "phase": {
+                "type": "string",
+                "enum": [
+                  "PERSISTENCE"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "code": {
+                "const": "INVALID_REFERENCE"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "phase": {
+                "type": "string",
+                "enum": [
+                  "HASHING",
+                  "EXECUTION",
+                  "PERSISTENCE"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "code": {
+                "const": "CONTAINMENT_UNPROVEN"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "phase": {
+                "type": "string",
+                "enum": [
+                  "HASHING",
+                  "EXECUTION",
+                  "PERSISTENCE"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "code": {
+                "const": "INPUT_UNAVAILABLE"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "phase": {
+                "type": "string",
+                "enum": [
+                  "HASHING",
+                  "EXECUTION",
+                  "PERSISTENCE"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "code": {
+                "const": "SOURCE_CHANGED"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "phase": {
+                "type": "string",
+                "enum": [
+                  "HASHING"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "code": {
+                "const": "HASH_FAILED"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "phase": {
+                "type": "string",
+                "enum": [
+                  "HASHING"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "code": {
+                "const": "CHECKPOINT_CONFLICT"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "phase": {
+                "type": "string",
+                "enum": [
+                  "PERSISTENCE"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "code": {
+                "const": "WRITE_FAILED"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "phase": {
+                "type": "string",
+                "enum": [
+                  "PERSISTENCE"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "code": {
+                "const": "PUBLICATION_UNAVAILABLE"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "phase": {
+                "type": "string",
+                "enum": [
+                  "PERSISTENCE"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "code": {
+                "const": "READ_FAILED"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "phase": {
+                "type": "string",
+                "enum": [
+                  "PERSISTENCE"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "code": {
+                "const": "UNSUPPORTED_SCHEMA"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "phase": {
+                "type": "string",
+                "enum": [
+                  "PERSISTENCE"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "code": {
+                "const": "CORRUPT_CHECKPOINT"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "phase": {
+                "type": "string",
+                "enum": [
+                  "PERSISTENCE"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "code": {
+                "const": "ACCESS_CONTROL_UNAVAILABLE"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "phase": {
+                "type": "string",
+                "enum": [
+                  "PERSISTENCE"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "code": {
+                "const": "RESOURCE_LIMIT"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "phase": {
+                "type": "string",
+                "enum": [
+                  "HASHING",
+                  "PERSISTENCE"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "code": {
+                "const": "CLEANUP_FAILED"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "phase": {
+                "type": "string",
+                "enum": [
+                  "EXECUTION",
+                  "PERSISTENCE"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "code": {
+                "const": "RECOVERY_REQUIRED"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "phase": {
+                "type": "string",
+                "enum": [
+                  "EXECUTION",
+                  "PERSISTENCE"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "code": {
+                "const": "OUTPUT_CONFLICT"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "phase": {
+                "type": "string",
+                "enum": [
+                  "EXECUTION",
+                  "PERSISTENCE"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "code": {
+                "const": "VERIFICATION_FAILED"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "phase": {
+                "type": "string",
+                "enum": [
+                  "EXECUTION",
+                  "POST_WRITE_VALIDATION"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    "fingerprint": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "const": "SELECTED_SERIES_SHA256"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "minLength": 64,
+          "maxLength": 64
+        }
+      },
+      "required": [
+        "kind",
+        "sha256"
+      ],
+      "additionalProperties": false,
+      "description": "Selected-series aggregate, never a per-file digest."
+    },
+    "summary": {
+      "type": "object",
+      "properties": {
+        "selectedSourceFingerprint": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/fingerprint"
+            }
+          ]
+        },
+        "softwareVersion": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9._+-]{1,64}$"
+        },
+        "dcm4cheVersion": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9._+-]{1,64}$"
+        },
+        "completedAt": {
+          "type": "string",
+          "maxLength": 40,
+          "pattern": "^[+-]?[0-9]{4,10}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\\.[0-9]{3}(?:[0-9]{3}){0,2})?Z$",
+          "description": "Exact Instant.toString UTC spelling, including extended years; calendar/range/canonical spelling are checked by the codec."
+        },
+        "provenanceSuccessful": {
+          "type": "boolean"
+        },
+        "inputCount": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2147483647
+        },
+        "acceptedSlices": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 2147483647
+        }
+      },
+      "required": [
+        "selectedSourceFingerprint",
+        "softwareVersion",
+        "dcm4cheVersion",
+        "completedAt",
+        "provenanceSuccessful",
+        "inputCount",
+        "acceptedSlices"
+      ],
+      "additionalProperties": false,
+      "description": "No error list; original errors occur only in ProcessingEvidence."
+    },
+    "intensity": {
+      "type": "object",
+      "properties": {
+        "declared": {
+          "type": "boolean"
+        },
+        "slope": {
+          "type": "number",
+          "minimum": -1.7976931348623157e+308,
+          "maximum": 1.7976931348623157e+308,
+          "not": {
+            "const": 0
+          }
+        },
+        "intercept": {
+          "type": "number",
+          "minimum": -1.7976931348623157e+308,
+          "maximum": 1.7976931348623157e+308
+        }
+      },
+      "required": [
+        "declared",
+        "slope",
+        "intercept"
+      ],
+      "additionalProperties": false
+    },
+    "facts": {
+      "type": "object",
+      "properties": {
+        "width": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2147483647
+        },
+        "height": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2147483647
+        },
+        "depth": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 2147483647
+        },
+        "scalarType": {
+          "type": "string",
+          "enum": [
+            "UINT8",
+            "INT8",
+            "UINT16",
+            "INT16"
+          ]
+        },
+        "voxelCount": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9223372036854775807
+        },
+        "rowSpacingMm": {
+          "type": "number",
+          "minimum": -1.7976931348623157e+308,
+          "maximum": 1.7976931348623157e+308,
+          "exclusiveMinimum": 0
+        },
+        "columnSpacingMm": {
+          "type": "number",
+          "minimum": -1.7976931348623157e+308,
+          "maximum": 1.7976931348623157e+308,
+          "exclusiveMinimum": 0
+        },
+        "sliceSpacingMm": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1.7976931348623157e+308
+        },
+        "niftiRasVoxelToWorld": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "items": {
+            "type": "array",
+            "minItems": 4,
+            "maxItems": 4,
+            "items": {
+              "type": "number",
+              "minimum": -1.7976931348623157e+308,
+              "maximum": 1.7976931348623157e+308
+            }
+          }
+        },
+        "intensityTransform": {
+          "$ref": "#/$defs/intensity"
+        },
+        "storedVoxelValuesPreserved": {
+          "type": "boolean"
+        },
+        "resampled": {
+          "type": "boolean"
+        },
+        "interpolated": {
+          "type": "boolean"
+        },
+        "voxelOrderChanged": {
+          "type": "boolean"
+        },
+        "postWriteValidation": {
+          "const": "NOT_PERFORMED"
+        }
+      },
+      "required": [
+        "width",
+        "height",
+        "depth",
+        "scalarType",
+        "voxelCount",
+        "rowSpacingMm",
+        "columnSpacingMm",
+        "sliceSpacingMm",
+        "niftiRasVoxelToWorld",
+        "intensityTransform",
+        "storedVoxelValuesPreserved",
+        "resampled",
+        "interpolated",
+        "voxelOrderChanged",
+        "postWriteValidation"
+      ],
+      "additionalProperties": false,
+      "description": "Row-major 4x4 RAS affine; product voxel count and affine/finiteness constraints are checked by existing values. No reopened-output success."
+    },
+    "processing": {
+      "type": "object",
+      "properties": {
+        "scope": {
+          "type": "string",
+          "enum": [
+            "RECONSTRUCTION",
+            "CONVERSION"
+          ]
+        },
+        "phaseSuccessful": {
+          "type": "boolean"
+        },
+        "sourceSummary": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/summary"
+            }
+          ]
+        },
+        "reconstructionErrors": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "SERIES_NOT_SELECTED",
+              "SERIES_NOT_FOUND",
+              "EMPTY_INPUT",
+              "INPUT_NOT_FOUND",
+              "INPUT_NOT_READABLE",
+              "NOT_DICOM",
+              "DICOM_PARSE_FAILED",
+              "MIXED_SERIES",
+              "MIXED_STUDY",
+              "INCOMPATIBLE_INSTANCE",
+              "MISSING_REQUIRED_METADATA",
+              "INVALID_ORIENTATION",
+              "INVALID_POSITION",
+              "DUPLICATE_SLICE",
+              "DUPLICATE_SOP_INSTANCE",
+              "IRREGULAR_SPACING",
+              "UNSUPPORTED_OBJECT_TYPE",
+              "UNSUPPORTED_TRANSFER_SYNTAX",
+              "UNSUPPORTED_PIXEL_REPRESENTATION",
+              "PIXEL_DATA_UNAVAILABLE"
+            ]
+          },
+          "maxItems": 20,
+          "uniqueItems": true
+        },
+        "conversionErrors": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "INVALID_OUTPUT",
+              "OUTPUT_ALREADY_EXISTS",
+              "OUTPUT_WRITE_FAILED"
+            ]
+          },
+          "maxItems": 3,
+          "uniqueItems": true
+        },
+        "conversionFacts": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/facts"
+            }
+          ]
+        }
+      },
+      "required": [
+        "scope",
+        "phaseSuccessful",
+        "sourceSummary",
+        "reconstructionErrors",
+        "conversionErrors",
+        "conversionFacts"
+      ],
+      "additionalProperties": false,
+      "description": "Sole original M6/M7 error authority; typed constructor checks successful/failed scope coherence."
+    },
+    "observation": {
+      "type": "object",
+      "properties": {
+        "state": {
+          "type": "string",
+          "enum": [
+            "IN_PROGRESS",
+            "COMPLETED",
+            "IDENTICAL_EXISTING",
+            "WRITTEN_UNVERIFIED",
+            "SKIPPED_POLICY",
+            "BLOCKED",
+            "FAILED",
+            "RECOVERY_REQUIRED"
+          ]
+        },
+        "startedAt": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "maxLength": 40,
+              "pattern": "^[+-]?[0-9]{4,10}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\\.[0-9]{3}(?:[0-9]{3}){0,2})?Z$",
+              "description": "Exact Instant.toString UTC spelling, including extended years; calendar/range/canonical spelling are checked by the codec."
+            }
+          ]
+        },
+        "finishedAt": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "maxLength": 40,
+              "pattern": "^[+-]?[0-9]{4,10}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\\.[0-9]{3}(?:[0-9]{3}){0,2})?Z$",
+              "description": "Exact Instant.toString UTC spelling, including extended years; calendar/range/canonical spelling are checked by the codec."
+            }
+          ]
+        },
+        "outputDigest": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/digest"
+            }
+          ]
+        },
+        "matchedExpectedSourceCount": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
+        },
+        "disposition": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "string",
+              "enum": [
+                "NOT_REQUESTED_BY_POLICY",
+                "VALIDATION_REQUIRED",
+                "UNSUPPORTED_INPUT",
+                "INPUT_UNAVAILABLE",
+                "RECOVERY_RECONCILIATION_REQUIRED"
+              ]
+            }
+          ]
+        },
+        "processingEvidence": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/processing"
+            }
+          ]
+        }
+      },
+      "required": [
+        "state",
+        "startedAt",
+        "finishedAt",
+        "outputDigest",
+        "matchedExpectedSourceCount",
+        "disposition",
+        "processingEvidence"
+      ],
+      "additionalProperties": false,
+      "description": "The CheckpointRecord constructor enforces local state/fact/failure/time coherence; ManifestReplay owns plan eligibility/transitions/retention. NOT_STARTED is derived and never journaled."
+    }
+  }
+}

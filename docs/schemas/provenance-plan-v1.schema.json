@@ -1,0 +1,757 @@
+{
+  "type": "object",
+  "properties": {
+    "schema": {
+      "const": "org.cbihi.mrinormalizer.provenance-plan"
+    },
+    "schemaVersion": {
+      "const": 1
+    },
+    "jobId": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    },
+    "createdAt": {
+      "type": "string",
+      "maxLength": 40,
+      "pattern": "^[+-]?[0-9]{4,10}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(?:\\.[0-9]{3}(?:[0-9]{3}){0,2})?Z$",
+      "description": "Exact Instant.toString UTC spelling, including extended years; calendar/range/canonical spelling are checked by the codec."
+    },
+    "roots": {
+      "type": "array",
+      "prefixItems": [
+        {
+          "const": "SOURCE"
+        },
+        {
+          "const": "OUTPUT"
+        }
+      ],
+      "items": false,
+      "minItems": 2,
+      "maxItems": 2
+    },
+    "sources": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/source"
+      },
+      "maxItems": 100000,
+      "uniqueItems": true
+    },
+    "operations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/operation"
+      },
+      "maxItems": 100000,
+      "uniqueItems": true
+    }
+  },
+  "required": [
+    "schema",
+    "schemaVersion",
+    "jobId",
+    "createdAt",
+    "roots",
+    "sources",
+    "operations"
+  ],
+  "additionalProperties": false,
+  "description": "Restricted immutable execution-evidence plan. Canonical byte form is UTF-8, fixed property order shown here, no whitespace, explicit nulls and one final LF; <=64 MiB. No absolute roots/UID/patient metadata fields. Paths themselves can be identifying. JSON Schema documents shape; the codec/models/replay own canonical and cross-record semantics.",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:org.cbihi.mrinormalizer:provenance-plan:1",
+  "$defs": {
+    "relativePath": {
+      "type": "object",
+      "properties": {
+        "root": {
+          "type": "string",
+          "enum": [
+            "SOURCE",
+            "OUTPUT"
+          ]
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096,
+          "pattern": "^[^/\\\\:\\u0000-\\u001F\\u007F-\\u009F][^\\\\:\\u0000-\\u001F\\u007F-\\u009F]*$",
+          "description": "Canonical portable relative path; <=4096 UTF-8 bytes. No repeated/trailing slash, dot/dot-dot segment, trailing dot/space or Windows device base. Exact model checks are authoritative. Restricted paths can contain identifying or UID-like text."
+        }
+      },
+      "required": [
+        "root",
+        "path"
+      ],
+      "additionalProperties": false
+    },
+    "digest": {
+      "type": "object",
+      "properties": {
+        "sizeBytes": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9223372036854775807
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "minLength": 64,
+          "maxLength": 64
+        }
+      },
+      "required": [
+        "sizeBytes",
+        "sha256"
+      ],
+      "additionalProperties": false
+    },
+    "failure": {
+      "type": "object",
+      "properties": {
+        "phase": {
+          "type": "string",
+          "enum": [
+            "HASHING",
+            "EXECUTION",
+            "POST_WRITE_VALIDATION",
+            "PERSISTENCE"
+          ]
+        },
+        "code": {
+          "type": "string",
+          "enum": [
+            "INVALID_MANIFEST",
+            "INVALID_REFERENCE",
+            "CONTAINMENT_UNPROVEN",
+            "INPUT_UNAVAILABLE",
+            "SOURCE_CHANGED",
+            "HASH_FAILED",
+            "CHECKPOINT_CONFLICT",
+            "WRITE_FAILED",
+            "PUBLICATION_UNAVAILABLE",
+            "READ_FAILED",
+            "UNSUPPORTED_SCHEMA",
+            "CORRUPT_CHECKPOINT",
+            "ACCESS_CONTROL_UNAVAILABLE",
+            "RESOURCE_LIMIT",
+            "CLEANUP_FAILED",
+            "RECOVERY_REQUIRED",
+            "OUTPUT_CONFLICT",
+            "VERIFICATION_FAILED"
+          ]
+        }
+      },
+      "required": [
+        "phase",
+        "code"
+      ],
+      "additionalProperties": false,
+      "description": "New workflow/reporting facts only; no original diagnostic/error payload or free text.",
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "code": {
+                "const": "INVALID_MANIFEST"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "phase": {
+                "type": "string",
+                "enum": [
+                  "PERSISTENCE"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "code": {
+                "const": "INVALID_REFERENCE"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "phase": {
+                "type": "string",
+                "enum": [
+                  "HASHING",
+                  "EXECUTION",
+                  "PERSISTENCE"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "code": {
+                "const": "CONTAINMENT_UNPROVEN"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "phase": {
+                "type": "string",
+                "enum": [
+                  "HASHING",
+                  "EXECUTION",
+                  "PERSISTENCE"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "code": {
+                "const": "INPUT_UNAVAILABLE"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "phase": {
+                "type": "string",
+                "enum": [
+                  "HASHING",
+                  "EXECUTION",
+                  "PERSISTENCE"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "code": {
+                "const": "SOURCE_CHANGED"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "phase": {
+                "type": "string",
+                "enum": [
+                  "HASHING"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "code": {
+                "const": "HASH_FAILED"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "phase": {
+                "type": "string",
+                "enum": [
+                  "HASHING"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "code": {
+                "const": "CHECKPOINT_CONFLICT"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "phase": {
+                "type": "string",
+                "enum": [
+                  "PERSISTENCE"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "code": {
+                "const": "WRITE_FAILED"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "phase": {
+                "type": "string",
+                "enum": [
+                  "PERSISTENCE"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "code": {
+                "const": "PUBLICATION_UNAVAILABLE"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "phase": {
+                "type": "string",
+                "enum": [
+                  "PERSISTENCE"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "code": {
+                "const": "READ_FAILED"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "phase": {
+                "type": "string",
+                "enum": [
+                  "PERSISTENCE"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "code": {
+                "const": "UNSUPPORTED_SCHEMA"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "phase": {
+                "type": "string",
+                "enum": [
+                  "PERSISTENCE"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "code": {
+                "const": "CORRUPT_CHECKPOINT"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "phase": {
+                "type": "string",
+                "enum": [
+                  "PERSISTENCE"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "code": {
+                "const": "ACCESS_CONTROL_UNAVAILABLE"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "phase": {
+                "type": "string",
+                "enum": [
+                  "PERSISTENCE"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "code": {
+                "const": "RESOURCE_LIMIT"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "phase": {
+                "type": "string",
+                "enum": [
+                  "HASHING",
+                  "PERSISTENCE"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "code": {
+                "const": "CLEANUP_FAILED"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "phase": {
+                "type": "string",
+                "enum": [
+                  "EXECUTION",
+                  "PERSISTENCE"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "code": {
+                "const": "RECOVERY_REQUIRED"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "phase": {
+                "type": "string",
+                "enum": [
+                  "EXECUTION",
+                  "PERSISTENCE"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "code": {
+                "const": "OUTPUT_CONFLICT"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "phase": {
+                "type": "string",
+                "enum": [
+                  "EXECUTION",
+                  "PERSISTENCE"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "code": {
+                "const": "VERIFICATION_FAILED"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "phase": {
+                "type": "string",
+                "enum": [
+                  "EXECUTION",
+                  "POST_WRITE_VALIDATION"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    },
+    "initialDetection": {
+      "type": "object",
+      "properties": {
+        "outcome": {
+          "type": "string",
+          "enum": [
+            "DICOM",
+            "NIFTI",
+            "NIFTI_GZ",
+            "UNKNOWN",
+            "CORRUPT"
+          ]
+        },
+        "diagnostic": {
+          "type": "string",
+          "enum": [
+            "NONE",
+            "INPUT_NOT_FOUND",
+            "INPUT_IS_DIRECTORY",
+            "INPUT_NOT_READABLE",
+            "EMPTY_INPUT",
+            "INVALID_DICOM",
+            "INPUT_TOO_LARGE",
+            "INVALID_INPUT_REFERENCE",
+            "INVALID_NIFTI",
+            "INVALID_GZIP",
+            "UNSUPPORTED_FORMAT",
+            "IO_ERROR"
+          ]
+        },
+        "extensionMismatch": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "outcome",
+        "diagnostic",
+        "extensionMismatch"
+      ],
+      "additionalProperties": false
+    },
+    "assessment": {
+      "type": "object",
+      "properties": {
+        "initialDetection": {
+          "$ref": "#/$defs/initialDetection"
+        },
+        "format": {
+          "type": "string",
+          "enum": [
+            "DICOM",
+            "NIFTI",
+            "UNKNOWN"
+          ]
+        },
+        "variant": {
+          "type": "string",
+          "enum": [
+            "UNDETERMINED",
+            "DICOM_UNSPECIFIED",
+            "NIFTI_UNSPECIFIED",
+            "NIFTI_1_SINGLE_FILE",
+            "NIFTI_2_SINGLE_FILE",
+            "NIFTI_PAIR"
+          ]
+        },
+        "validity": {
+          "type": "string",
+          "enum": [
+            "NOT_ASSESSED",
+            "INCONCLUSIVE",
+            "VALID",
+            "INVALID"
+          ]
+        },
+        "support": {
+          "type": "string",
+          "enum": [
+            "NOT_ASSESSED",
+            "SUPPORTED",
+            "UNSUPPORTED"
+          ]
+        },
+        "readiness": {
+          "type": "string",
+          "enum": [
+            "REQUIRES_VALIDATION",
+            "BLOCKED",
+            "READY"
+          ]
+        },
+        "reasons": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "FORMAT_NOT_RECOGNIZED",
+              "DETECTION_NOT_COMPLETED",
+              "DETECTION_INCONCLUSIVE",
+              "INPUT_RECOGNIZED_AS_CORRUPT",
+              "VALIDATION_NOT_PERFORMED",
+              "UNSUPPORTED_FORMAT_VARIANT",
+              "UNSUPPORTED_PROFILE",
+              "VALIDATION_FAILED"
+            ]
+          },
+          "maxItems": 8,
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "initialDetection",
+        "format",
+        "variant",
+        "validity",
+        "support",
+        "readiness",
+        "reasons"
+      ],
+      "additionalProperties": false,
+      "description": "The complete F0 assessment; its constructor owns raw diagnostic/state/reason coherence. Recognition never implies validation."
+    },
+    "source": {
+      "type": "object",
+      "properties": {
+        "source": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/relativePath"
+            },
+            {
+              "properties": {
+                "root": {
+                  "const": "SOURCE"
+                }
+              }
+            }
+          ]
+        },
+        "digest": {
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "$ref": "#/$defs/digest"
+            }
+          ]
+        },
+        "assessment": {
+          "$ref": "#/$defs/assessment"
+        },
+        "failures": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/failure"
+          },
+          "maxItems": 64,
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "source",
+        "digest",
+        "assessment",
+        "failures"
+      ],
+      "additionalProperties": false
+    },
+    "operation": {
+      "type": "object",
+      "properties": {
+        "operationId": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "minLength": 64,
+          "maxLength": 64
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "COPY",
+            "CONVERT_DICOM_TO_NIFTI"
+          ]
+        },
+        "sources": {
+          "type": "array",
+          "items": {
+            "allOf": [
+              {
+                "$ref": "#/$defs/relativePath"
+              },
+              {
+                "properties": {
+                  "root": {
+                    "const": "SOURCE"
+                  }
+                }
+              }
+            ]
+          },
+          "maxItems": 100000,
+          "uniqueItems": true,
+          "minItems": 1
+        },
+        "destination": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/relativePath"
+            },
+            {
+              "properties": {
+                "root": {
+                  "const": "OUTPUT"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "required": [
+        "operationId",
+        "kind",
+        "sources",
+        "destination"
+      ],
+      "additionalProperties": false,
+      "description": "Stable F5-supplied IDs/layout; all source keys resolve to the immutable plan, with <=200000 total references. Shared destinations only for COPY with equal known digests; model checks are authoritative.",
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "COPY"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "sources": {
+                "minItems": 1,
+                "maxItems": 1
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

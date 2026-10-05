@@ -9,9 +9,9 @@
 - Canonical baseline: 0b91666c03d6247a6882c164aa6b033d9b761101.
 - M6 protected checkpoint: cb7769e; protected tag: pre-demo-m6-2026-10-02.
 - M7 protected checkpoint: d9ad7ea; protected tag: pre-demo-m7-2026-10-03.
-- Current authorization: tracker-only recording of user-supplied S2B executable evidence. F1-S2B EXECUTABLE VERIFICATION PASSED — checkpoint pending; no accepted S2B checkpoint exists. F1-S2A ACCEPTED — 99dcd08d3c1e4d8653be1ef89b521422294be274. F1-S1A ACCEPTED — b7a327d55ac26265474378fec00ae9a03ba7784e. F1-S1B ACCEPTED — 8b57b48e2a677a08a1d2f11f9eb760b0d3b8f00c. No Java/test/build/schema changes, commit/push or S3-or-later implementation are authorized; F1 remains incomplete; F2-F11, GUI and M8 remain blocked.
+- Current authorization: F1-S3 only, the five approved codec/test/schema/tracker paths; tests-first implementation and executable verification cycle. F1-S2B ACCEPTED — 935fc29ad9a40a53b497a5fe008db5d6d7d485ac. No commit/push or S4-or-later work is authorized; F1 remains incomplete; F2-F11, GUI and M8 remain blocked.
 - F0: S1 ACCEPTED at 76b676d; S2 ACCEPTED — ea40616 using user-supplied Java 21/Maven results. S2 was committed and pushed; the accepted remote checkpoint is ea4061672a293745ac5f5fc1b0d8d240d217e64e. S3 ACCEPTED — 8b6e714; F0 IMPLEMENTATION COMPLETE; F0 CLOSURE EVIDENCE PASSED; F0 ACCEPTED.
-- F1: S0 ACCEPTED; F1-S1A ACCEPTED — b7a327d55ac26265474378fec00ae9a03ba7784e; F1-S1B ACCEPTED — 8b57b48e2a677a08a1d2f11f9eb760b0d3b8f00c; F1 INCOMPLETE. S2A ACCEPTED — 99dcd08d3c1e4d8653be1ef89b521422294be274; S2B EXECUTABLE VERIFICATION PASSED — checkpoint pending; S3 and later slices remain NOT AUTHORIZED.
+- F1: S0 ACCEPTED; F1-S1A ACCEPTED — b7a327d55ac26265474378fec00ae9a03ba7784e; F1-S1B ACCEPTED — 8b57b48e2a677a08a1d2f11f9eb760b0d3b8f00c; F1 INCOMPLETE. S2A ACCEPTED — 99dcd08d3c1e4d8653be1ef89b521422294be274; S2B ACCEPTED — 935fc29ad9a40a53b497a5fe008db5d6d7d485ac; S3 EXECUTABLE VERIFICATION PASSED — checkpoint pending; S4 and later slices remain NOT AUTHORIZED.
 - F2-F11: NOT STARTED / BLOCKED by sequential review and acceptance.
 - M8: BLOCKED until the complete Pre-M8 acceptance freeze.
 - GUI: BLOCKED; interface remains frozen and no GUI implementation is authorized.
@@ -35,7 +35,7 @@ Historical assistant runtime check: OpenJDK 17.0.20; mvn is unavailable. The pro
 | ID | Contract/outcome | Dependency | Status | Verified checkpoint |
 | --- | --- | --- | --- | --- |
 | F0 | Architectural contracts and policies | Baseline audit and design approval | ACCEPTED; IMPLEMENTATION COMPLETE; CLOSURE EVIDENCE PASSED; S1/S2/S3 ACCEPTED | S1: 76b676d; S2: ea40616; S3/tested implementation: 8b6e714; closure evidence: a2554ab |
-| F1 | Persistent provenance/reporting | Accepted F0 | S0 ACCEPTED; S1A ACCEPTED; S1B ACCEPTED — 8b57b48e2a677a08a1d2f11f9eb760b0d3b8f00c; F1 INCOMPLETE; S2A ACCEPTED — 99dcd08d3c1e4d8653be1ef89b521422294be274 | S1A: b7a327d55ac26265474378fec00ae9a03ba7784e; S1B: 8b57b48e2a677a08a1d2f11f9eb760b0d3b8f00c; S2A: 99dcd08d3c1e4d8653be1ef89b521422294be274; S2B EXECUTABLE VERIFICATION PASSED — checkpoint pending; no commit SHA or accepted checkpoint |
+| F1 | Persistent provenance/reporting | Accepted F0 | S0 ACCEPTED; S1A ACCEPTED; S1B ACCEPTED — 8b57b48e2a677a08a1d2f11f9eb760b0d3b8f00c; F1 INCOMPLETE; S2A ACCEPTED — 99dcd08d3c1e4d8653be1ef89b521422294be274 | S1A: b7a327d55ac26265474378fec00ae9a03ba7784e; S1B: 8b57b48e2a677a08a1d2f11f9eb760b0d3b8f00c; S2A: 99dcd08d3c1e4d8653be1ef89b521422294be274; S2B ACCEPTED — 935fc29ad9a40a53b497a5fe008db5d6d7d485ac; S3 EXECUTABLE VERIFICATION PASSED — checkpoint pending; no S3 commit SHA |
 | F2 | Deterministic recursive inventory | F0/F1 | NOT STARTED | None |
 | F3 | Metadata-only DICOM inspection | F0/F1 | NOT STARTED | None |
 | F4 | Candidate series discovery | F2/F3 | NOT STARTED | None |
@@ -589,7 +589,9 @@ Confirmed code defects: none newly established by executable reproduction in thi
 - [x] F1-S2A explicitly authorized for exactly the seven listed paths; tests-first source prepared and user-supplied executable verification passed: focused 27, combined manifest contracts 71 and full clean regression 245 tests, zero failures/errors/skips; BUILD SUCCESS. ACCEPTED — 99dcd08d3c1e4d8653be1ef89b521422294be274. S2B authorization is recorded below.
 - [x] F1-S2B authorized only for the three listed paths; tests-first source and static review prepared for L01-L05, 30 authored test methods.
 - [x] F1-S2B user-supplied executable verification PASSED: focused 30, combined manifest/replay 101 and full clean regression 275 tests, zero failures/errors/skips; BUILD SUCCESS. git diff --check passed with no whitespace errors.
-- [ ] F1-S2B accepted checkpoint: PENDING; no commit SHA exists yet. No commit or push; S3 and all later slices remain NOT AUTHORIZED.
+- [x] F1-S2B ACCEPTED — 935fc29ad9a40a53b497a5fe008db5d6d7d485ac; actual focused 30, combined 101 and clean-full 275 passing tests retained below.
+- [x] F1-S3 explicitly authorized for exactly five paths; J01-J04 implementation and executable gates PASSED: focused 25, combined F1 126, clean-full 300 tests; zero failures/errors/skips. Python standard-library interoperability PASS; git diff --check PASS.
+- [ ] F1-S3 accepted checkpoint: pending; no commit or push. S4 and later NOT AUTHORIZED.
 
 **Historical F0 reconciliation stop (superseded only by the F1-S0 audit authorization below): S1 ACCEPTED — 76b676d; S2 ACCEPTED — ea40616; S3 ACCEPTED — 8b6e714; F0 IMPLEMENTATION COMPLETE; F0 CLOSURE EVIDENCE PASSED; F0 ACCEPTED; F1-F11 BLOCKED; GUI BLOCKED; M8 BLOCKED. No F1 authorization is implied.**
 
@@ -1498,7 +1500,7 @@ Exact S2A scope remains **five production additions +PersistenceContractTest +tr
 **STOP AFTER TRACKER-ONLY EVIDENCE UPDATE. No commit or push; no S2B or later work is authorized.**
 
 
-## F1-S2B authorization and source preparation (historical)
+## F1-S2B authorization and source preparation (historical; now accepted)
 
 First tracker change: **F1-S2A ACCEPTED — 99dcd08d3c1e4d8653be1ef89b521422294be274**. This accepted parent was fetched and checked out in an isolated clean worktree before S2B source edits. S2A executable evidence remains focused 27/27, combined 71/71 and clean full regression 245/245, zero failures/errors/skips and BUILD SUCCESS, with 71 production and 25 test source files compiled under Java release 21. No standalone bookkeeping commit is made.
 
@@ -1573,7 +1575,9 @@ The earlier pending compilation/JUnit/full-regression status is historical and s
 **Historical source-preparation stop, superseded by the executable evidence below. No assistant compilation, commit or push; no S3 or later work.**
 
 
-## F1-S2B executable evidence supplied by the user
+## F1-S2B executable evidence supplied by the user (historical checkpoint-pending record)
+
+The checkpoint-pending statements in this section are historical, superseded by **F1-S2B ACCEPTED — 935fc29ad9a40a53b497a5fe008db5d6d7d485ac** and the S3-only authorization below.
 
 **F1-S2B EXECUTABLE VERIFICATION PASSED — checkpoint pending.** The following are actual user-supplied executable results, not an assistant-local rerun. No commit SHA exists yet; verification does not claim an accepted S2B checkpoint.
 
@@ -1601,3 +1605,79 @@ Exact S2B implementation scope remains **ManifestReplay.java + ManifestReplayTes
     M8 BLOCKED
 
 **STOP AFTER TRACKER-ONLY EVIDENCE UPDATE. No commit or push; no S3 or later work is authorized.**
+
+
+## F1-S3 authorization and source preparation
+
+First tracker change: **F1-S2B ACCEPTED — 935fc29ad9a40a53b497a5fe008db5d6d7d485ac**. Accepted parent checked out in an isolated clean worktree. S3 only is authorized for JsonManifestCodec.java, JsonManifestCodecTest.java, provenance-plan-v1.schema.json, provenance-checkpoint-v1.schema.json and this tracker. Tests first J01-J04, then focused/combined/full Maven gates, independent Python standard-library interoperability and git diff --check. No commit/push; S4 and later NOT AUTHORIZED; F1 INCOMPLETE; F2-F11, GUI and M8 BLOCKED.
+
+
+### S3 canonical contract implemented
+
+Package-private final JsonManifestCodec has exactly its zero-argument constructor and four approved package-private overload/decoder methods. No public API, dependency, port, serializer framework, arbitrary JSON-value parser/AST, reflection serializer, store, publication/export method, hashing, imaging parsing or filesystem access is introduced. All four production methods use only the approved supplied immutable values and bounded internal UTF-8 bytes. S1A/S1B/S2A/S2B and protected F0/M5/M6/M7 code/tests remain unchanged.
+
+Both v1 documents are self-contained Draft 2020-12 schemas with all declared object shapes closed by additionalProperties:false and all their fields required, including explicit null alternatives. The fixed roots wire value is ["SOURCE","OUTPUT"]. A nonnull selectedSourceFingerprint is exactly {"kind":"SELECTED_SERIES_SHA256","sha256":<supplied aggregate hash>}; it remains distinct from a per-file ContentDigest. Conversion facts encode a row-major array of four arrays of four doubles and fixed postWriteValidation="NOT_PERFORMED". No UID/patient metadata fields, absolute roots, runtime output references or original-diagnostic duplication are added. Restricted relative paths remain required and may themselves be identifying.
+
+Encoding uses fixed literal property order, exact enum names, exact decimal long/int tokens and finite Java 21 Double.toString tokens. UTF-8 has no BOM, no insignificant whitespace and exactly one final LF. Paths/Unicode are preserved without case folding/normalization; quote/backslash use the necessary emitted escapes. Reasons, failures, sources, operations and original error lists inherit the accepted models' canonical ordering.
+
+The closed typed decoder consumes only those literal shapes. It rejects noncanonical UTF-8/tokens/escapes/numbers/timestamps/UUIDs, altered key order, unknown/missing/duplicate fields, trailing content, unsupported schema/version/enum, legacy fields and incompatible model facts. It never parses arbitrary maps/values or skips unknown fields. Existing constructors own local evidence/state coherence; the accepted reducer owns global journal transitions. No recognition/validity/support/READY or reopened-output claim is inferred. Successful decoding additionally requires exact encode/decode/re-encode byte identity, so model sorting cannot silently accept noncanonical list order. Failures expose one fixed non-identifying argument message and no raw cause.
+
+Plan input/output bytes are capped at 64 MiB and checkpoint bytes at 16 KiB before unbounded growth/decoding. Strings and all typed arrays have explicit owner bounds: path 4096 UTF-8 bytes, safe/version/enum/hash tokens bounded, sources/operations/source references per operation <=100000, cumulative source references <=200000, failures <=64, reasons <=8 and original error lists bounded by their closed enum sets. Numeric token lengths are bounded before conversion. Affine shape is exactly 4x4; schema nesting is statically fixed, not recursively supplied. Positive maxima and first-over-limit cases are executable tests; no truncation. These are serialization/model bounds, not S4 physical-storage/heap/publication qualification.
+
+### S3 tests-first and J01-J04 mapping
+
+The initial **23 @Test methods were authored before the codec and both schemas existed**, with a retained source snapshot. A configured Maven tests-first run reached test compilation and failed because JsonManifestCodec was absent; no placeholder/stub was used. Coverage review subsequently refined only the new test file and added two source/operation/reference boundary methods; the final executable suite contains **25 @Test methods**. Initial runtime provisioning/resolution attempts preceded test execution; their environment issues were resolved outside the repository. No accepted test or dependency/build file was changed.
+
+| Matrix | Final test methods | Result |
+| --- | --- | --- |
+| J01 canonical golden bytes (4) | planAndCheckpointGoldenBytesAreCanonical; fullSourceGoldenBytesPreserveUnicodeAndDetection; allNestedEvidenceFieldsHaveFixedOrderAndExplicitNulls; independentFixtureExportUsesActualCodecBytes | PASS |
+| J02 closed canonical language (7) | onlyFixedCanonicalSchemaFormsDecode; alternateNumbersAndEscapesAreRejected; extraMissingDuplicateAndRemovedDiagnosticFieldsReject; modelContradictionsCannotBeHiddenInCanonicalJson; schemasVersionsEnumsAndRequiredLiteralsAreClosed; unorderedOrDuplicateModelListsAreRejected; nullWrongScalarTypesAndTruncatedFormsReject | PASS |
+| J03 numbers/Unicode/resource bounds (9) | numbersUnicodeAndBoundsRemainExact; malformedUtf8AndControlCharactersReject; integerOverflowAndNonfiniteNoncanonicalDoublesReject; planAndCheckpointByteCapsRejectBeforeDecoding; boundedTypedArraysAndStringsReject; encoderEnforcesPlanBudget; exactSourceAndReferenceLimitsDecodeWithoutTruncation; exactOperationLimitDecodesAndNextEntryRejects; nullInputsAndDecoderFailuresUseFixedNonidentifyingMessages | PASS |
+| J04 typed round trips/schema/API (5) | roundTripsEverySupportedInternalRecord; processingEvidenceRoundTripsWithoutDuplicateAuthority; assessmentVariantsAndOrderedReasonsRoundTrip; codecApiAndDependencyBoundaryRemainPackagePrivate; schemaDocumentsDescribeExactlyTheRestrictedShapes | PASS |
+
+Coverage includes both record kinds, all journalable operation/job states, nullable digests/phase summaries/fingerprints, every allowed workflow failure pair, authoritative original M6/M7 error lists, recognized/unavailable/inconclusive/corrupt assessments and supported/unsupported variants. Long.MAX_VALUE and voxel counts above 2^53 remain exact; finite double extrema, signed zero, supplementary Unicode ordering, extended/fractional Instant values and required literal fields round-trip exactly.
+
+### S3 actual executable evidence
+
+**F1-S3 EXECUTABLE VERIFICATION PASSED — checkpoint pending.** All results below were executed in the assistant environment against the final S3 Java/test/schema tree, not inferred from static review or supplied by a different runtime.
+
+Environment: OpenJDK Temurin 21.0.12.1+1 LTS; Apache Maven 3.9.16; Linux amd64. The official JDK SHA-256 and Maven SHA-512 were checked before extraction outside the repository. Runtime-only proxy settings/trust configuration enabled dependency resolution; no pom.xml/build/dependency or repository helper was added.
+
+| Gate | Command (mvn uses external runtime settings) | Tests | Failures | Errors | Skipped | Result |
+| --- | --- | ---: | ---: | ---: | ---: | --- |
+| Focused S3 | mvn -s <runtime-settings> "-Dtest=JsonManifestCodecTest" -Dprovenance.fixture.directory=<scratch-fixtures> test | 25 | 0 | 0 | 0 | BUILD SUCCESS |
+| Combined F1 | mvn -s <runtime-settings> "-Dtest=ManifestValueTest,ManifestPlanTest,ProcessingEvidenceTest,PersistenceContractTest,ManifestReplayTest,JsonManifestCodecTest" test | 126 | 0 | 0 | 0 | BUILD SUCCESS |
+| Clean full regression | mvn -s <runtime-settings> clean test | 300 | 0 | 0 | 0 | BUILD SUCCESS |
+| Protected M6/M7 subset within that clean full run | Actual XML totals across the seven accepted protected suites; not a separate command | 79 | 0 | 0 | 0 | PASS |
+
+The clean full build compiled **73 production source files and 27 test source files with release 21**. Surefire XML independently confirms all 300 totals and the 79-test protected subset. The final codec/test/schema bytes were unchanged after those gates; subsequent changes record tracker evidence only. No Maven rerun is claimed for this documentation-only recording.
+
+Python standard-library json interoperability: **PASS** on six fixtures generated by the actual Java codec. Verified strict UTF-8/no BOM/one LF, supplementary Unicode and escaped quotes, exact integer types/values above 2^53 (Long.MAX_VALUE file size and 9008298766368768 voxels), fixed schema identifiers/versions/key order, source-to-destination references, unchanged raw detection, selected-series fingerprint tag, nullable/job fields, typed M7 dimensions/affine/finite extrema/signed zero/flags, NOT_PERFORMED reopening, workflow failure and recovery facts. Both schema documents were parsed and checked for closed required object shapes and resolved local references. This check used only Python's standard library; no Python/project runtime dependency was added.
+
+### S3 exact five-path budget and final source review
+
+| Action | Repository path |
+| --- | --- |
+| ADD | src/main/java/org/cbihi/mrinormalizer/infrastructure/filesystem/JsonManifestCodec.java |
+| ADD | src/test/java/org/cbihi/mrinormalizer/infrastructure/filesystem/JsonManifestCodecTest.java |
+| ADD | docs/schemas/provenance-plan-v1.schema.json |
+| ADD | docs/schemas/provenance-checkpoint-v1.schema.json |
+| MODIFY | docs/planning/PRE-M8-FOUNDATION-TRACKER.md |
+
+Exactly **1 production addition +1 test addition +2 schema documents + tracker = 5 paths**. All 124 other accepted-parent tracked files were verified byte-identical, including the complete S1A/S1B/S2A/S2B, protected F0/M5/M6/M7 Java/tests, pom.xml and architecture/composition files. No accepted public model/API or enum changed. No extra repository path/dependency was required. git diff --check PASSED with no whitespace errors. No files staged; no commit or push.
+
+    F0 ACCEPTED / CLOSED
+    F1-S0 ACCEPTED
+    F1-S1A ACCEPTED — b7a327d55ac26265474378fec00ae9a03ba7784e
+    F1-S1B ACCEPTED — 8b57b48e2a677a08a1d2f11f9eb760b0d3b8f00c
+    F1-S2A ACCEPTED — 99dcd08d3c1e4d8653be1ef89b521422294be274
+    F1-S2B ACCEPTED — 935fc29ad9a40a53b497a5fe008db5d6d7d485ac
+    F1-S3 EXECUTABLE VERIFICATION PASSED — checkpoint pending
+    F1-S3 ACCEPTED CHECKPOINT NOT CLAIMED — no commit SHA
+    F1 INCOMPLETE
+    F1-S4 AND LATER SLICES NOT AUTHORIZED
+    F2-F11 BLOCKED
+    GUI BLOCKED
+    M8 BLOCKED
+
+**STOP AFTER S3 IMPLEMENTATION/VERIFICATION. No commit or push; no S4 or later work.**
