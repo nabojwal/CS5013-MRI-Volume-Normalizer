@@ -9,9 +9,9 @@
 - Canonical baseline: 0b91666c03d6247a6882c164aa6b033d9b761101.
 - M6 protected checkpoint: cb7769e; protected tag: pre-demo-m6-2026-10-02.
 - M7 protected checkpoint: d9ad7ea; protected tag: pre-demo-m7-2026-10-03.
-- Current authorization: F1-S4 only, effective after this tracker-only S3 acceptance update is committed, pushed and remotely verified. S4 owns exactly JsonManifestStore.java, ManifestStoreTest.java and this tracker; no fourth path. F1-S3 ACCEPTED — 03d598a1606121ecc7918279ec9a5f20f622ee93. S5A/S5B/S6 are NOT AUTHORIZED; F1 remains incomplete; F2-F11, GUI and M8 remain blocked.
-- F0: S1 ACCEPTED at 76b676d; S2 ACCEPTED — ea40616 using user-supplied Java 21/Maven results. S2 was committed and pushed; the accepted remote checkpoint is ea4061672a293745ac5f5fc1b0d8d240d217e64e. S3 ACCEPTED — 8b6e714; F0 IMPLEMENTATION COMPLETE; F0 CLOSURE EVIDENCE PASSED; F0 ACCEPTED.
-- F1: S0 ACCEPTED; F1-S1A ACCEPTED — b7a327d55ac26265474378fec00ae9a03ba7784e; F1-S1B ACCEPTED — 8b57b48e2a677a08a1d2f11f9eb760b0d3b8f00c; S2A ACCEPTED — 99dcd08d3c1e4d8653be1ef89b521422294be274; S2B ACCEPTED — 935fc29ad9a40a53b497a5fe008db5d6d7d485ac; F1-S3 ACCEPTED — 03d598a1606121ecc7918279ec9a5f20f622ee93; F1 INCOMPLETE; F1-S4 AUTHORIZED subject to the tracker-only checkpoint gate above; S5A/S5B/S6 remain NOT AUTHORIZED.
+- Current authorization: tracker-only F1-S3 acceptance reconciliation in docs/planning/PRE-M8-FOUNDATION-TRACKER.md. F1-S3 ACCEPTED — 03d598a1606121ecc7918279ec9a5f20f622ee93. F1-S4 NOT YET IMPLEMENTED; S4 requires separate explicit authorization after this bookkeeping checkpoint. S5A/S5B/S6 remain NOT AUTHORIZED; F1 INCOMPLETE; F2-F11, GUI and M8 BLOCKED. No commit or push is authorized.
+- F0: S1 ACCEPTED at 76b676d; S2 ACCEPTED — ea40616 using user-supplied Java 21/Maven results. S2 was committed and pushed; the accepted remote checkpoint is ea4061672a293745ac5f5fc1b0d8d240d217e64e. S3 ACCEPTED — 8b6e714; F0 IMPLEMENTATION COMPLETE; F0 CLOSURE EVIDENCE PASSED; F0 ACCEPTED / CLOSED.
+- F1: S0 ACCEPTED; F1-S1A ACCEPTED — b7a327d55ac26265474378fec00ae9a03ba7784e; F1-S1B ACCEPTED — 8b57b48e2a677a08a1d2f11f9eb760b0d3b8f00c; F1 INCOMPLETE. S2A ACCEPTED — 99dcd08d3c1e4d8653be1ef89b521422294be274; S2B ACCEPTED — 935fc29ad9a40a53b497a5fe008db5d6d7d485ac; F1-S3 ACCEPTED — 03d598a1606121ecc7918279ec9a5f20f622ee93; F1-S4 NOT YET IMPLEMENTED; S4 requires separate explicit authorization after this bookkeeping checkpoint; S5A/S5B/S6 remain NOT AUTHORIZED.
 - F2-F11: NOT STARTED / BLOCKED by sequential review and acceptance.
 - M8: BLOCKED until the complete Pre-M8 acceptance freeze.
 - GUI: BLOCKED; interface remains frozen and no GUI implementation is authorized.
@@ -35,7 +35,7 @@ Historical assistant runtime check: OpenJDK 17.0.20; mvn is unavailable. The pro
 | ID | Contract/outcome | Dependency | Status | Verified checkpoint |
 | --- | --- | --- | --- | --- |
 | F0 | Architectural contracts and policies | Baseline audit and design approval | ACCEPTED; IMPLEMENTATION COMPLETE; CLOSURE EVIDENCE PASSED; S1/S2/S3 ACCEPTED | S1: 76b676d; S2: ea40616; S3/tested implementation: 8b6e714; closure evidence: a2554ab |
-| F1 | Persistent provenance/reporting | Accepted F0 | S0/S1A/S1B/S2A/S2B/S3 ACCEPTED; F1 INCOMPLETE; S4 AUTHORIZED after tracker-only acceptance checkpoint is committed/pushed/remote-verified; S5A/S5B/S6 NOT AUTHORIZED | S1A: b7a327d55ac26265474378fec00ae9a03ba7784e; S1B: 8b57b48e2a677a08a1d2f11f9eb760b0d3b8f00c; S2A: 99dcd08d3c1e4d8653be1ef89b521422294be274; S2B: 935fc29ad9a40a53b497a5fe008db5d6d7d485ac; S3: 03d598a1606121ecc7918279ec9a5f20f622ee93 |
+| F1 | Persistent provenance/reporting | Accepted F0 | S0/S1A/S1B/S2A/S2B/S3 ACCEPTED; F1 INCOMPLETE; S4 NOT YET IMPLEMENTED and requires separate explicit authorization after this bookkeeping checkpoint; S5A/S5B/S6 NOT AUTHORIZED | S1A: b7a327d55ac26265474378fec00ae9a03ba7784e; S1B: 8b57b48e2a677a08a1d2f11f9eb760b0d3b8f00c; S2A: 99dcd08d3c1e4d8653be1ef89b521422294be274; S2B: 935fc29ad9a40a53b497a5fe008db5d6d7d485ac; S3 implementation: 03d598a1606121ecc7918279ec9a5f20f622ee93; later tracker-only checkpoint: no commit SHA exists yet |
 | F2 | Deterministic recursive inventory | F0/F1 | NOT STARTED | None |
 | F3 | Metadata-only DICOM inspection | F0/F1 | NOT STARTED | None |
 | F4 | Candidate series discovery | F2/F3 | NOT STARTED | None |
@@ -591,7 +591,7 @@ Confirmed code defects: none newly established by executable reproduction in thi
 - [x] F1-S2B user-supplied executable verification PASSED: focused 30, combined manifest/replay 101 and full clean regression 275 tests, zero failures/errors/skips; BUILD SUCCESS. git diff --check passed with no whitespace errors.
 - [x] F1-S2B ACCEPTED — 935fc29ad9a40a53b497a5fe008db5d6d7d485ac; actual focused 30, combined 101 and clean-full 275 passing tests retained below.
 - [x] F1-S3 explicitly authorized for exactly five paths; J01-J04 implementation and executable gates PASSED: focused 25, combined F1 126, clean-full 300 tests; zero failures/errors/skips. Python standard-library interoperability PASS; git diff --check PASS.
-- [x] F1-S3 ACCEPTED — 03d598a1606121ecc7918279ec9a5f20f622ee93; remote branch verified identical to this checkpoint before the tracker-only bookkeeping update. F1-S4 is the only next implementation slice and becomes executable only after this tracker-only update is committed, pushed and remotely verified.
+- [x] F1-S3 ACCEPTED — 03d598a1606121ecc7918279ec9a5f20f622ee93 (implementation checkpoint). This later tracker-only bookkeeping checkpoint has no commit SHA yet. S4 is not yet implemented and requires separate explicit authorization after this bookkeeping checkpoint.
 
 **Historical F0 reconciliation stop (superseded only by the F1-S0 audit authorization below): S1 ACCEPTED — 76b676d; S2 ACCEPTED — ea40616; S3 ACCEPTED — 8b6e714; F0 IMPLEMENTATION COMPLETE; F0 CLOSURE EVIDENCE PASSED; F0 ACCEPTED; F1-F11 BLOCKED; GUI BLOCKED; M8 BLOCKED. No F1 authorization is implied.**
 
@@ -1609,6 +1609,8 @@ Exact S2B implementation scope remains **ManifestReplay.java + ManifestReplayTes
 
 ## F1-S3 authorization and source preparation
 
+Historical preparation and pre-checkpoint evidence below are superseded, for current acceptance status only, by the F1-S3 acceptance reconciliation recorded at the end of this section.
+
 First tracker change: **F1-S2B ACCEPTED — 935fc29ad9a40a53b497a5fe008db5d6d7d485ac**. Accepted parent checked out in an isolated clean worktree. S3 only is authorized for JsonManifestCodec.java, JsonManifestCodecTest.java, provenance-plan-v1.schema.json, provenance-checkpoint-v1.schema.json and this tracker. Tests first J01-J04, then focused/combined/full Maven gates, independent Python standard-library interoperability and git diff --check. No commit/push; S4 and later NOT AUTHORIZED; F1 INCOMPLETE; F2-F11, GUI and M8 BLOCKED.
 
 
@@ -1639,19 +1641,20 @@ Coverage includes both record kinds, all journalable operation/job states, nulla
 
 ### S3 actual executable evidence
 
-**F1-S3 EXECUTABLE VERIFICATION PASSED; F1-S3 ACCEPTED — 03d598a1606121ecc7918279ec9a5f20f622ee93.** All results below were executed against the final S3 Java/test/schema tree and are retained as the acceptance evidence for that checkpoint.
+**F1-S3 EXECUTABLE VERIFICATION PASSED; ACCEPTED — 03d598a1606121ecc7918279ec9a5f20f622ee93.** All results below were executed in the assistant environment against the final S3 Java/test/schema tree, not inferred from static review or supplied by a different runtime.
 
-Authoritative Java/Maven acceptance rerun: the user's established Windows workstation with Java 21 and Maven. The focused 25-test, combined 126-test and clean-full 300-test results below were reproduced there against the exact S3 tree subsequently committed as 03d598a1606121ecc7918279ec9a5f20f622ee93. No toolchain provisioning or repository build/dependency change was required for this tracker-only bookkeeping update.
+Environment: OpenJDK Temurin 21.0.12.1+1 LTS; Apache Maven 3.9.16; Linux amd64. The official JDK SHA-256 and Maven SHA-512 were checked before extraction outside the repository. Runtime-only proxy settings/trust configuration enabled dependency resolution; no pom.xml/build/dependency or repository helper was added.
 
-| Gate | Command | Tests | Failures | Errors | Skipped | Result |
+| Gate | Command (mvn uses external runtime settings) | Tests | Failures | Errors | Skipped | Result |
 | --- | --- | ---: | ---: | ---: | ---: | --- |
-| Focused S3 | `mvn "-Dtest=JsonManifestCodecTest" test` | 25 | 0 | 0 | 0 | BUILD SUCCESS |
-| Combined F1 | `mvn "-Dtest=ManifestValueTest,ManifestPlanTest,ProcessingEvidenceTest,PersistenceContractTest,ManifestReplayTest,JsonManifestCodecTest" test` | 126 | 0 | 0 | 0 | BUILD SUCCESS |
-| Clean full regression | `mvn clean test` | 300 | 0 | 0 | 0 | BUILD SUCCESS |
+| Focused S3 | mvn -s <runtime-settings> "-Dtest=JsonManifestCodecTest" -Dprovenance.fixture.directory=<scratch-fixtures> test | 25 | 0 | 0 | 0 | BUILD SUCCESS |
+| Combined F1 | mvn -s <runtime-settings> "-Dtest=ManifestValueTest,ManifestPlanTest,ProcessingEvidenceTest,PersistenceContractTest,ManifestReplayTest,JsonManifestCodecTest" test | 126 | 0 | 0 | 0 | BUILD SUCCESS |
+| Clean full regression | mvn -s <runtime-settings> clean test | 300 | 0 | 0 | 0 | BUILD SUCCESS |
+| Protected M6/M7 subset within that clean full run | Actual XML totals across the seven accepted protected suites; not a separate command | 79 | 0 | 0 | 0 | PASS |
 
-The clean full build compiled **73 production source files and 27 test source files with Java release 21**. All 300 tests passed with zero failures, errors or skips. The final codec/test/schema bytes were unchanged after those gates; this documentation-only acceptance update does not claim a Maven rerun.
+The clean full build compiled **73 production source files and 27 test source files with release 21**. Surefire XML independently confirms all 300 totals and the 79-test protected subset. The final codec/test/schema bytes were unchanged after those gates; subsequent changes record tracker evidence only. No Maven rerun is claimed for this documentation-only recording.
 
-Independent interoperability evidence from the earlier assistant/Work runtime (not rerun on the Windows workstation): Python standard-library json interoperability: **PASS** on six fixtures generated by the actual Java codec. Verified strict UTF-8/no BOM/one LF, supplementary Unicode and escaped quotes, exact integer types/values above 2^53 (Long.MAX_VALUE file size and 9008298766368768 voxels), fixed schema identifiers/versions/key order, source-to-destination references, unchanged raw detection, selected-series fingerprint tag, nullable/job fields, typed M7 dimensions/affine/finite extrema/signed zero/flags, NOT_PERFORMED reopening, workflow failure and recovery facts. Both schema documents were parsed and checked for closed required object shapes and resolved local references. This check used only Python's standard library; no Python/project runtime dependency was added.
+Python standard-library json interoperability: **PASS** on six fixtures generated by the actual Java codec. Verified strict UTF-8/no BOM/one LF, supplementary Unicode and escaped quotes, exact integer types/values above 2^53 (Long.MAX_VALUE file size and 9008298766368768 voxels), fixed schema identifiers/versions/key order, source-to-destination references, unchanged raw detection, selected-series fingerprint tag, nullable/job fields, typed M7 dimensions/affine/finite extrema/signed zero/flags, NOT_PERFORMED reopening, workflow failure and recovery facts. Both schema documents were parsed and checked for closed required object shapes and resolved local references. This check used only Python's standard library; no Python/project runtime dependency was added.
 
 ### S3 exact five-path budget and final source review
 
@@ -1663,7 +1666,7 @@ Independent interoperability evidence from the earlier assistant/Work runtime (n
 | ADD | docs/schemas/provenance-checkpoint-v1.schema.json |
 | MODIFY | docs/planning/PRE-M8-FOUNDATION-TRACKER.md |
 
-Exactly **1 production addition +1 test addition +2 schema documents + tracker = 5 paths**. All 124 other accepted-parent tracked files were verified byte-identical, including the complete S1A/S1B/S2A/S2B, protected F0/M5/M6/M7 Java/tests, pom.xml and architecture/composition files. No accepted public model/API or enum changed. No extra repository path/dependency was required. git diff --check PASSED with no whitespace errors. At the pre-checkpoint source-review stage, no files were staged, committed or pushed. Subsequently, this exact five-path S3 implementation was committed and pushed as 03d598a1606121ecc7918279ec9a5f20f622ee93 and remotely verified.
+Exactly **1 production addition +1 test addition +2 schema documents + tracker = 5 paths**. All 124 other accepted-parent tracked files were verified byte-identical, including the complete S1A/S1B/S2A/S2B, protected F0/M5/M6/M7 Java/tests, pom.xml and architecture/composition files. No accepted public model/API or enum changed. No extra repository path/dependency was required. git diff --check PASSED with no whitespace errors. No files staged; no commit or push.
 
     F0 ACCEPTED / CLOSED
     F1-S0 ACCEPTED
@@ -1673,44 +1676,13 @@ Exactly **1 production addition +1 test addition +2 schema documents + tracker =
     F1-S2B ACCEPTED — 935fc29ad9a40a53b497a5fe008db5d6d7d485ac
     F1-S3 ACCEPTED — 03d598a1606121ecc7918279ec9a5f20f622ee93
     F1 INCOMPLETE
-    F1-S4 AUTHORIZED AFTER TRACKER-ONLY ACCEPTANCE CHECKPOINT IS COMMITTED/PUSHED/REMOTE-VERIFIED
+    F1-S4 NOT YET IMPLEMENTED
+    S4 REQUIRES SEPARATE EXPLICIT AUTHORIZATION AFTER THIS BOOKKEEPING CHECKPOINT
     F1-S5A/S5B/S6 NOT AUTHORIZED
     F2-F11 BLOCKED
     GUI BLOCKED
     M8 BLOCKED
 
-**S3 implementation is closed. This tracker-only bookkeeping update must be committed, pushed and remotely verified before any S4 implementation begins.**
+**F1-S3 acceptance reconciliation (2026-10-05):** the accepted implementation checkpoint is 03d598a1606121ecc7918279ec9a5f20f622ee93. This later tracker-only bookkeeping checkpoint has no commit SHA yet; it changes no implementation, tests, schemas or build files and claims no Maven rerun. The earlier checkpoint-pending and pre-commit statements above remain historical and are superseded by this acceptance record.
 
-## F1-S3 acceptance checkpoint and F1-S4 implementation authorization
-
-Remote verification on 2026-10-05 confirmed that `feature/pre-m8-foundation` was identical to `03d598a1606121ecc7918279ec9a5f20f622ee93` (`ahead_by=0`, `behind_by=0`) before this bookkeeping update. The remote tracker at that checkpoint still recorded S3 as checkpoint-pending; this section closes only that bookkeeping gap. It does not alter the S3 implementation, tests or schemas.
-
-**F1-S3 ACCEPTED — `03d598a1606121ecc7918279ec9a5f20f622ee93`.**
-
-S4 is the only authorized implementation slice after the tracker-only acceptance checkpoint containing this update has been committed, pushed and remotely verified. The coding model must verify that accepted parent before editing implementation files. S4 owns exactly these three paths and no fourth path:
-
-| Action | Repository path |
-| --- | --- |
-| ADD | `src/main/java/org/cbihi/mrinormalizer/infrastructure/filesystem/JsonManifestStore.java` |
-| ADD | `src/test/java/org/cbihi/mrinormalizer/infrastructure/filesystem/ManifestStoreTest.java` |
-| MODIFY | `docs/planning/PRE-M8-FOUNDATION-TRACKER.md` |
-
-The S4 public API, responsibilities and S01-S09 test matrix already frozen in F1-S0.15/F1-S0.16 remain normative and must not be weakened. S4 owns immutable `plan.json` publication, the immutable checkpoint journal, job-scoped exclusive lease, restricted-access/provider qualification, canonical containment, no-replace publication, restart/replay, idempotence/CAS, publication uncertainty, bounded resources/buckets and crash boundaries.
-
-S4 does **not** own imaging-file hashing, SOURCE imaging reads, discovery, DICOM metadata/grouping, organization planning, copy execution, conversion, NIfTI reopening, public report/export, F2+ orchestration or GUI work. Protected M6/M7 behavior remains untouched. S5A/S5B/S6 are not authorized by this record.
-
-For S4 the coding model must follow the bounded workflow: inspect the accepted repository contracts; author the complete S01-S09 tests; implement only the authorized adapter; optionally run one focused test if Java 21/Maven already exist; run `git diff --check`; report exact changes; STOP. It must not provision toolchains, search Library, generate ZIP/patch artifacts, run repeated full regressions, commit or push. The user's Windows workstation owns executable verification, staging, commit and push; acceptance is declared only after remote verification.
-
-    F0 ACCEPTED / CLOSED
-    F1-S0 ACCEPTED
-    F1-S1A ACCEPTED — b7a327d55ac26265474378fec00ae9a03ba7784e
-    F1-S1B ACCEPTED — 8b57b48e2a677a08a1d2f11f9eb760b0d3b8f00c
-    F1-S2A ACCEPTED — 99dcd08d3c1e4d8653be1ef89b521422294be274
-    F1-S2B ACCEPTED — 935fc29ad9a40a53b497a5fe008db5d6d7d485ac
-    F1-S3 ACCEPTED — 03d598a1606121ecc7918279ec9a5f20f622ee93
-    F1 INCOMPLETE
-    NEXT: F1-S4 ONLY
-    S5A/S5B/S6 NOT AUTHORIZED
-    F2-F11 BLOCKED
-    GUI BLOCKED
-    M8 BLOCKED
+**STOP AFTER TRACKER-ONLY RECONCILIATION. No commit or push. S4 requires separate explicit authorization after this bookkeeping checkpoint; no S4 implementation or acceptance is claimed.**
