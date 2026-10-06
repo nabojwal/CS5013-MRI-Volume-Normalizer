@@ -4,14 +4,15 @@
 
 ## Program control
 
-- Date: 2026-10-05 (Asia/Calcutta).
+- Date: 2026-10-06 (Asia/Calcutta; F1-S6 R01 and final executable closure verification).
 - Branch: feature/pre-m8-foundation.
 - Canonical baseline: 0b91666c03d6247a6882c164aa6b033d9b761101.
 - M6 protected checkpoint: cb7769e; protected tag: pre-demo-m6-2026-10-02.
 - M7 protected checkpoint: d9ad7ea; protected tag: pre-demo-m7-2026-10-03.
-- Current authorization: tracker-only F1-S3 acceptance reconciliation in docs/planning/PRE-M8-FOUNDATION-TRACKER.md. F1-S3 ACCEPTED — 03d598a1606121ecc7918279ec9a5f20f622ee93. F1-S4 NOT YET IMPLEMENTED; S4 requires separate explicit authorization after this bookkeeping checkpoint. S5A/S5B/S6 remain NOT AUTHORIZED; F1 INCOMPLETE; F2-F11, GUI and M8 BLOCKED. No commit or push is authorized.
+- Current checkpoint / accepted S6 parent: f1257441793f73d951ff1b8659f78b30bfffe4f5 (final F1-S5B acceptance).
+- Current authorization: explicitly authorized F1-S6 two-path architecture/closure cycle only. S6 EXECUTABLE CLOSURE PASS / NOT ACCEPTED: R01 PASS and final Java-21 clean regression 393/393 PASS, zero failures/errors/skips. Explicit S6 review/acceptance and later checkpoint bookkeeping remain pending; F1 INCOMPLETE pending S6 acceptance. No production, existing-test, schema, build, wiring or third-path change; no staging, commit or push authorized.
 - F0: S1 ACCEPTED at 76b676d; S2 ACCEPTED — ea40616 using user-supplied Java 21/Maven results. S2 was committed and pushed; the accepted remote checkpoint is ea4061672a293745ac5f5fc1b0d8d240d217e64e. S3 ACCEPTED — 8b6e714; F0 IMPLEMENTATION COMPLETE; F0 CLOSURE EVIDENCE PASSED; F0 ACCEPTED / CLOSED.
-- F1: S0 ACCEPTED; F1-S1A ACCEPTED — b7a327d55ac26265474378fec00ae9a03ba7784e; F1-S1B ACCEPTED — 8b57b48e2a677a08a1d2f11f9eb760b0d3b8f00c; F1 INCOMPLETE. S2A ACCEPTED — 99dcd08d3c1e4d8653be1ef89b521422294be274; S2B ACCEPTED — 935fc29ad9a40a53b497a5fe008db5d6d7d485ac; F1-S3 ACCEPTED — 03d598a1606121ecc7918279ec9a5f20f622ee93; F1-S4 NOT YET IMPLEMENTED; S4 requires separate explicit authorization after this bookkeeping checkpoint; S5A/S5B/S6 remain NOT AUTHORIZED.
+- F1: S0 ACCEPTED; S1A ACCEPTED — b7a327d55ac26265474378fec00ae9a03ba7784e; S1B ACCEPTED — 8b57b48e2a677a08a1d2f11f9eb760b0d3b8f00c; S2A ACCEPTED — 99dcd08d3c1e4d8653be1ef89b521422294be274; S2B ACCEPTED — 935fc29ad9a40a53b497a5fe008db5d6d7d485ac; S3 ACCEPTED — 03d598a1606121ecc7918279ec9a5f20f622ee93; S4 ACCEPTED — 233c334023f035eba4c6122a262f9961e08e9b07; S5A ACCEPTED — 26f41054449335fba6d05e5e4e77bad51c3ea641; S5B ACCEPTED — final reconciliation f1257441793f73d951ff1b8659f78b30bfffe4f5, following tested implementation ca25625264ebe96c0d777c3da833e03efc03e7aa and evidence reconciliation fc4de75b18783df45d5757c11c51f1924ea9d535. S6 EXECUTABLE CLOSURE PASS / NOT ACCEPTED. F1 INCOMPLETE pending explicit S6 acceptance; no S6 checkpoint SHA exists.
 - F2-F11: NOT STARTED / BLOCKED by sequential review and acceptance.
 - M8: BLOCKED until the complete Pre-M8 acceptance freeze.
 - GUI: BLOCKED; interface remains frozen and no GUI implementation is authorized.
@@ -35,7 +36,7 @@ Historical assistant runtime check: OpenJDK 17.0.20; mvn is unavailable. The pro
 | ID | Contract/outcome | Dependency | Status | Verified checkpoint |
 | --- | --- | --- | --- | --- |
 | F0 | Architectural contracts and policies | Baseline audit and design approval | **ACCEPTED / CLOSED**; implementation complete; closure evidence passed; S1/S2/S3 accepted | S1: `76b676d`; S2: `ea4061672a293745ac5f5fc1b0d8d240d217e64e`; S3 tested implementation: `8b6e714216f7d3d174a81cdc9a120d88a4348f80`; closure evidence: `a2554ab93a7ff2fe5c4e547a7fb3119b57ac367c` |
-| F1 | Persistent provenance/reporting | Accepted F0 | **IN PROGRESS / INCOMPLETE**. S0, S1A, S1B, S2A, S2B, S3, S4, S5A and **S5B ACCEPTED**. S6 **NOT YET IMPLEMENTED / next bounded closure slice**. | S1A: `b7a327d55ac26265474378fec00ae9a03ba7784e`; S1B: `8b57b48e2a677a08a1d2f11f9eb760b0d3b8f00c`; S2A: `99dcd08d3c1e4d8653be1ef89b521422294be274`; S2B: `935fc29ad9a40a53b497a5fe008db5d6d7d485ac`; S3: `03d598a1606121ecc7918279ec9a5f20f622ee93`; S4: `233c334023f035eba4c6122a262f9961e08e9b07`; S5A: `26f41054449335fba6d05e5e4e77bad51c3ea641`; S5B tested implementation: `ca25625264ebe96c0d777c3da833e03efc03e7aa`; S5B acceptance reconciliation: `fc4de75b18783df45d5757c11c51f1924ea9d535` |
+| F1 | Persistent provenance/reporting | Accepted F0 | **IN PROGRESS / INCOMPLETE**. S0, S1A, S1B, S2A, S2B, S3, S4, S5A and **S5B ACCEPTED**. S6 **EXECUTABLE CLOSURE PASS / NOT ACCEPTED** pending explicit review/acceptance and later checkpoint bookkeeping. | S1A: `b7a327d55ac26265474378fec00ae9a03ba7784e`; S1B: `8b57b48e2a677a08a1d2f11f9eb760b0d3b8f00c`; S2A: `99dcd08d3c1e4d8653be1ef89b521422294be274`; S2B: `935fc29ad9a40a53b497a5fe008db5d6d7d485ac`; S3: `03d598a1606121ecc7918279ec9a5f20f622ee93`; S4: `233c334023f035eba4c6122a262f9961e08e9b07`; S5A: `26f41054449335fba6d05e5e4e77bad51c3ea641`; S5B tested implementation: `ca25625264ebe96c0d777c3da833e03efc03e7aa`; S5B acceptance reconciliation: `fc4de75b18783df45d5757c11c51f1924ea9d535`; final acceptance / S6 parent: `f1257441793f73d951ff1b8659f78b30bfffe4f5` |
 | F2 | Deterministic recursive inventory | F0/F1 | **NOT STARTED / BLOCKED pending F1 closure** | None |
 | F3 | Metadata-only DICOM inspection | F0/F1 | **NOT STARTED / BLOCKED pending F1 closure** | None |
 | F4 | Candidate series discovery | F2/F3 | **NOT STARTED / BLOCKED** | None |
@@ -534,7 +535,9 @@ B01/B02 are **PASS / ACCEPTED**, and F0-A12 full regression is **PASS**. S1 rema
 
 The user-supplied tested implementation checkpoint is 8b6e714216f7d3d174a81cdc9a120d88a4348f80; the closure evidence record is a2554ab93a7ff2fe5c4e547a7fb3119b57ac367c. Fresh Git fetch confirms the remote branch at a2554ab, and comparison with 8b6e714 shows only this tracker differs. The tested Java tree is unchanged; no Maven rerun is needed or performed for this docs-only reconciliation. Future PM8 policy implementations and their owning workstream acceptance remain deferred; passing F0 contracts does not implement F1-F11, GUI or M8 and does not authorize F1. Stop after this tracker-only update.
 
-## Current evidence, defects and approval gate
+## Historical evidence, defects and approval gate
+
+This earlier F0/early-F1 snapshot is superseded for current status by Program control, the Workstream ledger and the latest F1-S6 record below. Its historical evidence is retained.
 
 | Date | Command/review | Exact result | Meaning |
 | --- | --- | --- | --- |
@@ -1792,3 +1795,113 @@ F1-S6 is the only remaining F1 slice.
 F2-F11 remain BLOCKED.
 GUI remains BLOCKED.
 M8 remains BLOCKED.
+
+
+## F1-S6 bounded architecture/closure source preparation — 2026-10-06
+
+**F1-S6 AUTHORIZED / IN PROGRESS — SOURCE PREPARED / NOT ACCEPTED. F1 INCOMPLETE pending S6 closure.**
+
+- This current record supersedes historical S6-not-authorized and earlier current-status statements; S0-S5B evidence is retained. F0 ACCEPTED / CLOSED; F1-S0 through F1-S5B ACCEPTED. F2-F11, GUI and M8 BLOCKED. S6 does not authorize F2 or any production repair.
+- Accepted parent: f1257441793f73d951ff1b8659f78b30bfffe4f5, subject docs: finalize F1-S5B acceptance; direct parent fc4de75b18783df45d5757c11c51f1924ea9d535. Direct canonical GitHub fetch verified FETCH_HEAD/object/parent; NEW isolated s6-work began at this exact SHA with EMPTY status. Configured origin and old preparation worktrees were not changed or reused. Canonical baseline remains 0b91666c03d6247a6882c164aa6b033d9b761101.
+- Exact two-path scope: ADD src/test/java/org/cbihi/mrinormalizer/architecture/ProvenanceContractBoundaryTest.java; MODIFY docs/planning/PRE-M8-FOUNDATION-TRACKER.md. No third repository path, production/existing-test/schema/build/dependency/wiring change, helper or fixture file.
+- Tests first: 10 literal @Test methods saved before this tracker reconciliation. No disabled tests, assumptions or OS skips. Reflection reads actual compiled declarations when executed; package inventory reads compiled class resources, using only standard Java APIs. Local source review is not compiled-boundary PASS evidence.
+- B01 anchor: actualApisGenericsAndResponsibilitiesAreConfined. Exact component order/raw/recursive generic types, canonical public constructors, declared public methods/modifiers/generics, enum membership/order, public fields and nested type inventory are frozen. Coverage includes 33 declarations: 17 records, 11 enums, ManifestReplay, ManifestProjection, ProvenancePersistenceException, ManifestStore and PublicReportWriter. The 14 public top-level manifest-package types are enumerated from compiled resources. Strict type allowlists exclude Path/Files/channels/streams/bytes, infrastructure/JSON/framework types and arbitrary message/cause payload contracts; the approved RuntimeException superclass is preserved. Exact API shape confines supplied digests, in-memory replay, supplied-value projection and abstract ports without adding hashing, imaging I/O, conversion, COPY, destination planning or reopening APIs.
+- B02 anchor: phaseErrorsPrivacyAndOwnedSliceShapeAreFrozen. SourceFileRecord.assessment -> FormatAssessment.initialDetection -> DetectionResult.diagnostic remains the detection authority; only ProcessingEvidence.reconstructionErrors / conversionErrors hold original phase errors, never SourceSummary. Workflow failures remain exact typed ManifestFailure phase/code facts. PublicJobReport is limited to its accepted aggregate components, enums and namespace/code counts; no paths, IDs, hashes, timestamps, sizes, runtime targets, geometry, software tokens or arbitrary payload channels. Plan remains immutable intent; checkpoints remain deltas; replay/current state owns reduction. No READY/recognition/validation/processing shortcut API is introduced. Supporting tests separately freeze all records, all 11 enums, compiled inventory, services/ports, diagnostic homes, public privacy, plan/checkpoint/current-view shape and typed exception payloads.
+
+### F1 criterion mapping and evidence at S6 source preparation
+
+Prior slice executable evidence is accepted at the S5B checkpoint; it is not a new S6 run. Accepted S5B evidence: focused 56/56 (PublicReportWriterTest 25/25; JsonManifestCodecTest 31/31), combined F1 209/209, full clean 383/383, zero failures/errors/skips; Java release-21 compilation of 78 production + 30 test sources; Windows 11/default Windows NIO/NTFS execution and git diff --check PASS. Historical S4 S09 Windows qualification passed again. No S6 compilation counts or new provider qualification are claimed.
+
+| Criteria | Evidence owner | Current evidence |
+| --- | --- | --- |
+| V01-V05 | ManifestValueTest | Prior slice ACCEPTED; accepted S5B combined/full regression PASS |
+| M01-M03 | ManifestPlanTest | Prior slice ACCEPTED; accepted S5B combined/full regression PASS |
+| M04-M05 | ProcessingEvidenceTest | Prior slice ACCEPTED; accepted S5B combined/full regression PASS |
+| C01-C03 | PersistenceContractTest | Prior slice ACCEPTED; accepted S5B combined/full regression PASS |
+| L01-L05 | ManifestReplayTest | Prior slice ACCEPTED; accepted S5B combined/full regression PASS |
+| J01-J04 | JsonManifestCodecTest | ACCEPTED; S5B focused 31/31 and combined/full PASS |
+| S01-S09 | ManifestStoreTest | ACCEPTED; Windows/NTFS qualification accepted, S5B regression PASS |
+| P01-P03 | ManifestProjectionTest | ACCEPTED; S5A focused 20/20, S5B combined/full PASS |
+| E01-E02 | PublicReportWriterTest | ACCEPTED; S5B focused 25/25 and combined/full PASS |
+| B01-B02 | ProvenanceContractBoundaryTest | 10 tests SOURCE PREPARED; executable verification NOT RUN |
+| R01 | Independent Python standard-library JSON interoperability | Final actual encoder-generated plan/checkpoint/public-report corpus NOT RUN |
+| R02 | Protected source comparison / protected regression | Source comparison against accepted parent PASS; S6 protected regression NOT RUN |
+| R03 | Final Java-21 clean regression + Git/static closure | Git/static review PASS; S6 clean compilation/regression NOT RUN |
+
+- R01 remains required: generate actual plan, checkpoint and public-report bytes through the accepted JsonManifestCodec, then parse independently with Python standard-library json; verify expected schema/key/enum/privacy structure, UTF-8 including supplementary Unicode, and exact integers above 2^53 where represented by the relevant schema. No decoder round-trip, schema-document parse, handcrafted fixture or earlier S3 interoperability result substitutes for this final corpus. No R01 generation/Python command was executed in this S6 cycle because the required Java-21 executable environment is unavailable. Any future temporary generator belongs outside the repository; no helper path is authorized.
+- R02 static comparison: against f1257441793f73d951ff1b8659f78b30bfffe4f5, all accepted production sources, existing tests, F0/M5/M6/M7, schemas, pom/build/dependencies, Main/DependencyContainer and architecture documents remain unchanged. Only the new S6 architecture test and this tracker differ. Protected regression remains NOT RUN for S6.
+- Local environment: OpenJDK 17.0.20; mvn unavailable (command not found). Java/Maven were not installed or changed. Focused S6, combined F1, protected regression and clean full regression all NOT RUN; discovered/executed test counts and clean compiled-source counts are unavailable. No Maven or compilation attempt was made for S6.
+- Pending authoritative Java-21/Maven workstation gates, in order:
+
+```sh
+mvn "-Dtest=ProvenanceContractBoundaryTest" test
+mvn "-Dtest=ManifestValueTest,ManifestPlanTest,ProcessingEvidenceTest,PersistenceContractTest,ManifestReplayTest,JsonManifestCodecTest,ManifestStoreTest,ManifestProjectionTest,PublicReportWriterTest,ProvenanceContractBoundaryTest" test
+mvn "-Dtest=FormatAssessmentTest,FormatAssessmentIntegrationTest,FoundationContractBoundaryTest,FormatDetectionServiceTest,DependencyDirectionTest,M6BoundaryTest,PackageStructureTest,PresentationBoundaryTest,DicomSeriesServiceTest,DicomToNiftiServiceTest,DicomToNiftiServiceHardeningTest,ConversionValidationReportTest,Nifti1VolumeWriterTest,Nifti1VolumeWriterHardeningTest,NiftiAffineMapperTest" test
+```
+
+Complete independent R01 before the final `mvn clean test`; run that final gate only after focused + combined + protected + R01 PASS on the exact final tree. Record actual counts/results, compile source counts and observed provider evidence. Any genuine accepted architecture defect is a hard stop, not permission for production repair.
+
+- Provider limits retained: accepted Windows evidence does not qualify POSIX S5B. Power-loss, directory-entry and network-filesystem durability/support remain UNPROVED; no new provider execution or broader Java-SE portability claim is made in S6.
+- Saved artifacts reviewed; git diff --check PASS; git status --short --untracked-files=all contains exactly the two authorized paths. git diff --name-only lists this tracked tracker; the new untracked test is separately included by status. New-test whitespace reviewed separately. No staging, commit, push, history rewrite or S6 corrective test pass consumed.
+- Remaining closure blockers: Java-21/Maven focused, combined, protected and clean gates; actual encoder-generated independent R01; explicit review/acceptance and later checkpoint bookkeeping. S6 NOT ACCEPTED; F1 INCOMPLETE. No S6 SHA exists, and neither F1 implementation completion nor closure PASS is claimed. F2-F11, GUI and M8 remain BLOCKED. STOP after this two-path source-preparation report.
+
+## F1-S6 R01 execution resolution and final regression — 2026-10-06
+
+**R01 PASS; S6 EXECUTABLE CLOSURE PASS / NOT ACCEPTED.** This execution record supersedes the source-preparation snapshot's NOT RUN environment/gate statements. It does not grant S6 acceptance, create a checkpoint or authorize a later workstream.
+
+- Verified branch: `feature/pre-m8-foundation`; HEAD / accepted parent: `f1257441793f73d951ff1b8659f78b30bfffe4f5`.
+- Actual environment: OpenJDK/Temurin `21.0.12.1`, Maven `3.9.16`, Python `3.11.9`, Windows 11. No toolchain installation or dependency change.
+- Execution issue: Python `os.environ["R01_OUT"]` failed because that child process did not receive the environment variable. The executed harness and validator take the output directory as a command-line argument; no `R01_OUT` prerequisite remains.
+- All helpers, compiled harness/codec classes, generated JSON and evidence records are outside the repository in `C:\Users\Admin\AppData\Local\Temp\f1-s6-r01-cb22dbfaaed64435970b4c078665bf50`. They were retained for local review/re-execution; no helper or fixture repository path was added.
+- `R01FixtureGenerator.java` belongs to the codec's package and calls the three actual package-private `JsonManifestCodec.encode(...)` overloads directly. The accepted codec source was freshly compiled with `javac --release 21` into the external temporary classes directory, then loaded from that directory (confirmed by its class-resource URL). SHA-256 of accepted Git codec bytes and unchanged workspace codec bytes: `613ca66d20b1b5cf682fcb8a0608b5b3abce02775fbf718dcfa4f195493f346c`.
+- The documents contain synthetic supplied model values solely to exercise the accepted wire language. They are not medical datasets or evidence that reconstruction/conversion actually occurred. No Java decoder round trip, handcrafted JSON substitute, or schema-document parse was used as R01 evidence.
+
+### Executed R01 commands
+
+These commands use the retained external artifacts and the repository's compiled accepted model classes. Compilation, generation and independent verification each returned exit code 0. Each generation wrote the raw `byte[]` returned by the codec via `Files.write`, without rewriting the JSON.
+
+```powershell
+$r01Work = 'C:\Users\Admin\AppData\Local\Temp\f1-s6-r01-cb22dbfaaed64435970b4c078665bf50'
+$r01Repo = 'D:\Projects\CS5013-MRI-Volume-Normalizer'
+javac --release 21 -encoding UTF-8 -cp "$r01Repo\target\classes" -d "$r01Work\classes" "$r01Repo\src\main\java\org\cbihi\mrinormalizer\infrastructure\filesystem\JsonManifestCodec.java" "$r01Work\R01FixtureGenerator.java"
+java -cp "$r01Work\classes;$r01Repo\target\classes" org.cbihi.mrinormalizer.infrastructure.filesystem.R01FixtureGenerator "$r01Work\documents"
+python "$r01Work\verify_r01.py" "$r01Work\documents"
+java -cp "$r01Work\classes;$r01Repo\target\classes" org.cbihi.mrinormalizer.infrastructure.filesystem.R01FixtureGenerator "$r01Work\documents-repeat"
+python "$r01Work\verify_r01.py" "$r01Work\documents" "$r01Work\documents-repeat"
+```
+
+The independent validator imports only Python standard-library modules (`json`, `hashlib`, `math`, `pathlib`, `sys`). It parses actual emitted bytes with `json.loads`, rejects duplicate keys and non-JSON numeric constants, and checks exact expected types, values, object keys/order and array order recursively.
+
+| Actual codec document | Bytes | SHA-256 | Independent result |
+| --- | --- | --- | --- |
+| `plan.json` | 925 | `36d0fd33730917ce657df882a8b7dea59757c76515eee10ca27086b4d52e698d` | PASS |
+| `checkpoint.json` (OPERATION_OBSERVED) | 1623 | `7104a0d12fb7e16d822781df7fabb8eb436f3ada87cf51068376a698f306f470` | PASS |
+| `job-checkpoint.json` (JOB_OBSERVED) | 416 | `2eaea08ca0e8732b67e762523cdc016bc924ae2701e65370f628ddff954c11bd` | PASS |
+| `public-report.json` | 1667 | `3f585185b165080ee6affa45a5bc0744c3080e1c455a3ba9d856c8d0534f693c` | PASS |
+
+- Exact schema literals: `org.cbihi.mrinormalizer.provenance-plan`, `org.cbihi.mrinormalizer.provenance-checkpoint`, `org.cbihi.mrinormalizer.public-job-report`; every document has an integer `schemaVersion` equal to 1.
+- Strict UTF-8, no BOM, exactly one terminal LF, no CR, supplementary U+1F600 preserved as actual UTF-8 bytes and decoded text, escaped quotes preserved in the source path: PASS.
+- Exact Python integer types/values: source/output `sizeBytes = 9223372036854775807`, conversion `voxelCount = 9008298766368768`, and public persistence failure `count = 9007199254740993`; all exceed `2^53`: PASS. The last value exercises an integer not exactly representable as a JavaScript Number.
+- Expected source/destination references, operation identity/kind, original detection/extension-mismatch facts, assessment/readiness/reason, typed selected-source fingerprint, versions, timestamps, observation/job kinds, explicit nulls, recovery failure, M7 dimensions/spacing/affine/intensity/flags, finite double extrema and signed zero, `postWriteValidation = NOT_PERFORMED`: PASS.
+- Public top-level keys exactly `{schema,schemaVersion,state,sourceCount,operationCounts,failureCounts}`; all 18 bins in accepted kind/state order, exactly `{kind,state,count}` per bin; all seven controlled failure namespaces represented, exactly `{namespace,code,count}` per failure: PASS.
+- Recursive restricted-key exclusion and absence of known fixture identifiers, source/destination paths, digests/fingerprint hashes, timestamps and software-version values from public JSON: PASS. Closed-shape verification rejects any additional payload channel.
+- Second actual-codec generation byte-identical for all four files: PASS.
+- External helper hashes: `R01FixtureGenerator.java` SHA-256 `6a74ecf54c0b25b419ebaaaa634e8a93e55e3fba48eef582e2a07d59a2ac0e87`; `verify_r01.py` SHA-256 `7e07ec58b8131aecf3bdf1b36de9b8f195406687e32d1eb447c419138642eb91`. Machine-readable results retained as `r01-result.json`.
+
+### Final executable and scope evidence
+
+- Before R01, inspected existing Java-21 Surefire reports independently corroborated the user-reported focused S6 10/10, combined F1 219/219 and protected 154/154, all zero failures/errors/skips. These inspections were not claimed as new focused commands; their report metadata/hashes were preserved externally in `prior-test-evidence.json` before the clean run.
+- After R01 PASS, executed `mvn clean test` on the unchanged source tree: **BUILD SUCCESS; 393 tests, 0 failures, 0 errors, 0 skipped; 31 test suites**. Clean compilation: **78 production sources + 31 test sources, release 21**. Completed at `2026-10-06T20:28:54+05:30`.
+- The fresh complete run includes S6 10/10, combined F1 219/219 and protected 154/154 again. Windows/default `sun.nio.fs.WindowsFileSystemProvider` / NTFS S09 qualification reported PASS; allocation block 512 bytes, logical bytes 1240, exact per-file allocation unavailable (`-1`). Other platforms NOT RUN; power-loss/directory-entry/network-filesystem durability/support remain UNPROVED. No broader provider claim.
+- Scope verification compared SHA-256 snapshots of every tracked/nonignored untracked workspace file, verified accepted protected paths against HEAD, and checked HEAD/branch/index unchanged. Only this tracker was edited during this execution cycle. The existing S6 test was untouched: SHA-256 `96cb504755e64e0a07fcd7f7f92b61a55d3e9ff04accfacce7f7182dba838b78`. No S6 corrective source pass consumed.
+- Pre-existing unrelated untracked `.roomodes`, `docs/architecture/ARCHITECTURE-REVISION-1.0-RC2.md`, `docs/architecture/ARCHITECTURE-REVISION-1.0-RC3.md`, and `planningPRE-M8-FOUNDATION-TRACKER.md` were left untouched. This workspace was not claimed to have exactly two total status entries; the intended S6 change set remains the same two authorized paths.
+- `git diff --check`: PASS. No production, existing-test, schema, build, dependency, architecture-document, development-log or milestone-file edit. No staging, commit, push or history rewrite. External `before.json` and `scope-result.json` retain scope/regression evidence.
+
+| S6 closure criterion | Current verified evidence |
+| --- | --- |
+| B01-B02 | ProvenanceContractBoundaryTest 10/10 PASS in fresh final clean regression |
+| R01 | Four actual accepted-codec documents independently parsed/checked by Python 3.11.9 standard-library json: PASS |
+| R02 | Accepted protected source comparison PASS; protected regression 154/154 PASS |
+| R03 | Final Java-21 clean regression 393/393 PASS; scope/index/static verification PASS |
+
+R01 execution is COMPLETE. S6 executable blockers are resolved; explicit review/acceptance and later checkpoint bookkeeping remain pending. S6 NOT ACCEPTED; F1 INCOMPLETE pending S6 acceptance; no S6 checkpoint SHA exists. F2-F11, GUI and M8 remain BLOCKED. STOP; no later-slice work authorized.
