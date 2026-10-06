@@ -35,7 +35,7 @@ Historical assistant runtime check: OpenJDK 17.0.20; mvn is unavailable. The pro
 | ID | Contract/outcome | Dependency | Status | Verified checkpoint |
 | --- | --- | --- | --- | --- |
 | F0 | Architectural contracts and policies | Baseline audit and design approval | **ACCEPTED / CLOSED**; implementation complete; closure evidence passed; S1/S2/S3 accepted | S1: `76b676d`; S2: `ea4061672a293745ac5f5fc1b0d8d240d217e64e`; S3 tested implementation: `8b6e714216f7d3d174a81cdc9a120d88a4348f80`; closure evidence: `a2554ab93a7ff2fe5c4e547a7fb3119b57ac367c` |
-| F1 | Persistent provenance/reporting | Accepted F0 | **IN PROGRESS / INCOMPLETE**. S0, S1A, S1B, S2A, S2B, S3, S4 and S5A **ACCEPTED**. S5B implementation complete and executable verification **PASSED**; checkpoint commit still pending, therefore S5B is **NOT YET ACCEPTED**. S6 **NOT AUTHORIZED**. | S1A: `b7a327d55ac26265474378fec00ae9a03ba7784e`; S1B: `8b57b48e2a677a08a1d2f11f9eb760b0d3b8f00c`; S2A: `99dcd08d3c1e4d8653be1ef89b521422294be274`; S2B: `935fc29ad9a40a53b497a5fe008db5d6d7d485ac`; S3: `03d598a1606121ecc7918279ec9a5f20f622ee93`; S4: `233c334023f035eba4c6122a262f9961e08e9b07`; S5A: `26f41054449335fba6d05e5e4e77bad51c3ea641`; S5B: **checkpoint pending — no commit SHA yet** |
+| F1 | Persistent provenance/reporting | Accepted F0 | **IN PROGRESS / INCOMPLETE**. S0, S1A, S1B, S2A, S2B, S3, S4, S5A and **S5B ACCEPTED**. S6 **NOT YET IMPLEMENTED / next bounded closure slice**. | S1A: `b7a327d55ac26265474378fec00ae9a03ba7784e`; S1B: `8b57b48e2a677a08a1d2f11f9eb760b0d3b8f00c`; S2A: `99dcd08d3c1e4d8653be1ef89b521422294be274`; S2B: `935fc29ad9a40a53b497a5fe008db5d6d7d485ac`; S3: `03d598a1606121ecc7918279ec9a5f20f622ee93`; S4: `233c334023f035eba4c6122a262f9961e08e9b07`; S5A: `26f41054449335fba6d05e5e4e77bad51c3ea641`; S5B tested implementation: `ca25625264ebe96c0d777c3da833e03efc03e7aa`; S5B acceptance reconciliation: `fc4de75b18783df45d5757c11c51f1924ea9d535` |
 | F2 | Deterministic recursive inventory | F0/F1 | **NOT STARTED / BLOCKED pending F1 closure** | None |
 | F3 | Metadata-only DICOM inspection | F0/F1 | **NOT STARTED / BLOCKED pending F1 closure** | None |
 | F4 | Candidate series discovery | F2/F3 | **NOT STARTED / BLOCKED** | None |
@@ -1748,6 +1748,47 @@ Exactly **1 production addition +1 test addition +2 schema documents + tracker =
 - Windows safety: qualified default local NTFS accepts null fileKey with overlapping ExtendedOpenOption.NOSHARE_DELETE ownership handles through stage creation/closed-writer verification. Creation time is a substitution check, not fabricated identity; POSIX stable keys remain required. Probe pins are verified/released together before hard-link cleanup. Cleanup revalidates ownership, access, containment and peer identity after hook/unpin boundaries; uncertain or substituted artifacts are retained with CLEANUP_FAILED. Deliberate owner-privileged races between final checks and unlink remain outside the cooperative contract; unsupported qualification fails PUBLICATION_UNAVAILABLE without downgrade.
 - Failure/outcome contract: fixed neutral ProvenancePersistenceException only for external failures; accepted PERSISTENCE-phase codes only. Known absent/different final -> NOT_PUBLISHED; exact known final -> PUBLISHED; unclassifiable final -> UNKNOWN + RECOVERY_REQUIRED with uncertain stage retained. Primary and independent CLEANUP_FAILED facts coexist without erasing publication outcome. Every export exception uses Optional.empty() for knownPublication, even PUBLISHED: no ManifestReceipt is ever manufactured and no checkpoint/plan is written. Null required arguments use a fixed non-identifying argument error; no raw filesystem path/message/cause/stack escapes.
 - Bounded static review: frozen surfaces, codec API delta, unchanged S3 fixtures, explicit public byte budget, ownership/cleanup/outcome paths, restricted namespace separation and saved-file whitespace checked. git diff --check PASS; status plus tracked name review confirms exactly six authorized paths. PublicJobReport, ManifestProjection, ManifestProjectionTest, public schema, JsonManifestStore, ManifestStoreTest, accepted replay/models, F0/M5/M6/M7, build/dependencies, Main/DependencyContainer and architecture files/tests unchanged.
-- Executable verification DEFERRED: java -version reports OpenJDK 17.0.20; mvn -version reports command not found. No tooling installation/configuration, compilation or Maven test execution attempted. Focused PublicReportWriterTest/JsonManifestCodecTest, combined F1 and full clean regression NOT RUN; no executed totals or supplemental generated-fixture interoperability claimed. S5B Windows/POSIX provider qualification NOT RUN; symlink tests require valid workstation privileges and have no skip fallback. Power-loss/directory-entry/network durability remains unproved. No executable corrective pass consumed.
-- **F1-S5B SOURCE PREPARED / NOT ACCEPTED** pending authoritative Java-21/Maven workstation gates and explicit review; no S5B checkpoint SHA exists. F0 ACCEPTED / CLOSED; F1-S0/S1A/S1B/S2A/S2B/S3/S4/S5A ACCEPTED; F1 INCOMPLETE. S6 NOT AUTHORIZED; F2-F11 BLOCKED; GUI BLOCKED; M8 BLOCKED.
-- STOP after the bounded S5B report. No staging, commit, push, S6 or F2 work.
+F1-S5B ACCEPTED —
+fc4de75b18783df45d5757c11c51f1924ea9d535
+
+Tested implementation checkpoint:
+ca25625264ebe96c0d777c3da833e03efc03e7aa
+
+Implementation parent:
+26f41054449335fba6d05e5e4e77bad51c3ea641
+
+Executable evidence:
+- focused S5B: 56/56 PASS
+  - JsonManifestCodecTest: 31/31
+  - PublicReportWriterTest: 25/25
+- combined F1: 209/209 PASS
+- full clean regression: 383/383 PASS
+- failures: 0
+- errors: 0
+- skipped: 0
+- Java release 21 compilation:
+  78 production sources + 30 test sources
+- Windows 11 / default Windows NIO / NTFS execution: PASS
+- git diff --check: PASS
+- no S5B corrective source pass consumed
+
+Scope:
+- S5B implementation checkpoint ca25625... contains exactly the five
+  production/test changes.
+- tracker reconciliation follows separately and changes documentation only.
+- no S5A/S4/M5/M6/M7/build/wiring/architecture change.
+- no public report decoder.
+- no ManifestReceipt manufactured by public export.
+
+Qualification:
+- power-loss durability UNPROVED
+- directory-entry durability UNPROVED
+- network filesystem durability/support UNPROVED
+- POSIX S5B provider qualification not claimed from Windows evidence
+
+F1-S5B ACCEPTED.
+F1 remains INCOMPLETE.
+F1-S6 is the only remaining F1 slice.
+F2-F11 remain BLOCKED.
+GUI remains BLOCKED.
+M8 remains BLOCKED.
