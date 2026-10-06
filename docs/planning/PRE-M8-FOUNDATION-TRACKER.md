@@ -1686,3 +1686,33 @@ Exactly **1 production addition +1 test addition +2 schema documents + tracker =
 **F1-S3 acceptance reconciliation (2026-10-05):** the accepted implementation checkpoint is 03d598a1606121ecc7918279ec9a5f20f622ee93. This later tracker-only bookkeeping checkpoint has no commit SHA yet; it changes no implementation, tests, schemas or build files and claims no Maven rerun. The earlier checkpoint-pending and pre-commit statements above remain historical and are superseded by this acceptance record.
 
 **STOP AFTER TRACKER-ONLY RECONCILIATION. No commit or push. S4 requires separate explicit authorization after this bookkeeping checkpoint; no S4 implementation or acceptance is claimed.**
+
+## F1-S4 bounded source preparation — 2026-10-05
+
+**F1-S3 ACCEPTED — 03d598a1606121ecc7918279ec9a5f20f622ee93.**
+- Accepted S4 parent: 9e7007ba40c483967874206da2097a7bab1fb86a; target branch: feature/pre-m8-foundation.
+- The two intervening tracker-only hops through 7a2e57da37341a1907c55502b05a19fe21dbe7a6 were verified; direct-parent requirement was explicitly superseded. No history was changed.
+- This latest S4 record supersedes earlier current-authorization/status statements; historical S3 executable evidence is unchanged.
+- F1-S4 INITIAL EXECUTION FAILED; ONE CORRECTIVE SOURCE PASS PREPARED, NOT ACCEPTED pending the authoritative focused rerun; no S4 commit SHA exists.
+- Exact scope: ADD src/main/java/org/cbihi/mrinormalizer/infrastructure/filesystem/JsonManifestStore.java; ADD src/test/java/org/cbihi/mrinormalizer/infrastructure/filesystem/ManifestStoreTest.java; MODIFY this tracker. No fourth path.
+- Tests-first: initial 29-test S01-S09 file preceded the adapter; stage-close coverage brought the initial candidate to 30 tests. This one authorized corrective pass added two real-provider regressions before correcting the adapter: nullable-key/private/canonical hard-link publication and replacement-safe stage cleanup; 32 @Test methods total. Existing broad-ACL, symlink, no-overwrite and unsupported-provider coverage remains; no assumptions, disabled tests or skips added.
+- S01: canonical plan/record receipts and acknowledged owner-fixture intent before simulated mutation.
+- S02: exact/earlier retries, CAS, identity/hash conflicts, no overwrite and invalid/closed use.
+- S03: restart/plan-only/minimum receipts, acknowledged loss, corruption/schema/layout/link/type failures; no fallback or repair.
+- S04: stage/write/force/publication/acceptance faults; absent outcome remains IN_PROGRESS; PUBLISHED retries and UNKNOWN poisoning.
+- S05: independent primary/cleanup/stage-close/lease-close failures, retained final evidence and explicit close failures.
+- S06: canonical containment, configured ancestor aliases, restricted stage/final/lease resources and immediate exclusive job leases.
+- S07: accepted caps, checked sequence, outcome/control reserves, real 999/1000/1001 buckets and controlled disk-full.
+- S08: adapter counters cover one open replay pass, bounded append traffic, no per-append plan encoding/current view and compact hash indexing without checkpoint history.
+- S09: executable real-provider complete visibility/no-replace races, lease/access, startup, allocation block size/logical bytes/usable-space measurements; actual foreign JRT provider must reject. No assumptions, disabled tests or OS skips.
+- Candidate: same-filesystem private staging, force/close/byte verification and exclusive hard-link final publication; no mutable snapshots or overwrite fallback. Only canonical persistence bytes are hashed.
+- Windows candidate is restricted to default-provider NTFS on SystemDrive; UNC/mapped/other volumes fail closed pending separate local-volume qualification. Effective owner-only ACLs must verify; no unrestricted fallback.
+- Initial workstation evidence: Windows 11 amd64, Temurin 21.0.12.1, Maven 3.9.16, SystemDrive C:, default Windows NIO provider, NTFS; Java release-21 compilation PASS (74 production / 28 test sources); all 30 ManifestStoreTest methods discovered. Focused run: 30 tests / 1 failure / 27 errors / 0 skipped, BUILD FAILURE. Common constructor failure: PERSISTENCE CONTAINMENT_UNPROVEN, NOT_PUBLISHED.
+- Confirmed cause: initial candidate incorrectly required non-null BasicFileAttributes.fileKey(). Actual Windows/NTFS probes supplied null keys for canonical normal directories and regular files; ACL view exists, roots are disjoint and namespace contained; the real regular-file/hard-link probe returned Files.isSameFile() == true with both sizes 5.
+- One corrective source pass: provider-aware observations retain supplied stable keys and reject missing POSIX keys; qualified Windows null keys use birth-time substitution checks plus canonical/no-follow/type/owner/private-ACL/qualified-FileStore/lease revalidation, without claiming metadata/pathname identity. Stage/final identity uses real Files.isSameFile plus exact bytes. Instance-created unique stage/probe ownership uses overlapping Windows JDK no-delete-sharing handles where keys are absent, with access/observation/peer checks before releasing handles for cleanup; uncertain or substituted artifacts are retained with CLEANUP_FAILED. No overwrite/public API/dependency/accepted-contract changes.
+- Separate workstation limitation: configuredSymlinkAncestorIsCanonicalizedRatherThanBlanketRejected could not create its fixture symlink because Windows reported a required privilege was not held. The real test remains unchanged in substance; the user will rerun with symlink creation privilege available.
+- Corrective execution NOT RUN here: runtime remains Java 17 and Maven unavailable; no compilation, Maven or toolchain provisioning attempted. Authoritative next command: mvn "-Dtest=ManifestStoreTest" test on the user's Windows Java-21/Maven workstation with symlink privilege. Corrected Windows qualification pending; POSIX NOT RUN; no corrected provider PASS claimed. Exact per-file allocation may be unavailable; directory/power-loss/network durability remains unproved, as does resistance to deliberate owner-privileged races ignoring the cooperative lease (including handle release/unlink or POSIX check/unlink).
+- git diff --check: PASS; static scope/public API review: exactly the three budgeted paths and frozen public constructor/four methods; accepted Java/tests/schemas/build/architecture unchanged.
+- F0 ACCEPTED / CLOSED; F1-S0/S1A/S1B/S2A/S2B/S3 ACCEPTED; F1 INCOMPLETE.
+- S5A/S5B/S6 NOT AUTHORIZED; F2-F11 BLOCKED; GUI BLOCKED; M8 BLOCKED.
+- STOP after source preparation/static review. No commit, push, patch/ZIP/archive, public export or S5A work.
