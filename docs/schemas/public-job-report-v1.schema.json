@@ -1,0 +1,312 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:org.cbihi.mrinormalizer.public-job-report",
+  "title": "Public job report schema 1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "schemaVersion",
+    "state",
+    "sourceCount",
+    "operationCounts",
+    "failureCounts"
+  ],
+  "properties": {
+    "schema": {
+      "const": "org.cbihi.mrinormalizer.public-job-report"
+    },
+    "schemaVersion": {
+      "const": 1,
+      "type": "integer"
+    },
+    "state": {
+      "enum": [
+        "PLANNED",
+        "RUNNING",
+        "COMPLETED",
+        "FAILED",
+        "RECOVERY_REQUIRED"
+      ]
+    },
+    "sourceCount": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 100000
+    },
+    "operationCounts": {
+      "type": "array",
+      "minItems": 18,
+      "maxItems": 18,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind",
+          "state",
+          "count"
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "COPY",
+              "CONVERT_DICOM_TO_NIFTI"
+            ]
+          },
+          "state": {
+            "enum": [
+              "NOT_STARTED",
+              "IN_PROGRESS",
+              "COMPLETED",
+              "IDENTICAL_EXISTING",
+              "WRITTEN_UNVERIFIED",
+              "SKIPPED_POLICY",
+              "BLOCKED",
+              "FAILED",
+              "RECOVERY_REQUIRED"
+            ]
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100000
+          }
+        }
+      }
+    },
+    "failureCounts": {
+      "type": "array",
+      "maxItems": 63,
+      "uniqueItems": true,
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "namespace",
+              "code",
+              "count"
+            ],
+            "properties": {
+              "namespace": {
+                "const": "DETECTION"
+              },
+              "code": {
+                "enum": [
+                  "INPUT_NOT_FOUND",
+                  "INPUT_IS_DIRECTORY",
+                  "INPUT_NOT_READABLE",
+                  "EMPTY_INPUT",
+                  "INVALID_DICOM",
+                  "INPUT_TOO_LARGE",
+                  "INVALID_INPUT_REFERENCE",
+                  "INVALID_NIFTI",
+                  "INVALID_GZIP",
+                  "UNSUPPORTED_FORMAT",
+                  "IO_ERROR"
+                ]
+              },
+              "count": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 9223372036854775807
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "namespace",
+              "code",
+              "count"
+            ],
+            "properties": {
+              "namespace": {
+                "const": "RECONSTRUCTION"
+              },
+              "code": {
+                "enum": [
+                  "SERIES_NOT_SELECTED",
+                  "SERIES_NOT_FOUND",
+                  "EMPTY_INPUT",
+                  "INPUT_NOT_FOUND",
+                  "INPUT_NOT_READABLE",
+                  "NOT_DICOM",
+                  "DICOM_PARSE_FAILED",
+                  "MIXED_SERIES",
+                  "MIXED_STUDY",
+                  "INCOMPATIBLE_INSTANCE",
+                  "MISSING_REQUIRED_METADATA",
+                  "INVALID_ORIENTATION",
+                  "INVALID_POSITION",
+                  "DUPLICATE_SLICE",
+                  "DUPLICATE_SOP_INSTANCE",
+                  "IRREGULAR_SPACING",
+                  "UNSUPPORTED_OBJECT_TYPE",
+                  "UNSUPPORTED_TRANSFER_SYNTAX",
+                  "UNSUPPORTED_PIXEL_REPRESENTATION",
+                  "PIXEL_DATA_UNAVAILABLE"
+                ]
+              },
+              "count": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 9223372036854775807
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "namespace",
+              "code",
+              "count"
+            ],
+            "properties": {
+              "namespace": {
+                "const": "CONVERSION"
+              },
+              "code": {
+                "enum": [
+                  "INVALID_OUTPUT",
+                  "OUTPUT_ALREADY_EXISTS",
+                  "OUTPUT_WRITE_FAILED"
+                ]
+              },
+              "count": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 9223372036854775807
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "namespace",
+              "code",
+              "count"
+            ],
+            "properties": {
+              "namespace": {
+                "const": "HASHING"
+              },
+              "code": {
+                "enum": [
+                  "INVALID_REFERENCE",
+                  "CONTAINMENT_UNPROVEN",
+                  "INPUT_UNAVAILABLE",
+                  "SOURCE_CHANGED",
+                  "HASH_FAILED",
+                  "RESOURCE_LIMIT"
+                ]
+              },
+              "count": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 9223372036854775807
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "namespace",
+              "code",
+              "count"
+            ],
+            "properties": {
+              "namespace": {
+                "const": "EXECUTION"
+              },
+              "code": {
+                "enum": [
+                  "INVALID_REFERENCE",
+                  "CONTAINMENT_UNPROVEN",
+                  "INPUT_UNAVAILABLE",
+                  "CLEANUP_FAILED",
+                  "RECOVERY_REQUIRED",
+                  "OUTPUT_CONFLICT",
+                  "VERIFICATION_FAILED"
+                ]
+              },
+              "count": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 9223372036854775807
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "namespace",
+              "code",
+              "count"
+            ],
+            "properties": {
+              "namespace": {
+                "const": "POST_WRITE_VALIDATION"
+              },
+              "code": {
+                "enum": [
+                  "VERIFICATION_FAILED"
+                ]
+              },
+              "count": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 9223372036854775807
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "namespace",
+              "code",
+              "count"
+            ],
+            "properties": {
+              "namespace": {
+                "const": "PERSISTENCE"
+              },
+              "code": {
+                "enum": [
+                  "INVALID_MANIFEST",
+                  "INVALID_REFERENCE",
+                  "CONTAINMENT_UNPROVEN",
+                  "INPUT_UNAVAILABLE",
+                  "CHECKPOINT_CONFLICT",
+                  "WRITE_FAILED",
+                  "PUBLICATION_UNAVAILABLE",
+                  "READ_FAILED",
+                  "UNSUPPORTED_SCHEMA",
+                  "CORRUPT_CHECKPOINT",
+                  "ACCESS_CONTROL_UNAVAILABLE",
+                  "RESOURCE_LIMIT",
+                  "CLEANUP_FAILED",
+                  "RECOVERY_REQUIRED",
+                  "OUTPUT_CONFLICT"
+                ]
+              },
+              "count": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 9223372036854775807
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}
