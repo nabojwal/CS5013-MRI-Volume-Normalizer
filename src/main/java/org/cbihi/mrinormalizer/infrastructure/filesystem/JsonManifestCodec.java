@@ -25,6 +25,7 @@ import org.cbihi.mrinormalizer.application.provenance.manifest.ManifestOperation
 import org.cbihi.mrinormalizer.application.provenance.manifest.ManifestState;
 import org.cbihi.mrinormalizer.application.provenance.manifest.ProcessingEvidence;
 import org.cbihi.mrinormalizer.application.provenance.manifest.ProvenanceManifest;
+import org.cbihi.mrinormalizer.application.provenance.manifest.PublicJobReport;
 import org.cbihi.mrinormalizer.application.provenance.manifest.RelativePath;
 import org.cbihi.mrinormalizer.application.provenance.manifest.SourceFileRecord;
 import org.cbihi.mrinormalizer.domain.error.DicomProcessingError;
@@ -41,6 +42,7 @@ import org.cbihi.mrinormalizer.domain.model.ScalarType;
 final class JsonManifestCodec {
     private static final int PLAN_BYTES = 64 * 1024 * 1024;
     private static final int CHECKPOINT_BYTES = 16 * 1024;
+    private static final int PUBLIC_REPORT_BYTES = 16 * 1024 * 1024;
     private static final String PLAN_START = "{\"schema\":\"org.cbihi.mrinormalizer.provenance-plan\",\"schemaVersion\":";
     private static final String CHECKPOINT_START = "{\"schema\":\"org.cbihi.mrinormalizer.provenance-checkpoint\",\"schemaVersion\":";
 
@@ -82,6 +84,13 @@ final class JsonManifestCodec {
         } catch (IllegalArgumentException | DateTimeException ignored) {
             throw invalid();
         }
+    }
+
+    byte[] encode(PublicJobReport report) {
+        require(report != null);
+        var writer = new Writer(PUBLIC_REPORT_BYTES);
+        writer.publicReport(report);
+        return writer.bytes();
     }
 
     private static Decoder decoder(byte[] bytes, int limit) {
@@ -146,6 +155,25 @@ final class JsonManifestCodec {
             for (var source : value.sources()) { if (!first) append(","); first = false; source(source); }
             append("],\"operations\":["); first = true;
             for (var operation : value.operations()) { if (!first) append(","); first = false; operation(operation); }
+            append("]}");
+        }
+
+        private void publicReport(PublicJobReport value) {
+            append("{\"schema\":\"org.cbihi.mrinormalizer.public-job-report\",\"schemaVersion\":");
+            number(value.schemaVersion()); append(",\"state\":"); quoted(value.state().name());
+            append(",\"sourceCount\":"); number(value.sourceCount()); append(",\"operationCounts\":[");
+            boolean first = true;
+            for (var count : value.operationCounts()) {
+                if (!first) append(","); first = false;
+                append("{\"kind\":"); quoted(count.kind().name()); append(",\"state\":"); quoted(count.state().name());
+                append(",\"count\":"); number(count.count()); append("}");
+            }
+            append("],\"failureCounts\":["); first = true;
+            for (var count : value.failureCounts()) {
+                if (!first) append(","); first = false;
+                append("{\"namespace\":"); quoted(count.namespace().name()); append(",\"code\":"); quoted(count.code());
+                append(",\"count\":"); number(count.count()); append("}");
+            }
             append("]}");
         }
 

@@ -391,14 +391,14 @@ class JsonManifestCodecTest {
         assertFalse(Modifier.isPublic(JsonManifestCodec.class.getModifiers()));
         assertEquals(1, JsonManifestCodec.class.getDeclaredConstructors().length);
         assertEquals(0, JsonManifestCodec.class.getDeclaredConstructors()[0].getParameterCount());
-        assertEquals(4, Arrays.stream(JsonManifestCodec.class.getDeclaredMethods()).filter(m -> !Modifier.isPrivate(m.getModifiers())).count());
+        assertEquals(5, Arrays.stream(JsonManifestCodec.class.getDeclaredMethods()).filter(m -> !Modifier.isPrivate(m.getModifiers())).count());
         assertEquals(byte[].class, JsonManifestCodec.class.getDeclaredMethod("encode", ProvenanceManifest.class).getReturnType());
         assertEquals(byte[].class, JsonManifestCodec.class.getDeclaredMethod("encode", CheckpointRecord.class).getReturnType());
         assertEquals(ProvenanceManifest.class, JsonManifestCodec.class.getDeclaredMethod("decodePlan", byte[].class).getReturnType());
         assertEquals(CheckpointRecord.class, JsonManifestCodec.class.getDeclaredMethod("decodeCheckpoint", byte[].class).getReturnType());
         for (var method : JsonManifestCodec.class.getDeclaredMethods()) assertFalse(Modifier.isPublic(method.getModifiers()));
         String source = Files.readString(Path.of("src/main/java/org/cbihi/mrinormalizer/infrastructure/filesystem/JsonManifestCodec.java"));
-        for (var forbidden : List.of("java.lang.reflect", "com.fasterxml", "com.google.gson", "java.nio.file", "parseValue(", "Map<String", "ManifestStore", "PublicJobReport")) assertFalse(source.contains(forbidden));
+        for (var forbidden : List.of("java.lang.reflect", "com.fasterxml", "com.google.gson", "java.nio.file", "parseValue(", "Map<String", "ManifestStore")) assertFalse(source.contains(forbidden));
     }
 
     @Test
@@ -476,5 +476,94 @@ class JsonManifestCodecTest {
         assertNotNull(failure.getMessage());
         assertFalse(failure.getMessage().contains("subject-123"));
         assertNull(failure.getCause());
+    }
+
+    // S5B encoder-only additions; existing plan/checkpoint fixtures stay unchanged.
+    @Test void publicGoldenBytesHaveExactClosedOrderAndAllEighteenBins() {
+        var report = publicReport(JobState.RUNNING, List.of(
+                new PublicJobReport.FailureCount(PublicJobReport.FailureNamespace.DETECTION, "INPUT_NOT_FOUND", 2),
+                new PublicJobReport.FailureCount(PublicJobReport.FailureNamespace.PERSISTENCE, "WRITE_FAILED", 3)));
+        String expected = publicGolden("RUNNING", "[{\"namespace\":\"DETECTION\",\"code\":\"INPUT_NOT_FOUND\",\"count\":2},"
+                + "{\"namespace\":\"PERSISTENCE\",\"code\":\"WRITE_FAILED\",\"count\":3}]");
+        assertArrayEquals(utf8(expected), codec.encode(report));
+        assertEquals(18, report.operationCounts().size());
+    }
+
+    @Test void publicEnumsAndIntegerTokensNeverDependOnLocale() {
+        var previous = java.util.Locale.getDefault();
+        try {
+            java.util.Locale.setDefault(java.util.Locale.forLanguageTag("ar-EG"));
+            for (var state : JobState.values()) assertEquals(publicGolden(state.name(), "[]"), text(codec.encode(publicReport(state, List.of()))));
+            var report = publicReport(JobState.FAILED, List.of(new PublicJobReport.FailureCount(
+                    PublicJobReport.FailureNamespace.PERSISTENCE, "WRITE_FAILED", Long.MAX_VALUE)));
+            assertEquals(publicGolden("FAILED", "[{\"namespace\":\"PERSISTENCE\",\"code\":\"WRITE_FAILED\",\"count\":9223372036854775807}]"), text(codec.encode(report)));
+        } finally { java.util.Locale.setDefault(previous); }
+    }
+
+    @Test void publicUtf8HasNoBomExactlyOneLfAndDeterministicCompleteBytes() {
+        var report = publicReport(JobState.PLANNED, List.of()); var bytes = codec.encode(report);
+        assertEquals('{', bytes[0]); assertEquals('\n', bytes[bytes.length - 1]);
+        assertEquals(1, text(bytes).chars().filter(c -> c == '\n').count());
+        assertFalse(text(bytes).contains("\uFEFF")); assertFalse(text(bytes).contains("\r"));
+        for (int i = 0; i < 10; i++) assertArrayEquals(bytes, codec.encode(report));
+        assertTrue(bytes.length < 16 * 1024 * 1024);
+    }
+
+    @Test void publicNullUsesEstablishedFixedCodecFailure() {
+        var failure = assertThrowsExactly(IllegalArgumentException.class, () -> codec.encode((PublicJobReport) null));
+        assertEquals("Invalid canonical provenance JSON", failure.getMessage()); assertNull(failure.getCause());
+    }
+
+    @Test void publicWireHasNoRestrictedChannelsAndNoDecoder() throws Exception {
+        String json = text(codec.encode(publicReport(JobState.COMPLETED, List.of())));
+        for (var field : List.of("reference", "path", "jobId", "operationId", "sha256", "digest", "sizeBytes", "createdAt",
+                "recordedAt", "sourceSummary", "conversionFacts", "geometry", "metadata", "softwareVersion", "exception"))
+            assertFalse(json.contains("\"" + field + "\""), field);
+        assertEquals(byte[].class, JsonManifestCodec.class.getDeclaredMethod("encode", PublicJobReport.class).getReturnType());
+        assertFalse(Arrays.stream(JsonManifestCodec.class.getDeclaredMethods()).anyMatch(m -> m.getReturnType() == PublicJobReport.class
+                || m.getName().equals("decodePublicReport")));
+        assertFalse(Modifier.isPublic(JsonManifestCodec.class.getModifiers()));
+    }
+
+    @Test void maximalClosedFailureCorpusRemainsCompleteWithinExplicitBudget() throws Exception {
+        var failures = new ArrayList<PublicJobReport.FailureCount>();
+        for (var ns : PublicJobReport.FailureNamespace.values()) {
+            switch (ns) {
+                case DETECTION -> { for (var code : DetectionDiagnostic.values()) if (code != DetectionDiagnostic.NONE)
+                    failures.add(new PublicJobReport.FailureCount(ns, code.name(), 1)); }
+                case RECONSTRUCTION -> { for (var code : DicomProcessingError.values()) failures.add(new PublicJobReport.FailureCount(ns, code.name(), 1)); }
+                case CONVERSION -> { for (var code : DicomToNiftiError.values()) failures.add(new PublicJobReport.FailureCount(ns, code.name(), 1)); }
+                default -> { for (var code : ManifestFailure.Code.values()) {
+                    try { new ManifestFailure(ManifestFailure.Phase.valueOf(ns.name()), code); }
+                    catch (IllegalArgumentException inapplicable) { continue; }
+                    failures.add(new PublicJobReport.FailureCount(ns, code.name(), 1));
+                } }
+            }
+        }
+        assertEquals(63, failures.size());
+        var bins = new ArrayList<>(publicReport(JobState.FAILED, List.of()).operationCounts());
+        for (int i = 0; i < bins.size(); i++) bins.set(i, new PublicJobReport.OperationCount(bins.get(i).kind(), bins.get(i).state(), i == 0 ? 100000 : 0));
+        var bytes = codec.encode(new PublicJobReport(1, JobState.FAILED, 100000, bins, failures));
+        assertTrue(bytes.length <= 16 * 1024 * 1024);
+        for (var f : failures) assertTrue(text(bytes).contains("{\"namespace\":\"" + f.namespace().name() + "\",\"code\":\"" + f.code() + "\",\"count\":1}"));
+        var field = JsonManifestCodec.class.getDeclaredField("PUBLIC_REPORT_BYTES"); field.setAccessible(true);
+        assertEquals(16 * 1024 * 1024, field.getInt(null));
+        // A valid schema-1 report has only 18 bins and 63 closed failure codes;
+        // an over-budget valid model cannot be constructed without weakening S5A.
+    }
+
+    private static PublicJobReport publicReport(JobState state, List<PublicJobReport.FailureCount> failures) {
+        var bins = new ArrayList<PublicJobReport.OperationCount>(); int count = 0;
+        for (var kind : ManifestOperation.Kind.values()) for (var observation : State.values())
+            bins.add(new PublicJobReport.OperationCount(kind, observation, count++));
+        return new PublicJobReport(1, state, 100000, bins, failures);
+    }
+    private static String publicGolden(String state, String failures) {
+        String[] states = {"NOT_STARTED", "IN_PROGRESS", "COMPLETED", "IDENTICAL_EXISTING", "WRITTEN_UNVERIFIED", "SKIPPED_POLICY", "BLOCKED", "FAILED", "RECOVERY_REQUIRED"};
+        var bins = new ArrayList<String>(); int count = 0;
+        for (var kind : List.of("COPY", "CONVERT_DICOM_TO_NIFTI")) for (var observation : states)
+            bins.add("{\"kind\":\"" + kind + "\",\"state\":\"" + observation + "\",\"count\":" + count++ + "}");
+        return "{\"schema\":\"org.cbihi.mrinormalizer.public-job-report\",\"schemaVersion\":1,\"state\":\"" + state
+                + "\",\"sourceCount\":100000,\"operationCounts\":[" + String.join(",", bins) + "],\"failureCounts\":" + failures + "}\n";
     }
 }
