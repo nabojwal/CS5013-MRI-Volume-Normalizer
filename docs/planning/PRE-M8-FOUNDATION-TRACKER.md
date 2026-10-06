@@ -4,17 +4,20 @@
 
 ## Program control
 
-- Date: 2026-10-06 (Asia/Calcutta; F1-S6 R01 and final executable closure verification).
+- Date: 2026-10-06 (Asia/Calcutta; final F1-S6 acceptance reconciliation).
 - Branch: feature/pre-m8-foundation.
 - Canonical baseline: 0b91666c03d6247a6882c164aa6b033d9b761101.
 - M6 protected checkpoint: cb7769e; protected tag: pre-demo-m6-2026-10-02.
 - M7 protected checkpoint: d9ad7ea; protected tag: pre-demo-m7-2026-10-03.
-- Current checkpoint / accepted S6 parent: f1257441793f73d951ff1b8659f78b30bfffe4f5 (final F1-S5B acceptance).
-- Current authorization: explicitly authorized F1-S6 two-path architecture/closure cycle only. S6 EXECUTABLE CLOSURE PASS / NOT ACCEPTED: R01 PASS and final Java-21 clean regression 393/393 PASS, zero failures/errors/skips. Explicit S6 review/acceptance and later checkpoint bookkeeping remain pending; F1 INCOMPLETE pending S6 acceptance. No production, existing-test, schema, build, wiring or third-path change; no staging, commit or push authorized.
+- Current verified checkpoint: e99d5da170552b55f7d74340b59fabb35615055a (F1-S6 accepted; F1 closed).
+- Accepted S6 parent: f1257441793f73d951ff1b8659f78b30bfffe4f5 (final F1-S5B acceptance).
+- Current authorization: tracker-only final F1 acceptance reconciliation. F1 IMPLEMENTATION COMPLETE; F1 CLOSURE EVIDENCE PASSED; F1 ACCEPTED / CLOSED. F2 is eligible for separate review but NOT AUTHORIZED. No downstream implementation, staging, commit or push authorized.
 - F0: S1 ACCEPTED at 76b676d; S2 ACCEPTED — ea40616 using user-supplied Java 21/Maven results. S2 was committed and pushed; the accepted remote checkpoint is ea4061672a293745ac5f5fc1b0d8d240d217e64e. S3 ACCEPTED — 8b6e714; F0 IMPLEMENTATION COMPLETE; F0 CLOSURE EVIDENCE PASSED; F0 ACCEPTED / CLOSED.
-- F1: S0 ACCEPTED; S1A ACCEPTED — b7a327d55ac26265474378fec00ae9a03ba7784e; S1B ACCEPTED — 8b57b48e2a677a08a1d2f11f9eb760b0d3b8f00c; S2A ACCEPTED — 99dcd08d3c1e4d8653be1ef89b521422294be274; S2B ACCEPTED — 935fc29ad9a40a53b497a5fe008db5d6d7d485ac; S3 ACCEPTED — 03d598a1606121ecc7918279ec9a5f20f622ee93; S4 ACCEPTED — 233c334023f035eba4c6122a262f9961e08e9b07; S5A ACCEPTED — 26f41054449335fba6d05e5e4e77bad51c3ea641; S5B ACCEPTED — final reconciliation f1257441793f73d951ff1b8659f78b30bfffe4f5, following tested implementation ca25625264ebe96c0d777c3da833e03efc03e7aa and evidence reconciliation fc4de75b18783df45d5757c11c51f1924ea9d535. S6 EXECUTABLE CLOSURE PASS / NOT ACCEPTED. F1 INCOMPLETE pending explicit S6 acceptance; no S6 checkpoint SHA exists.
-- F2-F11: NOT STARTED / BLOCKED by sequential review and acceptance.
-- M8: BLOCKED until the complete Pre-M8 acceptance freeze.
+- F1: S0 ACCEPTED; S1A ACCEPTED — b7a327d55ac26265474378fec00ae9a03ba7784e; S1B ACCEPTED — 8b57b48e2a677a08a1d2f11f9eb760b0d3b8f00c; S2A ACCEPTED — 99dcd08d3c1e4d8653be1ef89b521422294be274; S2B ACCEPTED — 935fc29ad9a40a53b497a5fe008db5d6d7d485ac; S3 ACCEPTED — 03d598a1606121ecc7918279ec9a5f20f622ee93; S4 ACCEPTED — 233c334023f035eba4c6122a262f9961e08e9b07; S5A ACCEPTED — 26f41054449335fba6d05e5e4e77bad51c3ea641; S5B ACCEPTED — final reconciliation f1257441793f73d951ff1b8659f78b30bfffe4f5, following tested implementation ca25625264ebe96c0d777c3da833e03efc03e7aa and evidence reconciliation fc4de75b18783df45d5757c11c51f1924ea9d535. S6 ACCEPTED — e99d5da170552b55f7d74340b59fabb35615055a. F1 IMPLEMENTATION COMPLETE; F1 CLOSURE EVIDENCE PASSED; F1 ACCEPTED / CLOSED.
+- F1-S6 ACCEPTED — e99d5da170552b55f7d74340b59fabb35615055a
+- F2: NOT STARTED / NOT AUTHORIZED — now eligible for separate review after F1 closure.
+- F3-F11: NOT STARTED / BLOCKED by their applicable sequential dependencies.
+- M8: BLOCKED until complete Pre-M8 acceptance.
 - GUI: BLOCKED; interface remains frozen and no GUI implementation is authorized.
 
 ## Authority and baseline evidence
@@ -36,19 +39,19 @@ Historical assistant runtime check: OpenJDK 17.0.20; mvn is unavailable. The pro
 | ID | Contract/outcome | Dependency | Status | Verified checkpoint |
 | --- | --- | --- | --- | --- |
 | F0 | Architectural contracts and policies | Baseline audit and design approval | **ACCEPTED / CLOSED**; implementation complete; closure evidence passed; S1/S2/S3 accepted | S1: `76b676d`; S2: `ea4061672a293745ac5f5fc1b0d8d240d217e64e`; S3 tested implementation: `8b6e714216f7d3d174a81cdc9a120d88a4348f80`; closure evidence: `a2554ab93a7ff2fe5c4e547a7fb3119b57ac367c` |
-| F1 | Persistent provenance/reporting | Accepted F0 | **IN PROGRESS / INCOMPLETE**. S0, S1A, S1B, S2A, S2B, S3, S4, S5A and **S5B ACCEPTED**. S6 **EXECUTABLE CLOSURE PASS / NOT ACCEPTED** pending explicit review/acceptance and later checkpoint bookkeeping. | S1A: `b7a327d55ac26265474378fec00ae9a03ba7784e`; S1B: `8b57b48e2a677a08a1d2f11f9eb760b0d3b8f00c`; S2A: `99dcd08d3c1e4d8653be1ef89b521422294be274`; S2B: `935fc29ad9a40a53b497a5fe008db5d6d7d485ac`; S3: `03d598a1606121ecc7918279ec9a5f20f622ee93`; S4: `233c334023f035eba4c6122a262f9961e08e9b07`; S5A: `26f41054449335fba6d05e5e4e77bad51c3ea641`; S5B tested implementation: `ca25625264ebe96c0d777c3da833e03efc03e7aa`; S5B acceptance reconciliation: `fc4de75b18783df45d5757c11c51f1924ea9d535`; final acceptance / S6 parent: `f1257441793f73d951ff1b8659f78b30bfffe4f5` |
-| F2 | Deterministic recursive inventory | F0/F1 | **NOT STARTED / BLOCKED pending F1 closure** | None |
-| F3 | Metadata-only DICOM inspection | F0/F1 | **NOT STARTED / BLOCKED pending F1 closure** | None |
-| F4 | Candidate series discovery | F2/F3 | **NOT STARTED / BLOCKED** | None |
-| F5 | Immutable deterministic organization plan | F1/F2/F4 | **NOT STARTED / BLOCKED** | None |
-| F6 | Verified collision-safe COPY execution | F1/F5 | **NOT STARTED / BLOCKED** | None |
-| F7 | Supported project-owned NIfTI-1 reading | F0 and protected generic volume | **NOT STARTED / BLOCKED by current sequential Pre-M8 gate** | None |
-| F8 | Reopen, compare and persist conversion evidence | F1/F7/M7 | **NOT STARTED / BLOCKED** | None |
-| F9 | Headless orchestration through existing M6/M7 | F2-F8 | **NOT STARTED / BLOCKED** | None |
-| F10 | Minimal boundary reconciliation | Working F9 | **NOT STARTED / BLOCKED** | None |
-| F11 | Synthetic then stakeholder acceptance | F0-F10 | **NOT STARTED / BLOCKED** | None |
+| F1 | Persistent provenance/reporting | Accepted F0 | **ACCEPTED / CLOSED**; F1 IMPLEMENTATION COMPLETE; F1 CLOSURE EVIDENCE PASSED; S0, S1A, S1B, S2A, S2B, S3, S4, S5A, S5B and **S6 ACCEPTED**. | S1A: `b7a327d55ac26265474378fec00ae9a03ba7784e`; S1B: `8b57b48e2a677a08a1d2f11f9eb760b0d3b8f00c`; S2A: `99dcd08d3c1e4d8653be1ef89b521422294be274`; S2B: `935fc29ad9a40a53b497a5fe008db5d6d7d485ac`; S3: `03d598a1606121ecc7918279ec9a5f20f622ee93`; S4: `233c334023f035eba4c6122a262f9961e08e9b07`; S5A: `26f41054449335fba6d05e5e4e77bad51c3ea641`; S5B tested implementation: `ca25625264ebe96c0d777c3da833e03efc03e7aa`; S5B acceptance reconciliation: `fc4de75b18783df45d5757c11c51f1924ea9d535`; final acceptance / S6 parent: `f1257441793f73d951ff1b8659f78b30bfffe4f5`; S6: `e99d5da170552b55f7d74340b59fabb35615055a` |
+| F2 | Deterministic recursive inventory | F0/F1 | **NOT STARTED / NOT AUTHORIZED** — now eligible for separate review after F1 closure | None |
+| F3 | Metadata-only DICOM inspection | F0/F1 | **NOT STARTED / BLOCKED by applicable sequential dependencies** | None |
+| F4 | Candidate series discovery | F2/F3 | **NOT STARTED / BLOCKED by applicable sequential dependencies** | None |
+| F5 | Immutable deterministic organization plan | F1/F2/F4 | **NOT STARTED / BLOCKED by applicable sequential dependencies** | None |
+| F6 | Verified collision-safe COPY execution | F1/F5 | **NOT STARTED / BLOCKED by applicable sequential dependencies** | None |
+| F7 | Supported project-owned NIfTI-1 reading | F0 and protected generic volume | **NOT STARTED / BLOCKED by applicable sequential dependencies** | None |
+| F8 | Reopen, compare and persist conversion evidence | F1/F7/M7 | **NOT STARTED / BLOCKED by applicable sequential dependencies** | None |
+| F9 | Headless orchestration through existing M6/M7 | F2-F8 | **NOT STARTED / BLOCKED by applicable sequential dependencies** | None |
+| F10 | Minimal boundary reconciliation | Working F9 | **NOT STARTED / BLOCKED by applicable sequential dependencies** | None |
+| F11 | Synthetic then stakeholder acceptance | F0-F10 | **NOT STARTED / BLOCKED by applicable sequential dependencies** | None |
 
-The matrix records architectural dependencies and the current sequential authorization state. It does not authorize parallel work or bypass predecessor acceptance gates. **F1 must close through S6 before F2-F11 work is authorized. GUI and M8 remain blocked until the complete Pre-M8 acceptance gate is satisfied.**
+The matrix records architectural dependencies and the current sequential authorization state. It does not authorize parallel work or bypass predecessor acceptance gates. **F1 is accepted / closed through S6. F2 is now eligible for separate review, but is NOT STARTED / NOT AUTHORIZED; this reconciliation does not start F2. F3-F11 remain blocked by their applicable sequential dependencies. GUI and M8 remain blocked until complete Pre-M8 acceptance.**
 
 ## Global invariants
 
@@ -1799,6 +1802,8 @@ M8 remains BLOCKED.
 
 ## F1-S6 bounded architecture/closure source preparation — 2026-10-06
 
+> Historical snapshot. Source-preparation status below, including S6 NOT ACCEPTED, F1 INCOMPLETE and pending or absent-checkpoint statements, is superseded for current status by the final F1-S6 acceptance record at `e99d5da170552b55f7d74340b59fabb35615055a` below. The original record is retained.
+
 **F1-S6 AUTHORIZED / IN PROGRESS — SOURCE PREPARED / NOT ACCEPTED. F1 INCOMPLETE pending S6 closure.**
 
 - This current record supersedes historical S6-not-authorized and earlier current-status statements; S0-S5B evidence is retained. F0 ACCEPTED / CLOSED; F1-S0 through F1-S5B ACCEPTED. F2-F11, GUI and M8 BLOCKED. S6 does not authorize F2 or any production repair.
@@ -1846,6 +1851,8 @@ Complete independent R01 before the final `mvn clean test`; run that final gate 
 - Remaining closure blockers: Java-21/Maven focused, combined, protected and clean gates; actual encoder-generated independent R01; explicit review/acceptance and later checkpoint bookkeeping. S6 NOT ACCEPTED; F1 INCOMPLETE. No S6 SHA exists, and neither F1 implementation completion nor closure PASS is claimed. F2-F11, GUI and M8 remain BLOCKED. STOP after this two-path source-preparation report.
 
 ## F1-S6 R01 execution resolution and final regression — 2026-10-06
+
+> Historical snapshot. Executable-closure status below, including S6 NOT ACCEPTED, F1 INCOMPLETE and pending or absent-checkpoint statements, is superseded for current status by the final F1-S6 acceptance record at `e99d5da170552b55f7d74340b59fabb35615055a` below. The original record is retained.
 
 **R01 PASS; S6 EXECUTABLE CLOSURE PASS / NOT ACCEPTED.** This execution record supersedes the source-preparation snapshot's NOT RUN environment/gate statements. It does not grant S6 acceptance, create a checkpoint or authorize a later workstream.
 
@@ -1905,3 +1912,27 @@ The independent validator imports only Python standard-library modules (`json`, 
 | R03 | Final Java-21 clean regression 393/393 PASS; scope/index/static verification PASS |
 
 R01 execution is COMPLETE. S6 executable blockers are resolved; explicit review/acceptance and later checkpoint bookkeeping remain pending. S6 NOT ACCEPTED; F1 INCOMPLETE pending S6 acceptance; no S6 checkpoint SHA exists. F2-F11, GUI and M8 remain BLOCKED. STOP; no later-slice work authorized.
+
+## Final F1-S6 acceptance and F1 closure — 2026-10-06
+
+**F1-S6 ACCEPTED — e99d5da170552b55f7d74340b59fabb35615055a**
+
+```text
+F1 IMPLEMENTATION COMPLETE
+F1 CLOSURE EVIDENCE PASSED
+F1 ACCEPTED / CLOSED
+```
+
+- Explicit user acceptance is recorded at the verified local checkpoint `e99d5da170552b55f7d74340b59fabb35615055a`, subject `test(provenance): close F1 architecture contract`. Its direct parent is `f1257441793f73d951ff1b8659f78b30bfffe4f5`; the checkpoint contains exactly the S6 architecture-test addition and tracker modification.
+- Accepted closure evidence is retained in the preceding execution record: focused S6 10/10 PASS, combined F1 219/219 PASS, protected regression 154/154 PASS, independent actual-codec Python R01 PASS, and final `mvn clean test` 393/393 PASS with 0 failures, 0 errors and 0 skipped. This tracker-only reconciliation does not claim a new Maven or Python run.
+- The historical source-preparation and executable-closure records remain intact apart from explicit supersession notices. Their earlier S6 NOT ACCEPTED / F1 INCOMPLETE / no-S6-checkpoint statements describe those earlier snapshots, not current status.
+- Provider limitations remain unchanged: Windows/NTFS evidence does not qualify other providers; power-loss, directory-entry and network-filesystem durability/support remain UNPROVED.
+
+```yaml
+F2: NOT STARTED / NOT AUTHORIZED — now eligible for separate review after F1 closure
+F3-F11: NOT STARTED / BLOCKED by their applicable sequential dependencies
+GUI: BLOCKED
+M8: BLOCKED until complete Pre-M8 acceptance
+```
+
+This reconciliation starts no F2 work and grants no downstream implementation authorization. Only this tracker is updated; no source, test, schema, build, dependency or other repository path is changed. No staging, commit or push.
