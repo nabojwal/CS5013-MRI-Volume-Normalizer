@@ -4,7 +4,7 @@
 
 ## Program control
 
-- Date: 2026-10-07 (Asia/Calcutta; final F2 acceptance reconciliation).
+- - Date: 2026-10-08 (Asia/Calcutta; final F3 acceptance reconciliation).
 - Branch: feature/pre-m8-foundation.
 - Canonical baseline: 0b91666c03d6247a6882c164aa6b033d9b761101.
 - M6 protected checkpoint: cb7769e; protected tag: pre-demo-m6-2026-10-02.
@@ -12,13 +12,14 @@
 - Current verified checkpoint / accepted F2 parent: 0794d9d9ada1ea7f486a4fe87811ded24bfc48fd (final F1 closure bookkeeping; F1 accepted / closed).
 - F2 accepted implementation checkpoint: `7a1f8c13ccb6c8722b040159400e7c5e2729b0b8`.
 - Accepted S6 parent: f1257441793f73d951ff1b8659f78b30bfffe4f5 (final F1-S5B acceptance).
-- Current authorization: tracker-only F2 acceptance reconciliation. F0, F1 and F2 are ACCEPTED / CLOSED. F2 accepted implementation checkpoint: `7a1f8c13ccb6c8722b040159400e7c5e2729b0b8`. F3 is eligible for separate read-only review / authorization only; no F3-F11, GUI or M8 implementation is authorized by this reconciliation.
+- Current authorization: tracker-only F3 acceptance reconciliation. F0, F1, F2 and F3 are ACCEPTED / CLOSED. F3 accepted implementation checkpoint: `8f31fddfcd13613b657a753cc571acbb66bca327`. F4 is eligible for separate read-only architectural review / authorization only; no F4-F11, GUI or M8 implementation is authorized by this reconciliation.
 - F0: S1 ACCEPTED at 76b676d; S2 ACCEPTED — ea40616 using user-supplied Java 21/Maven results. S2 was committed and pushed; the accepted remote checkpoint is ea4061672a293745ac5f5fc1b0d8d240d217e64e. S3 ACCEPTED — 8b6e714; F0 IMPLEMENTATION COMPLETE; F0 CLOSURE EVIDENCE PASSED; F0 ACCEPTED / CLOSED.
 - F1: S0 ACCEPTED; S1A ACCEPTED — b7a327d55ac26265474378fec00ae9a03ba7784e; S1B ACCEPTED — 8b57b48e2a677a08a1d2f11f9eb760b0d3b8f00c; S2A ACCEPTED — 99dcd08d3c1e4d8653be1ef89b521422294be274; S2B ACCEPTED — 935fc29ad9a40a53b497a5fe008db5d6d7d485ac; S3 ACCEPTED — 03d598a1606121ecc7918279ec9a5f20f622ee93; S4 ACCEPTED — 233c334023f035eba4c6122a262f9961e08e9b07; S5A ACCEPTED — 26f41054449335fba6d05e5e4e77bad51c3ea641; S5B ACCEPTED — final reconciliation f1257441793f73d951ff1b8659f78b30bfffe4f5, following tested implementation ca25625264ebe96c0d777c3da833e03efc03e7aa and evidence reconciliation fc4de75b18783df45d5757c11c51f1924ea9d535. S6 ACCEPTED — e99d5da170552b55f7d74340b59fabb35615055a. F1 IMPLEMENTATION COMPLETE; F1 CLOSURE EVIDENCE PASSED; F1 ACCEPTED / CLOSED.
 - F1-S6 ACCEPTED — e99d5da170552b55f7d74340b59fabb35615055a
 - F2: ACCEPTED / CLOSED — `7a1f8c13ccb6c8722b040159400e7c5e2729b0b8`; deterministic recursive inventory implementation, executable verification, scope review, commit review and remote checkpoint verification complete.
-- F3: NOT STARTED / NOT AUTHORIZED; eligible for separate read-only review / authorization after F2 closure.
-- F4-F11: NOT STARTED / BLOCKED by their applicable sequential dependencies.
+- F3: ACCEPTED / CLOSED — `8f31fddfcd13613b657a753cc571acbb66bca327`; bounded metadata-only DICOM inspection implementation, executable verification, static/source review and exact scope review complete.
+- F4: NOT STARTED / NOT AUTHORIZED; eligible for separate read-only architectural review / authorization after F3 closure.
+- F5-F11: NOT STARTED / BLOCKED by their applicable sequential dependencies.
 - M8: BLOCKED until complete Pre-M8 acceptance.
 - GUI: BLOCKED; interface remains frozen and no GUI implementation is authorized.
 
@@ -43,8 +44,8 @@ Historical assistant runtime check: OpenJDK 17.0.20; mvn is unavailable. The pro
 | F0 | Architectural contracts and policies | Baseline audit and design approval | **ACCEPTED / CLOSED**; implementation complete; closure evidence passed; S1/S2/S3 accepted | S1: `76b676d`; S2: `ea4061672a293745ac5f5fc1b0d8d240d217e64e`; S3 tested implementation: `8b6e714216f7d3d174a81cdc9a120d88a4348f80`; closure evidence: `a2554ab93a7ff2fe5c4e547a7fb3119b57ac367c` |
 | F1 | Persistent provenance/reporting | Accepted F0 | **ACCEPTED / CLOSED**; F1 IMPLEMENTATION COMPLETE; F1 CLOSURE EVIDENCE PASSED; S0, S1A, S1B, S2A, S2B, S3, S4, S5A, S5B and **S6 ACCEPTED**. | S1A: `b7a327d55ac26265474378fec00ae9a03ba7784e`; S1B: `8b57b48e2a677a08a1d2f11f9eb760b0d3b8f00c`; S2A: `99dcd08d3c1e4d8653be1ef89b521422294be274`; S2B: `935fc29ad9a40a53b497a5fe008db5d6d7d485ac`; S3: `03d598a1606121ecc7918279ec9a5f20f622ee93`; S4: `233c334023f035eba4c6122a262f9961e08e9b07`; S5A: `26f41054449335fba6d05e5e4e77bad51c3ea641`; S5B tested implementation: `ca25625264ebe96c0d777c3da833e03efc03e7aa`; S5B acceptance reconciliation: `fc4de75b18783df45d5757c11c51f1924ea9d535`; final acceptance / S6 parent: `f1257441793f73d951ff1b8659f78b30bfffe4f5`; S6: `e99d5da170552b55f7d74340b59fabb35615055a` |
 | F2 | Deterministic recursive inventory | F0/F1 | **ACCEPTED / CLOSED** | Accepted implementation checkpoint: `7a1f8c13ccb6c8722b040159400e7c5e2729b0b8`; direct parent: `0794d9d9ada1ea7f486a4fe87811ded24bfc48fd`; focused 42/42, affected subsystem 435/435, final clean regression 435/435 PASS; Java release 21; 85 production + 34 test sources; remote branch verified at accepted checkpoint |
-| F3 | Metadata-only DICOM inspection | F0/F1 | **NOT STARTED / NOT AUTHORIZED**; eligible for separate read-only review / authorization after F2 closure | None |
-| F4 | Candidate series discovery | F2/F3 | **NOT STARTED / BLOCKED by applicable sequential dependencies** | None |
+| F3 | Metadata-only DICOM inspection | F0/F1 | **ACCEPTED / CLOSED** | Accepted implementation checkpoint: `8f31fddfcd13613b657a753cc571acbb66bca327`; direct parent: `ae498fec251daf70a442c055df727fd38a719881`; focused 30/30, affected subsystem 213/213, final clean regression 465/465 PASS; Java release 21; 92 production + 39 test sources |
+| F4 | Candidate series discovery | F2/F3 | **NOT STARTED / NOT AUTHORIZED**; eligible for separate read-only architectural review / authorization after F3 closure | None |
 | F5 | Immutable deterministic organization plan | F1/F2/F4 | **NOT STARTED / BLOCKED by applicable sequential dependencies** | None |
 | F6 | Verified collision-safe COPY execution | F1/F5 | **NOT STARTED / BLOCKED by applicable sequential dependencies** | None |
 | F7 | Supported project-owned NIfTI-1 reading | F0 and protected generic volume | **NOT STARTED / BLOCKED by applicable sequential dependencies** | None |
@@ -53,7 +54,7 @@ Historical assistant runtime check: OpenJDK 17.0.20; mvn is unavailable. The pro
 | F10 | Minimal boundary reconciliation | Working F9 | **NOT STARTED / BLOCKED by applicable sequential dependencies** | None |
 | F11 | Synthetic then stakeholder acceptance | F0-F10 | **NOT STARTED / BLOCKED by applicable sequential dependencies** | None |
 
-The matrix records architectural dependencies and the current sequential authorization state. It does not authorize parallel work or bypass predecessor acceptance gates. **F0, F1 and F2 are accepted / closed. F3 is eligible for separate read-only review / authorization only; no F3-F11, GUI or M8 implementation is authorized by this reconciliation. GUI and M8 remain blocked until complete Pre-M8 acceptance.**
+The matrix records architectural dependencies and the current sequential authorization state. It does not authorize parallel work or bypass predecessor acceptance gates. **F0, F1, F2 and F3 are accepted / closed. F4 is eligible for separate read-only architectural review / authorization only; no F4-F11, GUI or M8 implementation is authorized by this reconciliation. GUI and M8 remain blocked until complete Pre-M8 acceptance.**
 
 ## Global invariants
 
@@ -2107,3 +2108,186 @@ Known limitations remain factual and unchanged:
 F3 is now eligible for its own separate review / authorization.
 
 This reconciliation does **not** authorize F3 implementation, F4-F11, GUI work or M8.
+---
+
+## F3 FINAL ACCEPTANCE RECONCILIATION
+
+**Status: F3 ACCEPTED / CLOSED**
+
+Evidence below is carried forward from the completed F3 implementation, independent static/source review, user-executed Java-21/Maven verification and exact Git/scope review. This tracker-only reconciliation records the accepted implementation checkpoint and does not claim a new Maven run. The later tracker-only commit is bookkeeping and does not replace the accepted F3 implementation checkpoint.
+
+Accepted implementation checkpoint:
+
+`8f31fddfcd13613b657a753cc571acbb66bca327`
+
+Direct parent:
+
+`ae498fec251daf70a442c055df727fd38a719881`
+
+F3 was executed as one complete engineering unit under:
+
+**ONE F-NUMBER = ONE COMPLETE ENGINEERING UNIT**
+
+The accepted implementation checkpoint contains exactly the authorized F3 implementation:
+
+- 7 production additions;
+- 5 test additions;
+- 12 paths total;
+- 1339 insertions;
+- no accepted predecessor, build, dependency, wiring, architecture or GUI path modified.
+
+### Frozen F3 ownership and contract
+
+F3 provides bounded metadata-only inspection of positively recognized DICOM sources from a complete accepted F2 inventory.
+
+The accepted public/application surface is:
+
+- `DicomMetadataLimits` — positive caller-supplied `maxMetadataBytes` and `maxNestingDepth`; no production defaults;
+- `DicomDiscoveryMetadata` — closed restricted technical metadata allowlist;
+- `DicomMetadataInspection` — exactly one sanitized metadata result or controlled failure for one SOURCE `RelativePath`;
+- `DicomMetadataCatalog` — immutable unique deterministic inspection collection with discovery-level `complete()`;
+- `DicomMetadataReader` — metadata-only application output port;
+- `DicomMetadataInspectionService` — complete-inventory selection/orchestration without grouping or F0 mutation;
+- `Dcm4cheMetadataReader` — bounded read-only dcm4che metadata adapter.
+
+The failure enum remains exactly:
+
+- `RESOURCE_LIMIT_EXCEEDED`;
+- `METADATA_READ_FAILED`;
+- `INCOMPLETE_METADATA`.
+
+F3 does not own candidate-series grouping, automatic series splitting, definitive selected-series validation, pixel-profile validation, Pixel Data decoding, volume reconstruction, hashing, organization execution, conversion, persistence, GUI or M8 behavior.
+
+F4 owns candidate-series grouping and ambiguity/multidimensional screening. M6 remains the definitive selected-series validator/reconstructor. F6 remains responsible for content identity and execution-time revalidation.
+
+### Resource and Pixel Data guarantees
+
+The accepted adapter:
+
+- independently enforces the caller-supplied metadata-byte limit on physical/source reads and logical/expanded metadata processing;
+- uses bounded private iterative DICOM sequence/item traversal;
+- checks nesting before descent;
+- does not rely on recursive sequence skipping as the F3 traversal strategy;
+- retains only the frozen top-level technical allowlist;
+- creates no bulk-data files, sidecars or output artifacts;
+- does not materialize a full pre-pixel dataset object as the F3 public state;
+- treats Float Pixel Data `(7FE0,0008)`, Double Float Pixel Data `(7FE0,0009)` and Pixel Data `(7FE0,0010)` as explicit semantic boundaries;
+- stops top-level metadata inspection before entering those pixel values;
+- fails closed if such a pixel-bearing value is encountered within nested traversal;
+- performs no semantic Pixel Data retention, frame decoding, raster/image creation, voxel creation or M6 reader/service invocation;
+- permits only bounded transport read-ahead within the physical byte budget.
+
+Part-10 metadata requires actual supplied valid Transfer Syntax UID evidence; the dcm4che missing-syntax fallback is not accepted as an F3 source fact. Non-Part-10 syntax inference is restricted to the approved native transfer syntaxes. Deflated metadata remains subject to both raw and expanded byte accounting.
+
+Optional metadata absence means not observed in the safely inspected top-level prefix, not proven whole-object absence or compatibility.
+
+### Final executable evidence
+
+Focused F3 gate:
+
+`mvn "-Dtest=DicomMetadataModelTest,DicomMetadataInspectionServiceTest,Dcm4cheMetadataReaderTest,DicomMetadataIntegrationTest,DicomMetadataBoundaryTest" test`
+
+- tests: 30;
+- failures: 0;
+- errors: 0;
+- skipped: 0;
+- BUILD SUCCESS.
+
+Focused breakdown:
+
+- `DicomMetadataBoundaryTest`: 1/1;
+- `DicomMetadataInspectionServiceTest`: 3/3;
+- `DicomMetadataModelTest`: 4/4;
+- `Dcm4cheMetadataReaderTest`: 21/21;
+- `DicomMetadataIntegrationTest`: 1/1.
+
+Affected-subsystem gate:
+
+- tests: 213;
+- failures: 0;
+- errors: 0;
+- skipped: 0;
+- BUILD SUCCESS.
+
+Final clean regression:
+
+`mvn clean test`
+
+- production sources compiled: 92;
+- test sources compiled: 39;
+- Java release: 21;
+- tests: 465;
+- failures: 0;
+- errors: 0;
+- skipped: 0;
+- BUILD SUCCESS.
+
+Corrective executable passes consumed: **0**.
+
+### Static/source and Git evidence
+
+Independent workstream-boundary source review: PASS.
+
+Verified:
+
+- frozen F3 public API;
+- F2 -> F3 ownership boundary;
+- M6 isolation;
+- Pixel Data semantic-access boundary;
+- physical/raw byte-budget design;
+- logical/expanded metadata-budget design;
+- iterative nesting design;
+- transfer-syntax evidence handling;
+- privacy-safe closed metadata model;
+- deterministic catalog ordering;
+- no F0 readiness promotion;
+- no F4 grouping;
+- no accepted predecessor modification.
+
+Pre-implementation-commit Git/scope gate:
+
+- `git diff --check`: PASS;
+- index initially empty;
+- implementation parent exactly `ae498fec251daf70a442c055df727fd38a719881`;
+- exactly 12 authorized F3 additions;
+- tracker unchanged before implementation commit;
+- accepted predecessor source/tests, dependencies, build configuration and wiring unchanged.
+
+Implementation commit review:
+
+- checkpoint: `8f31fddfcd13613b657a753cc571acbb66bca327`;
+- direct parent: `ae498fec251daf70a442c055df727fd38a719881`;
+- subject: `feat(dataset): add bounded DICOM metadata inspection`;
+- path set: exactly 12 authorized F3 additions;
+- 1339 insertions;
+- no unrelated tracked path included.
+
+The workstation's protected unrelated untracked files remained untouched:
+
+- `.roomodes`;
+- `docs/architecture/ARCHITECTURE-REVISION-1.0-RC2.md`;
+- `docs/architecture/ARCHITECTURE-REVISION-1.0-RC3.md`;
+- `planningPRE-M8-FOUNDATION-TRACKER.md`.
+
+### Platform and residual limitations
+
+The clean regression again recorded the existing Windows 11 / `sun.nio.fs.WindowsFileSystemProvider` / NTFS qualification as PASS.
+
+Known limitations remain factual:
+
+- other-platform qualification: NOT RUN;
+- null file keys provide weaker substitution evidence;
+- before/after observations do not provide snapshot isolation;
+- hostile same-size/same-time pathname or content substitution cannot be completely eliminated by F3;
+- bounded transport read-ahead may include uninterpreted pixel bytes;
+- optional metadata values describe observations, not proven whole-object absence;
+- the narrow metadata allowlist cannot expose every vendor-specific acquisition dimension;
+- caller-selected limits bound F3 parser work but are not a global JVM heap or wall-clock guarantee;
+- F3 establishes neither F2-to-F6 content identity nor M6 reconstruction compatibility;
+- existing F1 power-loss / directory-entry durability limitations remain unchanged.
+
+**F3 ACCEPTED / CLOSED — `8f31fddfcd13613b657a753cc571acbb66bca327`.**
+
+F4 is now eligible for its own separate read-only architectural review / authorization.
+
+This reconciliation does **not** authorize F4 implementation, F5-F11, GUI work or M8.
