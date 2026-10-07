@@ -4,18 +4,18 @@
 
 ## Program control
 
-- Date: 2026-10-06 (Asia/Calcutta; final F1-S6 acceptance reconciliation).
+- Date: 2026-10-07 (Asia/Calcutta; single F2 verification tracker reconciliation).
 - Branch: feature/pre-m8-foundation.
 - Canonical baseline: 0b91666c03d6247a6882c164aa6b033d9b761101.
 - M6 protected checkpoint: cb7769e; protected tag: pre-demo-m6-2026-10-02.
 - M7 protected checkpoint: d9ad7ea; protected tag: pre-demo-m7-2026-10-03.
-- Current verified checkpoint: e99d5da170552b55f7d74340b59fabb35615055a (F1-S6 accepted; F1 closed).
+- Current verified checkpoint / accepted F2 parent: 0794d9d9ada1ea7f486a4fe87811ded24bfc48fd (final F1 closure bookkeeping; F1 accepted / closed).
 - Accepted S6 parent: f1257441793f73d951ff1b8659f78b30bfffe4f5 (final F1-S5B acceptance).
-- Current authorization: tracker-only final F1 acceptance reconciliation. F1 IMPLEMENTATION COMPLETE; F1 CLOSURE EVIDENCE PASSED; F1 ACCEPTED / CLOSED. F2 is eligible for separate review but NOT AUTHORIZED. No downstream implementation, staging, commit or push authorized.
+- Current authorization: single tracker-only F2 reconciliation after the authorized complete engineering unit. ONE F-NUMBER = ONE COMPLETE ENGINEERING UNIT. F2 EXECUTABLE VERIFICATION PASSED — REVIEW / COMMIT PENDING. No staging, commit, push or downstream implementation authorized.
 - F0: S1 ACCEPTED at 76b676d; S2 ACCEPTED — ea40616 using user-supplied Java 21/Maven results. S2 was committed and pushed; the accepted remote checkpoint is ea4061672a293745ac5f5fc1b0d8d240d217e64e. S3 ACCEPTED — 8b6e714; F0 IMPLEMENTATION COMPLETE; F0 CLOSURE EVIDENCE PASSED; F0 ACCEPTED / CLOSED.
 - F1: S0 ACCEPTED; S1A ACCEPTED — b7a327d55ac26265474378fec00ae9a03ba7784e; S1B ACCEPTED — 8b57b48e2a677a08a1d2f11f9eb760b0d3b8f00c; S2A ACCEPTED — 99dcd08d3c1e4d8653be1ef89b521422294be274; S2B ACCEPTED — 935fc29ad9a40a53b497a5fe008db5d6d7d485ac; S3 ACCEPTED — 03d598a1606121ecc7918279ec9a5f20f622ee93; S4 ACCEPTED — 233c334023f035eba4c6122a262f9961e08e9b07; S5A ACCEPTED — 26f41054449335fba6d05e5e4e77bad51c3ea641; S5B ACCEPTED — final reconciliation f1257441793f73d951ff1b8659f78b30bfffe4f5, following tested implementation ca25625264ebe96c0d777c3da833e03efc03e7aa and evidence reconciliation fc4de75b18783df45d5757c11c51f1924ea9d535. S6 ACCEPTED — e99d5da170552b55f7d74340b59fabb35615055a. F1 IMPLEMENTATION COMPLETE; F1 CLOSURE EVIDENCE PASSED; F1 ACCEPTED / CLOSED.
 - F1-S6 ACCEPTED — e99d5da170552b55f7d74340b59fabb35615055a
-- F2: NOT STARTED / NOT AUTHORIZED — now eligible for separate review after F1 closure.
+- F2: EXECUTABLE VERIFICATION PASSED — REVIEW / COMMIT PENDING; acceptance pending, no F2 checkpoint SHA exists.
 - F3-F11: NOT STARTED / BLOCKED by their applicable sequential dependencies.
 - M8: BLOCKED until complete Pre-M8 acceptance.
 - GUI: BLOCKED; interface remains frozen and no GUI implementation is authorized.
@@ -40,7 +40,7 @@ Historical assistant runtime check: OpenJDK 17.0.20; mvn is unavailable. The pro
 | --- | --- | --- | --- | --- |
 | F0 | Architectural contracts and policies | Baseline audit and design approval | **ACCEPTED / CLOSED**; implementation complete; closure evidence passed; S1/S2/S3 accepted | S1: `76b676d`; S2: `ea4061672a293745ac5f5fc1b0d8d240d217e64e`; S3 tested implementation: `8b6e714216f7d3d174a81cdc9a120d88a4348f80`; closure evidence: `a2554ab93a7ff2fe5c4e547a7fb3119b57ac367c` |
 | F1 | Persistent provenance/reporting | Accepted F0 | **ACCEPTED / CLOSED**; F1 IMPLEMENTATION COMPLETE; F1 CLOSURE EVIDENCE PASSED; S0, S1A, S1B, S2A, S2B, S3, S4, S5A, S5B and **S6 ACCEPTED**. | S1A: `b7a327d55ac26265474378fec00ae9a03ba7784e`; S1B: `8b57b48e2a677a08a1d2f11f9eb760b0d3b8f00c`; S2A: `99dcd08d3c1e4d8653be1ef89b521422294be274`; S2B: `935fc29ad9a40a53b497a5fe008db5d6d7d485ac`; S3: `03d598a1606121ecc7918279ec9a5f20f622ee93`; S4: `233c334023f035eba4c6122a262f9961e08e9b07`; S5A: `26f41054449335fba6d05e5e4e77bad51c3ea641`; S5B tested implementation: `ca25625264ebe96c0d777c3da833e03efc03e7aa`; S5B acceptance reconciliation: `fc4de75b18783df45d5757c11c51f1924ea9d535`; final acceptance / S6 parent: `f1257441793f73d951ff1b8659f78b30bfffe4f5`; S6: `e99d5da170552b55f7d74340b59fabb35615055a` |
-| F2 | Deterministic recursive inventory | F0/F1 | **NOT STARTED / NOT AUTHORIZED** — now eligible for separate review after F1 closure | None |
+| F2 | Deterministic recursive inventory | F0/F1 | **EXECUTABLE VERIFICATION PASSED — REVIEW / COMMIT PENDING**; acceptance pending | No F2 checkpoint yet; accepted parent: `0794d9d9ada1ea7f486a4fe87811ded24bfc48fd` |
 | F3 | Metadata-only DICOM inspection | F0/F1 | **NOT STARTED / BLOCKED by applicable sequential dependencies** | None |
 | F4 | Candidate series discovery | F2/F3 | **NOT STARTED / BLOCKED by applicable sequential dependencies** | None |
 | F5 | Immutable deterministic organization plan | F1/F2/F4 | **NOT STARTED / BLOCKED by applicable sequential dependencies** | None |
@@ -51,7 +51,7 @@ Historical assistant runtime check: OpenJDK 17.0.20; mvn is unavailable. The pro
 | F10 | Minimal boundary reconciliation | Working F9 | **NOT STARTED / BLOCKED by applicable sequential dependencies** | None |
 | F11 | Synthetic then stakeholder acceptance | F0-F10 | **NOT STARTED / BLOCKED by applicable sequential dependencies** | None |
 
-The matrix records architectural dependencies and the current sequential authorization state. It does not authorize parallel work or bypass predecessor acceptance gates. **F1 is accepted / closed through S6. F2 is now eligible for separate review, but is NOT STARTED / NOT AUTHORIZED; this reconciliation does not start F2. F3-F11 remain blocked by their applicable sequential dependencies. GUI and M8 remain blocked until complete Pre-M8 acceptance.**
+The matrix records architectural dependencies and the current sequential authorization state. It does not authorize parallel work or bypass predecessor acceptance gates. **F1 is accepted / closed through S6. F2 executable verification has passed; review, commit and acceptance remain pending. F3-F11 remain blocked by their applicable sequential dependencies. GUI and M8 remain blocked until complete Pre-M8 acceptance.**
 
 ## Global invariants
 
@@ -1936,3 +1936,74 @@ M8: BLOCKED until complete Pre-M8 acceptance
 ```
 
 This reconciliation starts no F2 work and grants no downstream implementation authorization. Only this tracker is updated; no source, test, schema, build, dependency or other repository path is changed. No staging, commit or push.
+
+## F2 — DETERMINISTIC RECURSIVE INVENTORY
+
+Authorization model: **ONE F-NUMBER = ONE COMPLETE ENGINEERING UNIT**.
+
+Accepted parent: `0794d9d9ada1ea7f486a4fe87811ded24bfc48fd`.
+
+Status: **F2 EXECUTABLE VERIFICATION PASSED — REVIEW / COMMIT PENDING**.
+
+This single record supersedes historical F2-not-started/not-authorized snapshots. F2 static/source review and executable gates passed; acceptance remains pending and no F2 commit SHA exists. F0 and F1 remain ACCEPTED / CLOSED. F3-F11, GUI and M8 remain BLOCKED; no downstream work is authorized.
+
+### Exact F2 implementation scope
+
+```text
+ADD
+src/main/java/org/cbihi/mrinormalizer/application/dataset/model/DatasetInventory.java
+src/main/java/org/cbihi/mrinormalizer/application/dataset/model/InventoryEntry.java
+src/main/java/org/cbihi/mrinormalizer/application/dataset/model/InventoryFailure.java
+src/main/java/org/cbihi/mrinormalizer/application/dataset/model/InventoryLimits.java
+src/main/java/org/cbihi/mrinormalizer/application/dataset/model/InventoryLocation.java
+src/main/java/org/cbihi/mrinormalizer/application/port/out/DatasetScanner.java
+src/main/java/org/cbihi/mrinormalizer/infrastructure/filesystem/NioDatasetScanner.java
+src/test/java/org/cbihi/mrinormalizer/DatasetInventoryTest.java
+src/test/java/org/cbihi/mrinormalizer/infrastructure/filesystem/DatasetScannerIntegrationTest.java
+src/test/java/org/cbihi/mrinormalizer/infrastructure/filesystem/NioDatasetScannerTest.java
+```
+
+This reconciliation modifies only `docs/planning/PRE-M8-FOUNDATION-TRACKER.md`; none of the ten Java/test additions is changed by the bookkeeping.
+
+### Frozen public F2 API and ownership
+
+| Type | Public surface |
+| --- | --- |
+| InventoryLimits | Public record: `int maxEntries`, `int maxDepth`, `int maxFailures` |
+| InventoryLocation | Public record: `String spelling` |
+| InventoryEntry | Public record: `RelativePath source`, `FormatAssessment assessment` |
+| InventoryFailure | Public record: `Code code`, `Optional<InventoryLocation> location`; finite discovery `Code` enum |
+| DatasetInventory | Public record: `List<InventoryEntry> entries`, `List<InventoryFailure> failures`; `boolean complete()` |
+| DatasetScanner | Public application port: `DatasetInventory scan()` |
+| NioDatasetScanner | Public infrastructure adapter: configured `Path` roots + `InventoryLimits` + `FormatDetectionService`; `DatasetInventory scan()` |
+
+F2 reuses accepted F1 RelativePath solely as the canonical restricted
+SOURCE-relative operational identity. F1 plan, checkpoint, execution,
+persistence and reporting types are not repurposed as F2 discovery state.
+
+- All three caller-supplied bounds are strictly positive. `maxEntries` includes discovered directories and rejected child entries; `maxDepth` counts segments below SOURCE; `maxFailures` bounds ordinary retained F2 failure facts, with one additional terminal RESOURCE_LIMIT fact permitted to preserve earlier evidence. No defaults, general configuration framework or additional limit dimensions are introduced.
+- InventoryLocation is immutable, nonempty, bounded and diagnostic only. It preserves exact spelling, including permitted colon/backslash and other nonportable names, without normalization or repair; rejects rooted/traversal/control/malformed-Unicode forms; exposes no filesystem capability and proves no containment. InventoryFailure accepts only its typed optional location, never provider/exception text. Unrepresentable diagnostic spelling is withheld while the controlled failure remains.
+- Read-only bounded sequential traversal retains canonical root/overlap checks, discovered-symlink fail-closed behavior and unsigned-UTF-8 ordering. M5 FormatDetectionService remains the recognition owner; F0 FormatAssessment remains the conservative evidence model. No metadata/grouping, M6/M7 processing, F6 hashing, F7 payload reading or GUI/M8 behavior is added.
+
+### Executable and scope evidence
+
+Authoritative user-supplied Windows Java-21/Maven execution; the final clean-build and Git transcript was reviewed. This tracker-only reconciliation does not claim a new executable run.
+
+| Gate | Command / evidence | Result |
+| --- | --- | --- |
+| Focused F2 | `mvn "-Dtest=DatasetInventoryTest,NioDatasetScannerTest,DatasetScannerIntegrationTest" test` | 42 tests; 0 failures; 0 errors; 0 skipped; BUILD SUCCESS |
+| Affected subsystem | User-reported affected-subsystem gate | 435 tests; 0 failures; 0 errors; 0 skipped; BUILD SUCCESS |
+| Final clean regression | `mvn clean test`; 85 production sources + 34 test sources compiled under Java release 21 | 435 tests; 0 failures; 0 errors; 0 skipped; BUILD SUCCESS |
+
+- F2 suites in the clean run: DatasetInventoryTest 11/11; NioDatasetScannerTest 23/23; DatasetScannerIntegrationTest 8/8 — total 42/42 PASS. No disabled tests, assumptions or skips. Corrective executable passes consumed: **0**; pre-execution source/API corrections did not consume an executable corrective pass.
+- Pre-reconciliation Git/scope gate PASS: `git diff --check` passed; index empty; HEAD exactly the accepted parent. All ten F2 additions were untracked, so `git diff --name-only` and `git diff --stat` were empty. Accepted F0/F1/M5/M6/M7 source/tests, schemas, build/dependencies and wiring were unchanged; tracker was unchanged before this authorized reconciliation.
+- The workstation's four protected unrelated untracked files remained untouched: `.roomodes`, `docs/architecture/ARCHITECTURE-REVISION-1.0-RC2.md`, `docs/architecture/ARCHITECTURE-REVISION-1.0-RC3.md` and `planningPRE-M8-FOUNDATION-TRACKER.md`.
+- ExtendedOpenOption warnings originate in accepted F1 JsonManifestStore / JsonPublicReportWriter; F2 introduces neither those warnings nor changes to those adapters.
+
+### Provider and race limitations
+
+- Existing S09 qualification remained PASS during the clean run: Windows 11 / Windows NIO (`sun.nio.fs.WindowsFileSystemProvider`) / NTFS. Other-platform qualification NOT RUN.
+- Hostile filesystem pathname swaps cannot be fully eliminated by F2. Null file-key providers provide weaker substitution evidence. No snapshot-isolation guarantee is claimed.
+- Power-loss/directory durability remains outside F2 and UNPROVED; the existing F1 durability limitations remain unchanged.
+
+**STOP after this tracker reconciliation. F2 review / commit / acceptance remain pending. No staging, commit, push or F3-F11/GUI/M8 work.**
