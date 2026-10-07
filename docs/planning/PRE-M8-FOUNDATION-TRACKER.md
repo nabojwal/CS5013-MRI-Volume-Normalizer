@@ -4,19 +4,21 @@
 
 ## Program control
 
-- Date: 2026-10-07 (Asia/Calcutta; single F2 verification tracker reconciliation).
+- Date: 2026-10-07 (Asia/Calcutta; final F2 acceptance reconciliation).
 - Branch: feature/pre-m8-foundation.
 - Canonical baseline: 0b91666c03d6247a6882c164aa6b033d9b761101.
 - M6 protected checkpoint: cb7769e; protected tag: pre-demo-m6-2026-10-02.
 - M7 protected checkpoint: d9ad7ea; protected tag: pre-demo-m7-2026-10-03.
 - Current verified checkpoint / accepted F2 parent: 0794d9d9ada1ea7f486a4fe87811ded24bfc48fd (final F1 closure bookkeeping; F1 accepted / closed).
+- F2 accepted implementation checkpoint: `7a1f8c13ccb6c8722b040159400e7c5e2729b0b8`.
 - Accepted S6 parent: f1257441793f73d951ff1b8659f78b30bfffe4f5 (final F1-S5B acceptance).
-- Current authorization: single tracker-only F2 reconciliation after the authorized complete engineering unit. ONE F-NUMBER = ONE COMPLETE ENGINEERING UNIT. F2 EXECUTABLE VERIFICATION PASSED — REVIEW / COMMIT PENDING. No staging, commit, push or downstream implementation authorized.
+- Current authorization: tracker-only F2 acceptance reconciliation. F0, F1 and F2 are ACCEPTED / CLOSED. F2 accepted implementation checkpoint: `7a1f8c13ccb6c8722b040159400e7c5e2729b0b8`. F3 is eligible for separate read-only review / authorization only; no F3-F11, GUI or M8 implementation is authorized by this reconciliation.
 - F0: S1 ACCEPTED at 76b676d; S2 ACCEPTED — ea40616 using user-supplied Java 21/Maven results. S2 was committed and pushed; the accepted remote checkpoint is ea4061672a293745ac5f5fc1b0d8d240d217e64e. S3 ACCEPTED — 8b6e714; F0 IMPLEMENTATION COMPLETE; F0 CLOSURE EVIDENCE PASSED; F0 ACCEPTED / CLOSED.
 - F1: S0 ACCEPTED; S1A ACCEPTED — b7a327d55ac26265474378fec00ae9a03ba7784e; S1B ACCEPTED — 8b57b48e2a677a08a1d2f11f9eb760b0d3b8f00c; S2A ACCEPTED — 99dcd08d3c1e4d8653be1ef89b521422294be274; S2B ACCEPTED — 935fc29ad9a40a53b497a5fe008db5d6d7d485ac; S3 ACCEPTED — 03d598a1606121ecc7918279ec9a5f20f622ee93; S4 ACCEPTED — 233c334023f035eba4c6122a262f9961e08e9b07; S5A ACCEPTED — 26f41054449335fba6d05e5e4e77bad51c3ea641; S5B ACCEPTED — final reconciliation f1257441793f73d951ff1b8659f78b30bfffe4f5, following tested implementation ca25625264ebe96c0d777c3da833e03efc03e7aa and evidence reconciliation fc4de75b18783df45d5757c11c51f1924ea9d535. S6 ACCEPTED — e99d5da170552b55f7d74340b59fabb35615055a. F1 IMPLEMENTATION COMPLETE; F1 CLOSURE EVIDENCE PASSED; F1 ACCEPTED / CLOSED.
 - F1-S6 ACCEPTED — e99d5da170552b55f7d74340b59fabb35615055a
-- F2: EXECUTABLE VERIFICATION PASSED — REVIEW / COMMIT PENDING; acceptance pending, no F2 checkpoint SHA exists.
-- F3-F11: NOT STARTED / BLOCKED by their applicable sequential dependencies.
+- F2: ACCEPTED / CLOSED — `7a1f8c13ccb6c8722b040159400e7c5e2729b0b8`; deterministic recursive inventory implementation, executable verification, scope review, commit review and remote checkpoint verification complete.
+- F3: NOT STARTED / NOT AUTHORIZED; eligible for separate read-only review / authorization after F2 closure.
+- F4-F11: NOT STARTED / BLOCKED by their applicable sequential dependencies.
 - M8: BLOCKED until complete Pre-M8 acceptance.
 - GUI: BLOCKED; interface remains frozen and no GUI implementation is authorized.
 
@@ -40,8 +42,8 @@ Historical assistant runtime check: OpenJDK 17.0.20; mvn is unavailable. The pro
 | --- | --- | --- | --- | --- |
 | F0 | Architectural contracts and policies | Baseline audit and design approval | **ACCEPTED / CLOSED**; implementation complete; closure evidence passed; S1/S2/S3 accepted | S1: `76b676d`; S2: `ea4061672a293745ac5f5fc1b0d8d240d217e64e`; S3 tested implementation: `8b6e714216f7d3d174a81cdc9a120d88a4348f80`; closure evidence: `a2554ab93a7ff2fe5c4e547a7fb3119b57ac367c` |
 | F1 | Persistent provenance/reporting | Accepted F0 | **ACCEPTED / CLOSED**; F1 IMPLEMENTATION COMPLETE; F1 CLOSURE EVIDENCE PASSED; S0, S1A, S1B, S2A, S2B, S3, S4, S5A, S5B and **S6 ACCEPTED**. | S1A: `b7a327d55ac26265474378fec00ae9a03ba7784e`; S1B: `8b57b48e2a677a08a1d2f11f9eb760b0d3b8f00c`; S2A: `99dcd08d3c1e4d8653be1ef89b521422294be274`; S2B: `935fc29ad9a40a53b497a5fe008db5d6d7d485ac`; S3: `03d598a1606121ecc7918279ec9a5f20f622ee93`; S4: `233c334023f035eba4c6122a262f9961e08e9b07`; S5A: `26f41054449335fba6d05e5e4e77bad51c3ea641`; S5B tested implementation: `ca25625264ebe96c0d777c3da833e03efc03e7aa`; S5B acceptance reconciliation: `fc4de75b18783df45d5757c11c51f1924ea9d535`; final acceptance / S6 parent: `f1257441793f73d951ff1b8659f78b30bfffe4f5`; S6: `e99d5da170552b55f7d74340b59fabb35615055a` |
-| F2 | Deterministic recursive inventory | F0/F1 | **EXECUTABLE VERIFICATION PASSED — REVIEW / COMMIT PENDING**; acceptance pending | No F2 checkpoint yet; accepted parent: `0794d9d9ada1ea7f486a4fe87811ded24bfc48fd` |
-| F3 | Metadata-only DICOM inspection | F0/F1 | **NOT STARTED / BLOCKED by applicable sequential dependencies** | None |
+| F2 | Deterministic recursive inventory | F0/F1 | **ACCEPTED / CLOSED** | Accepted implementation checkpoint: `7a1f8c13ccb6c8722b040159400e7c5e2729b0b8`; direct parent: `0794d9d9ada1ea7f486a4fe87811ded24bfc48fd`; focused 42/42, affected subsystem 435/435, final clean regression 435/435 PASS; Java release 21; 85 production + 34 test sources; remote branch verified at accepted checkpoint |
+| F3 | Metadata-only DICOM inspection | F0/F1 | **NOT STARTED / NOT AUTHORIZED**; eligible for separate read-only review / authorization after F2 closure | None |
 | F4 | Candidate series discovery | F2/F3 | **NOT STARTED / BLOCKED by applicable sequential dependencies** | None |
 | F5 | Immutable deterministic organization plan | F1/F2/F4 | **NOT STARTED / BLOCKED by applicable sequential dependencies** | None |
 | F6 | Verified collision-safe COPY execution | F1/F5 | **NOT STARTED / BLOCKED by applicable sequential dependencies** | None |
@@ -51,7 +53,7 @@ Historical assistant runtime check: OpenJDK 17.0.20; mvn is unavailable. The pro
 | F10 | Minimal boundary reconciliation | Working F9 | **NOT STARTED / BLOCKED by applicable sequential dependencies** | None |
 | F11 | Synthetic then stakeholder acceptance | F0-F10 | **NOT STARTED / BLOCKED by applicable sequential dependencies** | None |
 
-The matrix records architectural dependencies and the current sequential authorization state. It does not authorize parallel work or bypass predecessor acceptance gates. **F1 is accepted / closed through S6. F2 executable verification has passed; review, commit and acceptance remain pending. F3-F11 remain blocked by their applicable sequential dependencies. GUI and M8 remain blocked until complete Pre-M8 acceptance.**
+The matrix records architectural dependencies and the current sequential authorization state. It does not authorize parallel work or bypass predecessor acceptance gates. **F0, F1 and F2 are accepted / closed. F3 is eligible for separate read-only review / authorization only; no F3-F11, GUI or M8 implementation is authorized by this reconciliation. GUI and M8 remain blocked until complete Pre-M8 acceptance.**
 
 ## Global invariants
 
@@ -1939,6 +1941,8 @@ This reconciliation starts no F2 work and grants no downstream implementation au
 
 ## F2 — DETERMINISTIC RECURSIVE INVENTORY
 
+> Historical verification snapshot. The review / commit / acceptance-pending status and absent-F2-checkpoint statements below are retained as recorded at that time and superseded for current status by F2 FINAL ACCEPTANCE RECONCILIATION at `7a1f8c13ccb6c8722b040159400e7c5e2729b0b8` below.
+
 Authorization model: **ONE F-NUMBER = ONE COMPLETE ENGINEERING UNIT**.
 
 Accepted parent: `0794d9d9ada1ea7f486a4fe87811ded24bfc48fd`.
@@ -2007,3 +2011,99 @@ Authoritative user-supplied Windows Java-21/Maven execution; the final clean-bui
 - Power-loss/directory durability remains outside F2 and UNPROVED; the existing F1 durability limitations remain unchanged.
 
 **STOP after this tracker reconciliation. F2 review / commit / acceptance remain pending. No staging, commit, push or F3-F11/GUI/M8 work.**
+
+---
+
+## F2 FINAL ACCEPTANCE RECONCILIATION
+
+**Status: F2 ACCEPTED / CLOSED**
+
+Evidence below is carried forward from the accepted F2 execution and user-supplied scope/commit/remote-verification record. This tracker-only update verifies the local implementation checkpoint, parent and path set; it does not claim a new Maven run or remote query. Any later tracker-only commit is bookkeeping and does not replace the accepted implementation checkpoint.
+
+Accepted implementation checkpoint:
+
+`7a1f8c13ccb6c8722b040159400e7c5e2729b0b8`
+
+Direct parent:
+
+`0794d9d9ada1ea7f486a4fe87811ded24bfc48fd`
+
+F2 was executed as one complete engineering unit under:
+
+**ONE F-NUMBER = ONE COMPLETE ENGINEERING UNIT**
+
+The accepted checkpoint contains exactly the authorized F2 implementation:
+
+- 7 production files;
+- 3 test files;
+- the Pre-M8 tracker reconciliation present at the implementation checkpoint.
+
+Final F2 API / ownership remains frozen as recorded above:
+
+- `InventoryLimits` — explicit positive caller-supplied entry, depth and ordinary-failure budgets;
+- `InventoryLocation` — controlled diagnostic SOURCE-relative spelling only;
+- `InventoryEntry` — accepted F1 `RelativePath` SOURCE identity plus unchanged conservative F0 `FormatAssessment`;
+- `InventoryFailure` — finite `Code` plus `Optional<InventoryLocation>`;
+- `DatasetInventory` — immutable deterministically ordered entries/failures and discovery-level `complete()`;
+- `DatasetScanner` — read-only application port;
+- `NioDatasetScanner` — bounded deterministic Java-NIO adapter reusing the accepted M5 -> F0 recognition/assessment path.
+
+F2 reuses accepted F1 `RelativePath` solely as the canonical restricted SOURCE-relative operational identity. F1 plan, checkpoint, execution, persistence and reporting types are not repurposed as F2 discovery state.
+
+### Final executable evidence
+
+Focused F2 gate:
+
+`mvn "-Dtest=DatasetInventoryTest,NioDatasetScannerTest,DatasetScannerIntegrationTest" test`
+
+- tests: 42;
+- failures: 0;
+- errors: 0;
+- skipped: 0;
+- BUILD SUCCESS.
+
+Affected-subsystem gate:
+
+- tests: 435;
+- failures: 0;
+- errors: 0;
+- skipped: 0;
+- BUILD SUCCESS.
+
+Final clean regression:
+
+`mvn clean test`
+
+- production sources compiled: 85;
+- test sources compiled: 34;
+- Java release: 21;
+- tests: 435;
+- failures: 0;
+- errors: 0;
+- skipped: 0;
+- BUILD SUCCESS.
+
+### Final platform / Git evidence
+
+- Windows 11 / `sun.nio.fs.WindowsFileSystemProvider` / NTFS qualification: PASS.
+- `git diff --check`: PASS.
+- F2 implementation commit direct parent verified.
+- Implementation commit path set: exactly 11 authorized paths.
+- Local HEAD and remote `feature/pre-m8-foundation` both resolved to:
+  `7a1f8c13ccb6c8722b040159400e7c5e2729b0b8`.
+- No executable corrective pass was required.
+- Protected unrelated untracked files remained untouched.
+
+Known limitations remain factual and unchanged:
+
+- other-platform qualification: NOT RUN;
+- hostile pathname swaps cannot be completely eliminated by F2;
+- null file-key providers provide weaker substitution evidence;
+- no snapshot-isolation guarantee is claimed;
+- power-loss / directory-entry durability is outside F2 and remains UNPROVED.
+
+**F2 ACCEPTED / CLOSED — `7a1f8c13ccb6c8722b040159400e7c5e2729b0b8`.**
+
+F3 is now eligible for its own separate review / authorization.
+
+This reconciliation does **not** authorize F3 implementation, F4-F11, GUI work or M8.
