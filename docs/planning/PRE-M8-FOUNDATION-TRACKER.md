@@ -4,7 +4,7 @@
 
 ## Program control
 
-- Date: 2026-10-08 (Asia/Kolkata; F4 accepted/closed; remote reconciliation verified).
+- Date: 2026-10-08 (Asia/Kolkata; F4 accepted/closed; F5 design and acceptance matrix frozen under F5-D01).
 - Branch: feature/pre-m8-foundation.
 - Canonical baseline: 0b91666c03d6247a6882c164aa6b033d9b761101.
 - M6 protected checkpoint: cb7769e; protected tag: pre-demo-m6-2026-10-02.
@@ -15,14 +15,14 @@
 - Historical accepted F2 parent: 0794d9d9ada1ea7f486a4fe87811ded24bfc48fd (final F1 closure bookkeeping; F1 accepted / closed).
 - F2 accepted implementation checkpoint: `7a1f8c13ccb6c8722b040159400e7c5e2729b0b8`.
 - Accepted S6 parent: f1257441793f73d951ff1b8659f78b30bfffe4f5 (final F1-S5B acceptance).
-- Current authorization: F0-F4 ACCEPTED / CLOSED after separate implementation and tracker-only reconciliation commits were remotely verified. F5 is eligible for separate read-only architectural design/review only; F5 implementation remains NOT AUTHORIZED. F6-F11 implementation, GUI and M8 remain BLOCKED pending applicable predecessor acceptance and separate authorization.
+- Current authorization: F0-F4 ACCEPTED / CLOSED at remotely verified checkpoints. F5-D01 and the complete F5 read-only normative contract and test matrix are DESIGN FROZEN. F5 implementation remains NOT AUTHORIZED; F6-F11 implementation, GUI and M8 remain BLOCKED. This documentation checkpoint is not F5 implementation or acceptance.
 - F0: S1 ACCEPTED at 76b676d; S2 ACCEPTED — ea40616 using user-supplied Java 21/Maven results. S2 was committed and pushed; the accepted remote checkpoint is ea4061672a293745ac5f5fc1b0d8d240d217e64e. S3 ACCEPTED — 8b6e714; F0 IMPLEMENTATION COMPLETE; F0 CLOSURE EVIDENCE PASSED; F0 ACCEPTED / CLOSED.
 - F1: S0 ACCEPTED; S1A ACCEPTED — b7a327d55ac26265474378fec00ae9a03ba7784e; S1B ACCEPTED — 8b57b48e2a677a08a1d2f11f9eb760b0d3b8f00c; S2A ACCEPTED — 99dcd08d3c1e4d8653be1ef89b521422294be274; S2B ACCEPTED — 935fc29ad9a40a53b497a5fe008db5d6d7d485ac; S3 ACCEPTED — 03d598a1606121ecc7918279ec9a5f20f622ee93; S4 ACCEPTED — 233c334023f035eba4c6122a262f9961e08e9b07; S5A ACCEPTED — 26f41054449335fba6d05e5e4e77bad51c3ea641; S5B ACCEPTED — final reconciliation f1257441793f73d951ff1b8659f78b30bfffe4f5, following tested implementation ca25625264ebe96c0d777c3da833e03efc03e7aa and evidence reconciliation fc4de75b18783df45d5757c11c51f1924ea9d535. S6 ACCEPTED — e99d5da170552b55f7d74340b59fabb35615055a. F1 IMPLEMENTATION COMPLETE; F1 CLOSURE EVIDENCE PASSED; F1 ACCEPTED / CLOSED.
 - F1-S6 ACCEPTED — e99d5da170552b55f7d74340b59fabb35615055a
 - F2: ACCEPTED / CLOSED — `7a1f8c13ccb6c8722b040159400e7c5e2729b0b8`; deterministic recursive inventory implementation, executable verification, scope review, commit review and remote checkpoint verification complete.
 - F3: ACCEPTED / CLOSED — `8f31fddfcd13613b657a753cc571acbb66bca327`; bounded metadata-only DICOM inspection implementation, executable verification, static/source review and exact scope review complete.
 - F4: ACCEPTED / CLOSED — implementation `c32534e96cfcbb510e40982314df9dc69fd2034f`; tracker-only acceptance reconciliation `bfa1d0d45d42a368497ee06b06d236aee9fb67ec`; one complete engineering unit, source review and executable verification passed; both checkpoints remote verified.
-- F5: NOT STARTED; eligible for separate read-only architectural design/review only; implementation NOT AUTHORIZED.
+- F5: READ-ONLY DESIGN FROZEN (F5-D01; F5-C01-F5-C39; F5-T01-F5-T44). Implementation NOT STARTED / NOT AUTHORIZED; F5 tests NOT RUN.
 - F5-F11 implementation: BLOCKED pending separate authorization.
 - M8: BLOCKED until full Pre-M8 foundation acceptance.
 - GUI: BLOCKED; interface remains frozen and no GUI implementation is authorized.
@@ -50,7 +50,7 @@ Historical assistant runtime check: OpenJDK 17.0.20; mvn is unavailable. The pro
 | F2 | Deterministic recursive inventory | F0/F1 | **ACCEPTED / CLOSED** | Accepted implementation checkpoint: `7a1f8c13ccb6c8722b040159400e7c5e2729b0b8`; direct parent: `0794d9d9ada1ea7f486a4fe87811ded24bfc48fd`; focused 42/42, affected subsystem 435/435, final clean regression 435/435 PASS; Java release 21; 85 production + 34 test sources; remote branch verified at accepted checkpoint |
 | F3 | Metadata-only DICOM inspection | F0/F1 | **ACCEPTED / CLOSED** | Accepted implementation checkpoint: `8f31fddfcd13613b657a753cc571acbb66bca327`; direct parent: `ae498fec251daf70a442c055df727fd38a719881`; focused 30/30, affected subsystem 213/213, final clean regression 465/465 PASS; Java release 21; 92 production + 39 test sources |
 | F4 | Candidate series discovery | F2/F3 | **ACCEPTED / CLOSED**; one complete engineering unit; remote verification complete | Implementation: `c32534e96cfcbb510e40982314df9dc69fd2034f`; direct parent: `16f3c1abc1e89fdd44678b96cf822ede767979cc`; acceptance reconciliation: `bfa1d0d45d42a368497ee06b06d236aee9fb67ec` (tracker-only); 6 production ADDs + 4 test ADDs; focused 24/24, affected subsystem 236/236, final clean 489/489 PASS; Java release 21; 98 production + 43 test sources |
-| F5 | Immutable deterministic organization plan | F1/F2/F4 | **NOT STARTED — ELIGIBLE FOR SEPARATE READ-ONLY ARCHITECTURAL REVIEW ONLY. IMPLEMENTATION NOT AUTHORIZED.** | None |
+| F5 | Immutable deterministic organization plan | F1/F2/F4 | **DESIGN FROZEN** under F5-D01; **IMPLEMENTATION NOT STARTED / NOT AUTHORIZED** | F5-C01-F5-C39 normative clauses, F5-T01-F5-T44 prospective acceptance tests; no implementation checkpoint |
 | F6 | Verified collision-safe COPY execution | F1/F5 | **NOT STARTED / BLOCKED by applicable sequential dependencies** | None |
 | F7 | Supported project-owned NIfTI-1 reading | F0 and protected generic volume | **NOT STARTED / BLOCKED by applicable sequential dependencies** | None |
 | F8 | Reopen, compare and persist conversion evidence | F1/F7/M7 | **NOT STARTED / BLOCKED by applicable sequential dependencies** | None |
@@ -58,7 +58,7 @@ Historical assistant runtime check: OpenJDK 17.0.20; mvn is unavailable. The pro
 | F10 | Minimal boundary reconciliation | Working F9 | **NOT STARTED / BLOCKED by applicable sequential dependencies** | None |
 | F11 | Synthetic then stakeholder acceptance | F0-F10 | **NOT STARTED / BLOCKED by applicable sequential dependencies** | None |
 
-The matrix records architectural dependencies and the current sequential authorization state. It does not authorize parallel implementation or bypass predecessor acceptance gates. **F0-F4 are ACCEPTED / CLOSED; F4 implementation and tracker-only reconciliation checkpoints are remotely verified. F5 is eligible for separate read-only architectural design/review only. F5-F11 implementation remains blocked pending separate authorization. GUI and M8 remain blocked until complete Pre-M8 foundation acceptance.**
+The matrix records architectural dependencies and the current sequential authorization state. It does not authorize parallel implementation or bypass predecessor acceptance gates. **F0-F4 remain ACCEPTED / CLOSED. F5 read-only architecture and prospective tests are frozen, not implemented or executed. F5-F11 implementation, GUI and M8 remain blocked until their separate gates; the Pre-M8 program-wide acceptance checklist remains unchecked.**
 
 ## Global invariants
 
@@ -2465,3 +2465,222 @@ Pre-M8 final acceptance gate: INCOMPLETE
 ```
 
 No global Pre-M8 acceptance checkbox is changed by F4 closure. This housekeeping correction affects only the canonical tracker and records verified historical facts; no source, test or build changes and no new Maven execution are claimed. F5 implementation, GUI and M8 remain blocked.
+---
+
+## F5 READ-ONLY ARCHITECTURE FREEZE — IMMUTABLE DETERMINISTIC ORGANIZATION PLAN
+
+**Status: DESIGN FROZEN / IMPLEMENTATION NOT AUTHORIZED.**
+**Decision approved:** 2026-10-08 (Asia/Kolkata).
+**Accepted baseline:** `693145e17c482b0df3145bca02b0c42d7ec29bc1` (remote F4 closure).
+**Predecessors:** F0-F4 ACCEPTED / CLOSED.
+**Evidence qualification:** All F5 symbols, test paths and executable criteria below are prospective. No F5 Java, tests, digest adapter, integration, schema or Maven execution is performed by this tracker-only checkpoint.
+
+### F5-D01 — Approved digest sequencing and two SHA-256 ownership domains
+
+**APPROVED:** F6 owns a read-only *pre-planning* pass that acquires each selected source's full original stored-byte SHA-256 and original byte count; supplied values use accepted `ContentDigest(sizeBytes, sha256)` keyed by accepted SOURCE `RelativePath`. F5 consumes the values but never opens, reads, hashes, decodes, copies or mutates imaging files. F5 **may compute SHA-256 over framed in-memory technical identities and planning fields** to derive stable opaque directory components and operation IDs. F1 continues to compute its independent canonical provenance/journal integrity hashes. Computing identifier hashes does not authenticate file bytes.
+
+**Frozen eventual runtime order (not authorization to implement F6):**
+
+```text
+F2 inventory + F3 restricted metadata + F4 candidates/findings
+  -> F6 read-only original-file digest acquisition (separately authorized later)
+  -> F5 pure plan of final stable paths and COPY operation IDs
+  -> F6 execution-time identity/content revalidation and re-hashing
+  -> F6/F9 compose immutable F1 ProvenanceManifest from unchanged F5 mappings
+  -> F1 plan publication/receipt acknowledged, then operation IN_PROGRESS intent acknowledged
+  -> F6 verified no-replace COPY and factual operation checkpoint
+```
+
+This expressly refines the previous *F5 plan -> F6 pre-execution digest* sequence in the historical F1 design, without rewriting F1 history. **PM8-D06 full-digest naming is retained**, and F1's immutable already-published plan remains unchanged. F6/F9 must also bind previously observed F2/F3/F4 facts to the source bytes before approving execution; post-discovery hashing alone does not prove observations came from identical unchanged bytes. Inconsistency requires fail-closed rescan/new approved plan, never mutation of frozen F5 destinations.
+
+### Verified predecessor symbols and ownership
+
+| Accepted component | F5 responsibility boundary |
+| --- | --- |
+| F2 `DatasetInventory`, `InventoryEntry`, `InventoryFailure` | Preserve entries, original `FormatAssessment` and scanner failures; `complete()` determines incomplete-batch gate |
+| F3/F4 `DicomSeriesDiscovery`, candidate members and unassigned inspections | Preserve exact Study+Series membership and original findings/failures; no regrouping or M6 validation |
+| F1 `RelativePath` | Reuse SOURCE/OUTPUT portable logical references; NOT a containment proof |
+| F1 `ContentDigest` | Consume original byte count + complete lowercase SHA-256; F5 does not compute or attest it |
+| F1 `ManifestOperation`, `SourceFileRecord`, `ProvenanceManifest` | F6/F9 later compose execution-evidence plan from unchanged F5 mappings; F5 never manufactures execution observations |
+| F1 `ManifestFailure` | Workflow-only taxonomy; never relabel F2, F3, F4 facts as fictitious F1 hashing/execution failures |
+| F6/F8/F9/M6/M7 | Future original-byte hashing/COPY, output verification, orchestration and definitive image validation remain external to F5 |
+
+### Frozen F5 Java contract — PROPOSED declarations, not implemented
+
+```java
+// Package: org.cbihi.mrinormalizer.application.dataset.organization
+public record OrganizationCopyOperation(
+        String operationId, RelativePath source,
+        RelativePath destination, ContentDigest expectedDigest) {}
+
+public record OrganizationSourceDecision(
+        RelativePath source, Disposition disposition,
+        Optional<Reason> reason, Optional<String> operationId) {
+    public enum Disposition { COPY_PLANNED, SKIPPED_POLICY, BLOCKED }
+    public enum Reason {
+        NON_MRI_INPUT, CORRUPT_INPUT, INCONCLUSIVE_RECOGNITION,
+        INVALID_FORMAT_EVIDENCE, DICOM_INSPECTION_UNAVAILABLE,
+        MISSING_CONTENT_DIGEST, INVENTORY_INCOMPLETE, BATCH_BLOCKED
+    }
+}
+
+public record OrganizationPlan(
+        int layoutVersion, Status status, DatasetInventory inventory,
+        DicomSeriesDiscovery dicomDiscovery,
+        List<OrganizationSourceDecision> sourceDecisions,
+        List<OrganizationCopyOperation> copies) {
+    public enum Status { COMPLETE, BLOCKED }
+}
+
+// Separate package: org.cbihi.mrinormalizer.application.service
+public final class OrganizationPlanningService {
+    public OrganizationPlanningService() {}
+    public OrganizationPlan plan(DatasetInventory inventory,
+            DicomSeriesDiscovery discovery,
+            Map<RelativePath, ContentDigest> suppliedDigests);
+}
+```
+
+Imports omitted; all referenced types come from accepted existing application packages. The names, public constructor surface, methods, nested enum order and record-component order above are frozen for a separately authorized F5 implementation. No additional public APIs, stubs, adapters, new ports or external dependencies are authorized.
+
+**Exact future production ADD-only path set:**
+
+```text
+src/main/java/org/cbihi/mrinormalizer/application/dataset/organization/OrganizationCopyOperation.java
+src/main/java/org/cbihi/mrinormalizer/application/dataset/organization/OrganizationSourceDecision.java
+src/main/java/org/cbihi/mrinormalizer/application/dataset/organization/OrganizationPlan.java
+src/main/java/org/cbihi/mrinormalizer/application/service/OrganizationPlanningService.java
+```
+
+### F5 normative behavioral clauses
+
+| Clause | Required invariant or behavior |
+| --- | --- |
+F5-C01 | `plan()` is pure, deterministic and stateless; no filesystem, clocks, random IDs, dcm4che, imaging-byte parsing or mutation. |
+F5-C02 | Null/malformed supplied values, invalid SOURCE roots, duplicate or inconsistent references and programmer-invalid object graphs fail with fixed non-identifying argument errors. |
+F5-C03 | Exact F4 coverage: F4 candidate members union unassigned sources equals exactly those F2 entries with raw `initialDetection().outcome() == DICOM`; reject omissions, extras and duplicates. Empty DICOM sets are valid. |
+F5-C04 | Retain original immutable F2 inventory and F4 discovery in `OrganizationPlan`, including F2 failures, all F3 failures, F4 findings and unchanged F0 assessments. No redaction of *restricted internal* source evidence. |
+F5-C05 | Assign exactly one planning disposition per F2 `InventoryEntry` SOURCE; never synthesize a `RelativePath` for an unrepresentable or whole-root F2 failure. |
+F5-C06 | `layoutVersion == 1` only. `Status.COMPLETE` means coherent logical planning, NOT permission to execute/convert or assertion of data integrity. `Status.BLOCKED` forbids execution. |
+F5-C07 | Initial F5 supports only original-byte COPY planning, not MOVE, deletion, compression/decompression, content modification, reconstruction or conversion. |
+F5-C08 | F2 conclusive `UNKNOWN` with diagnostic `UNSUPPORTED_FORMAT` is `SKIPPED_POLICY/NON_MRI_INPUT`; corrupt, inconclusive unknown or assessed invalid evidence is blocked with applicable reasons. |
+F5-C09 | Positive raw recognition `DICOM`, `NIFTI` or `NIFTI_GZ` makes original-byte COPY potentially plannable independent of later *conversion* support; no F0 READY or M6-compatible claim is inferred. |
+F5-C10 | DICOM needs corresponding successful F3 metadata and F4 membership to produce Study/Series/SOP technical components. Any unassigned F3 failure blocks that source; inventing IDs or an unassigned destination is forbidden. |
+F5-C11 | F4 ambiguous/multidimensional screening facts are preserved and do not alone prohibit lossless COPY of original bytes. They cannot authorize reconstruction/conversion; later F9 still enforces screening and M6 definitive validation. |
+F5-C12 | An incomplete F2 inventory or ANY F2 `InventoryFailure` yields a globally BLOCKED plan with zero operations; every F2 entry marked `BLOCKED/INVENTORY_INCOMPLETE`, retaining original failure facts. |
+F5-C13 | Any hard-blocked source in an otherwise complete inventory blocks the entire v1 batch. Preserve its specific reason, mark otherwise copyable entries `BLOCKED/BATCH_BLOCKED`, keep conclusive non-MRI skips, and emit zero operations (no partial execution). |
+F5-C14 | Every supplied digest map key must resolve to an existing F2 SOURCE; extra/wrong-root/null keys or null values reject. Missing digest for an otherwise copyable source yields `BLOCKED/MISSING_CONTENT_DIGEST`, not a fabricated HASH_FAILED observation. |
+F5-C15 | `ContentDigest` is supplied syntactically valid evidence only. F5 cannot prove underlying bytes, source identity continuity or snapshot isolation; F6 must independently revalidate. |
+F5-C16 | Freeze final planned destinations and operation IDs before immutable F1 plan composition; F6/F9 cannot replan, rename, merge, reorder source ownership or silently regenerate IDs. |
+F5-C17 | Destinations depend on version, DICOM accepted technical UIDs, recognized NIfTI wrapper and complete original-byte SHA-256 only; never path basename, original extension, scanning order, wall clock or counters. |
+F5-C18 | DICOM OUTPUT path is exactly `layout-v1/dicom/study-<S>/series-<R>/sop-<P>-sha256-<D>.dcm`, with `<S>`, `<R>`, `<P>` opaque 64-digit lowercase hex hashes and `<D>` complete supplied original-byte 64-digit hex. |
+F5-C19 | NIFTI path is `layout-v1/nifti/sha256-<D>.nii`; NIFTI_GZ path is `layout-v1/nifti/sha256-<D>.nii.gz`; choose only by raw F2 detection outcome. Copy the original wrapper unchanged. |
+F5-C20 | Identifier hash preimage is the precise domain-separated length-framed UTF-8 encoding specified below; no unframed concatenation, truncation, platform charset, Unicode normalization or locale-derived keys. |
+F5-C21 | Define `<S>=H(dicom-study-v1, studyUID)`, `<R>=H(dicom-series-v1, studyUID,seriesUID)`, `<P>=H(dicom-sop-v1, studyUID,seriesUID,sopUID)` and `<D>=ContentDigest.sha256()` (no second digest-of-digest). |
+F5-C22 | Operation ID is `H(copy-operation-v1, SOURCE.path, OUTPUT.path, canonicalDecimal(sizeBytes), sha256)`. Thus byte-identical distinct source paths remain different operations without changing semantic destinations. |
+F5-C23 | Different SOURCE paths holding same approved identities and digest may share one target while retaining one operation and one mapping per source; no content-based source deduplication. |
+F5-C24 | Same planned target is allowed only for COPY with equal full `ContentDigest` AND matching DICOM Study/Series/SOP or matching NIfTI family. Unknown/differing digests or semantic identities conflict. |
+F5-C25 | Reject duplicate operation IDs, duplicate source mappings, output file-as-ancestor conflicts and ASCII case-fold alias collisions. Actual provider aliases and no-replace are still F6's responsibility. |
+F5-C26 | Generated paths are lowercase portable ASCII and pass accepted `RelativePath(OUTPUT, ...)` checks (including UTF-8 length and reserved-segment policy); no raw UID or absolute root in generated names. |
+F5-C27 | Original F2 SOURCE spellings and roles are retained exactly, without normalization, source renaming, symlink/root resolution, filesystem containment assertion or extension-dependent grouping. |
+F5-C28 | Canonical sort: one decision per SOURCE in unsigned UTF-8 source-path order; COPY operations by lowercase hex operation ID. Defensive immutable lists; no map iteration-order influence. |
+F5-C29 | `COPY_PLANNED`: linked ID present/reason absent; `SKIPPED_POLICY`: only `NON_MRI_INPUT`, no ID; `BLOCKED`: applicable controlled reason present, no ID. |
+F5-C30 | Plan constructors validate source-decision coverage, status and operation coherence; `BLOCKED` plans contain zero copies, `COMPLETE` plans have one matching COPY per COPY_PLANNED decision. |
+F5-C31 | Contract exceptions contain only fixed controlled messages; never embed paths, UIDs, DICOM/patient metadata, hashes, file bytes, exception text or stack traces. |
+F5-C32 | Default `toString()` of restricted internal F2/F4/F5 records is NOT a public diagnostic channel; no logging, telemetry, public report or GUI serialization of restricted data. |
+F5-C33 | At most 100000 F2 entries and 100000 COPY operations and 200000 source references to remain compatible with accepted F1 resource limits; reject oversize, never truncate. |
+F5-C34 | Original F0 assessments, F2 failures, F3 FailureCode and F4 Code/Reason stay authoritative; F5 dispositions are not original diagnostics or workflow-only F1 `ManifestFailure` records. |
+F5-C35 | F5 never writes `ProvenanceManifest`, `CheckpointRecord`, plan.json, receipt, completed observation, output-byte digest or success claim. |
+F5-C36 | Future F6/F9 F1 plan composition preserves each F5 COPY ID, source, destination and expected supplied digest; one F5 operation maps to one `ManifestOperation.Kind.COPY`. |
+F5-C37 | A F5 BLOCKED/skip decision must never become an executable operation through F1/F6/F9; F2/F3/F4 facts cannot be recoded into a fictitious F1 HASHING/EXECUTION failure. |
+F5-C38 | F6/F9 separately prove source identity/content binding, safe source/destination access, no-replace publication, identical-existing checks, verified output-byte equality and recovery behavior. F5 cannot. |
+F5-C39 | Do not modify F0-F4, accepted F1, M6/M7, schemas, build/dependencies, architectural documents, DI composition or GUI in F5 engineering without separately approved scope revision. |
+
+### Exact identifier hash framing
+
+`H(domain, fields...)` is lowercase hexadecimal SHA-256 of the concatenated byte sequence: (1) US-ASCII literal `MRI-NORMALIZER-F5-v1` with no terminator; (2) unsigned 32-bit big-endian UTF-8 byte-length of the ASCII domain, followed by domain bytes; (3) unsigned 32-bit big-endian number of fields; (4) for each field, unsigned 32-bit big-endian length of the *exact* UTF-8 bytes followed by those bytes. No trailing terminator or newline. Fields are exact accepted canonical strings with no normalization; `canonicalDecimal(sizeBytes)` is base-10 nonnegative ASCII without leading zeros except `0`. Domain tokens are the exact ASCII literals in F5-C21/C22, distinct for study, series, SOP and operation. F5 may hash only these already-supplied in-memory values; `<D>` is not recomputed. Freeze golden known-answer vectors using an independently implemented reference encoder during later tests, not unverified example hashes.
+
+### Deterministic decision precedence and whole-batch semantics
+
+1. Validate all references, nulls, bounded counts, model coherence and the exact F2/F4 DICOM source-set equality first. Invalid programmer-contract input raises a fixed-message argument exception, not a silently repaired plan.
+2. If F2 has a failure or is incomplete, return a BLOCKED plan with no COPY operations, one INVENTORY_INCOMPLETE decision per available inventory entry and the original failure list retained.
+3. Otherwise classify conclusive non-MRI recognition as explicit SKIPPED_POLICY, and corrupt/unknown-inconclusive/assessed-invalid inputs with their specific BLOCKED reason.
+4. For DICOM, require successful F3/F4 member; a preserved unassigned F3 failure maps to DICOM_INSPECTION_UNAVAILABLE. A flagged but successfully inspected F4 candidate remains raw-COPY-eligible.
+5. For potentially copyable DICOM/NIFTI/NIFTI_GZ entries, require a supplied digest record; absent digest is MISSING_CONTENT_DIGEST, without claiming F6 actually failed to hash.
+6. If any BLOCKED source exists, give all otherwise copyable entries BATCH_BLOCKED, retain specific original blockers and conclusive non-MRI skips, and return `Status.BLOCKED` with zero operations.
+7. Otherwise return `Status.COMPLETE` with one COPY_PLANNED/operation per eligible SOURCE, or an all-skipped zero-operation complete plan. Neither plan status implies file-copy success or conversion eligibility.
+
+Never make a selection based on first-seen map iteration. Existing source eligibility/disposition cannot be upgraded to F0 READY, F4 findings cannot be discarded, and no later copy executor may silently copy a subset of a globally blocked plan.
+
+### Proposed F5 engineering path ceiling — not yet authorized
+
+**4 production ADD + 6 test ADD = exactly 10 paths.** The later implementation checkpoint must not edit this tracker; acceptance bookkeeping belongs to a separate tracker-only checkpoint after independent test/source/scope review.
+
+```text
+src/test/java/org/cbihi/mrinormalizer/OrganizationPlanModelTest.java
+src/test/java/org/cbihi/mrinormalizer/OrganizationPlanningServiceTest.java
+src/test/java/org/cbihi/mrinormalizer/OrganizationNamingTest.java
+src/test/java/org/cbihi/mrinormalizer/OrganizationPlanCompatibilityTest.java
+src/test/java/org/cbihi/mrinormalizer/OrganizationPlanIntegrationTest.java
+src/test/java/org/cbihi/mrinormalizer/architecture/OrganizationPlanBoundaryTest.java
+```
+
+### Prospective F5 acceptance matrix (tests not created or run)
+
+| Test | Principal owner/test | Required positive and negative evidence |
+| --- | --- | --- |
+| F5-T01 | `OrganizationPlanModelTest` | Public record/enums shape, constructor API/component order and immutable snapshot |
+| F5-T02 | `OrganizationPlanModelTest` | Nulls, inconsistent status/decision combinations and fixed nonidentifying errors |
+| F5-T03 | `OrganizationPlanModelTest` | One-to-one SOURCE decision coverage and source role enforcement |
+| F5-T04 | `OrganizationPlanModelTest` | BLOCKED prohibits COPY operations; COMPLETE exact COPY linkage |
+| F5-T05 | `OrganizationPlanModelTest` | Defensive copies, immutable collections, caller mutation immunity |
+| F5-T06 | `OrganizationPlanModelTest` | 100000/200000 bounds and no overflow or silent truncation |
+| F5-T07 | `OrganizationPlanningServiceTest` | Complete DICOM/NIFTI/NIFTI_GZ COPY eligibility using supplied digests |
+| F5-T08 | `OrganizationPlanningServiceTest` | Exact F2 DICOM/F4 source set equality; reject missing/extra F4 sources |
+| F5-T09 | `OrganizationPlanningServiceTest` | No DICOM sources plus empty discovery is valid |
+| F5-T10 | `OrganizationPlanningServiceTest` | F2 incomplete/traversal failure globally blocks, original facts intact |
+| F5-T11 | `OrganizationPlanningServiceTest` | F3 failure retained unchanged; no guessed UID or destination |
+| F5-T12 | `OrganizationPlanningServiceTest` | F4 findings retained; lossless COPY does not grant reconstruction READY |
+| F5-T13 | `OrganizationPlanningServiceTest` | Conclusive UNKNOWN/UNSUPPORTED_FORMAT becomes explicit SKIPPED_POLICY |
+| F5-T14 | `OrganizationPlanningServiceTest` | CORRUPT, inconclusive UNKNOWN and assessed INVALID are blocked |
+| F5-T15 | `OrganizationPlanningServiceTest` | Missing required digest globally blocks with no fabricated HASH_FAILED |
+| F5-T16 | `OrganizationPlanningServiceTest` | Unknown/null/wrong-root digest-map entry rejected |
+| F5-T17 | `OrganizationPlanningServiceTest` | Global BATCH_BLOCKED propagation preserves original blockers |
+| F5-T18 | `OrganizationPlanningServiceTest` | All-skipped plan is COMPLETE with zero COPY and no success inference |
+| F5-T19 | `OrganizationPlanningServiceTest` | Original FormatAssessment/ConversionReadiness never upgraded |
+| F5-T20 | `OrganizationNamingTest` | Exact versioned DICOM UID hash/full digest path and .dcm suffix |
+| F5-T21 | `OrganizationNamingTest` | NIFTI vs NIFTI_GZ content-wrapper naming irrespective of basename |
+| F5-T22 | `OrganizationNamingTest` | Independent golden SHA preimage vectors and domain separation |
+| F5-T23 | `OrganizationNamingTest` | Ambiguous unframed strings have distinct framed digest inputs |
+| F5-T24 | `OrganizationNamingTest` | Unicode supplementary SOURCE, UTF-8 framing and canonical size decimal |
+| F5-T25 | `OrganizationNamingTest` | Permuted inventory/F4/map order yields identical plan output |
+| F5-T26 | `OrganizationNamingTest` | Same identities/bytes with renamed SOURCE yields same destination |
+| F5-T27 | `OrganizationNamingTest` | Changed byte digest or technical UID changes/blocks destination sharing |
+| F5-T28 | `OrganizationNamingTest` | Distinct source paths with identical bytes get distinct operation IDs |
+| F5-T29 | `OrganizationNamingTest` | No filenames, extensions, clocks, counters, random salt or truncated digests |
+| F5-T30 | `OrganizationNamingTest` | Generated lowercase portable ASCII, bounded paths, raw UID excluded |
+| F5-T31 | `OrganizationPlanCompatibilityTest` | One F5 COPY maps to one F1 COPY with same ID/source/destination |
+| F5-T32 | `OrganizationPlanCompatibilityTest` | Accepted F1 source model carries unchanged assessment and supplied digest |
+| F5-T33 | `OrganizationPlanCompatibilityTest` | Same-digest COPY destination sharing accepted by F1 only when compatible |
+| F5-T34 | `OrganizationPlanCompatibilityTest` | Different/unknown digest and file/ancestor collisions rejected |
+| F5-T35 | `OrganizationPlanCompatibilityTest` | No F1 receipt, checkpoint, postwrite facts or M6 success fabricated |
+| F5-T36 | `OrganizationPlanIntegrationTest` | Synthetic multi-study/series F2-F3-F4-F5 full-coverage permutation test |
+| F5-T37 | `OrganizationPlanIntegrationTest` | Mixed NIfTI/gzip/DICOM/non-MRI/corrupt/F4-flagged cohort decisions |
+| F5-T38 | `OrganizationPlanIntegrationTest` | Byte-identical distinct SOURCE paths retained as separate mappings |
+| F5-T39 | `OrganizationPlanIntegrationTest` | Omitted F3/F4 source and incomplete F2 prevent partial execution |
+| F5-T40 | `OrganizationPlanIntegrationTest` | Synthetic digest-only plan; no imaging-file access or mutation |
+| F5-T41 | `OrganizationPlanBoundaryTest` | Forbid filesystem input/output, hash reader, dcm4che, filesystem adapters |
+| F5-T42 | `OrganizationPlanBoundaryTest` | Forbid F1 persistence, M6/M7/F8/F9 and presentation wiring |
+| F5-T43 | `OrganizationPlanBoundaryTest` | Exact ten ADD-only paths and no source/schema/build/predecessor modifications |
+| F5-T44 | `OrganizationPlanBoundaryTest` | No restricted SOURCE UID/paths in outward diagnostics or error text |
+
+### F5 acceptance gate and deferred owner handoff
+
+- Implement tests first only after separate F5 authorization; use Java 21 and synthetic de-identified inputs, not real subject data. Focused suite, affected subsystem regression, final `mvn clean test` with exact counts and 0 failures/errors/skips, independent API/boundary review, `git diff --check`, exact ADD-only Git review and separate final tracker reconciliation required before F5 ACCEPTED/CLOSED.
+- F6 must later implement read-only pre-planning real original-byte digest acquisition, budget/snapshot/source binding, execution-time rehash, provider-specific safe no-replace publication, verified destination bytes and failure/recovery evidence. None is added in F5.
+- F6/F9 must preserve every F5 planned source mapping and produce F1 restricted immutable provenance using supplied content digest evidence; nonexecuting source dispositions and F2/F3/F4 original failures must not be confused with F1 workflow-only `ManifestFailure` phases. The F1 journal publication and operation intent must be acknowledged before first mutation.
+- F9 must honor F4 screening for conversion, and M6 must remain definitive series validator. F8 and F11 verification, GUI and M8 remain separately gated.
+- No program-wide Pre-M8 completion checkbox is checked and no F5 implementation or acceptance status is claimed.
+
+**F5 DESIGN CONTRACT FROZEN — F5-D01 approved; F5-C01-F5-C39; F5-T01-F5-T44.**
+**F5 IMPLEMENTATION NOT AUTHORIZED.** The next controlled action requires separate explicit F5 engineering authorization on a clean canonical baseline.
