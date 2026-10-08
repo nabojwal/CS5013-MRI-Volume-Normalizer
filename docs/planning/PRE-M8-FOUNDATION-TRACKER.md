@@ -4,7 +4,7 @@
 
 ## Program control
 
-- Date: 2026-10-08 (Asia/Kolkata; F4 accepted/closed; F5 design and acceptance matrix frozen under F5-D01).
+- Date: 2026-10-08 (Asia/Kolkata; F0-F5 accepted/closed; F5 tracker-only acceptance reconciled after verified implementation).
 - Branch: feature/pre-m8-foundation.
 - Canonical baseline: 0b91666c03d6247a6882c164aa6b033d9b761101.
 - M6 protected checkpoint: cb7769e; protected tag: pre-demo-m6-2026-10-02.
@@ -15,15 +15,15 @@
 - Historical accepted F2 parent: 0794d9d9ada1ea7f486a4fe87811ded24bfc48fd (final F1 closure bookkeeping; F1 accepted / closed).
 - F2 accepted implementation checkpoint: `7a1f8c13ccb6c8722b040159400e7c5e2729b0b8`.
 - Accepted S6 parent: f1257441793f73d951ff1b8659f78b30bfffe4f5 (final F1-S5B acceptance).
-- Current authorization: F0-F4 ACCEPTED / CLOSED at remotely verified checkpoints. F5-D01 and the complete F5 read-only normative contract and test matrix are DESIGN FROZEN. F5 implementation remains NOT AUTHORIZED; F6-F11 implementation, GUI and M8 remain BLOCKED. This documentation checkpoint is not F5 implementation or acceptance.
+- Current authorization: F0-F5 ACCEPTED / CLOSED. F5-D01 and F5-C01-F5-C39/F5-T01-F5-T44 remain frozen. F6 is eligible for a separately authorized architectural review only; F6-F11 implementation, GUI and M8 remain BLOCKED. This checkpoint records F5 acceptance, not implementation of F6 or global Pre-M8 completion.
 - F0: S1 ACCEPTED at 76b676d; S2 ACCEPTED — ea40616 using user-supplied Java 21/Maven results. S2 was committed and pushed; the accepted remote checkpoint is ea4061672a293745ac5f5fc1b0d8d240d217e64e. S3 ACCEPTED — 8b6e714; F0 IMPLEMENTATION COMPLETE; F0 CLOSURE EVIDENCE PASSED; F0 ACCEPTED / CLOSED.
 - F1: S0 ACCEPTED; S1A ACCEPTED — b7a327d55ac26265474378fec00ae9a03ba7784e; S1B ACCEPTED — 8b57b48e2a677a08a1d2f11f9eb760b0d3b8f00c; S2A ACCEPTED — 99dcd08d3c1e4d8653be1ef89b521422294be274; S2B ACCEPTED — 935fc29ad9a40a53b497a5fe008db5d6d7d485ac; S3 ACCEPTED — 03d598a1606121ecc7918279ec9a5f20f622ee93; S4 ACCEPTED — 233c334023f035eba4c6122a262f9961e08e9b07; S5A ACCEPTED — 26f41054449335fba6d05e5e4e77bad51c3ea641; S5B ACCEPTED — final reconciliation f1257441793f73d951ff1b8659f78b30bfffe4f5, following tested implementation ca25625264ebe96c0d777c3da833e03efc03e7aa and evidence reconciliation fc4de75b18783df45d5757c11c51f1924ea9d535. S6 ACCEPTED — e99d5da170552b55f7d74340b59fabb35615055a. F1 IMPLEMENTATION COMPLETE; F1 CLOSURE EVIDENCE PASSED; F1 ACCEPTED / CLOSED.
 - F1-S6 ACCEPTED — e99d5da170552b55f7d74340b59fabb35615055a
 - F2: ACCEPTED / CLOSED — `7a1f8c13ccb6c8722b040159400e7c5e2729b0b8`; deterministic recursive inventory implementation, executable verification, scope review, commit review and remote checkpoint verification complete.
 - F3: ACCEPTED / CLOSED — `8f31fddfcd13613b657a753cc571acbb66bca327`; bounded metadata-only DICOM inspection implementation, executable verification, static/source review and exact scope review complete.
 - F4: ACCEPTED / CLOSED — implementation `c32534e96cfcbb510e40982314df9dc69fd2034f`; tracker-only acceptance reconciliation `bfa1d0d45d42a368497ee06b06d236aee9fb67ec`; one complete engineering unit, source review and executable verification passed; both checkpoints remote verified.
-- F5: READ-ONLY DESIGN FROZEN (F5-D01; F5-C01-F5-C39; F5-T01-F5-T44). Implementation NOT STARTED / NOT AUTHORIZED; F5 tests NOT RUN.
-- F5-F11 implementation: BLOCKED pending separate authorization.
+- F5: ACCEPTED / CLOSED — implementation `73a19835ff1057c84a8e4cd726038a591d54fdc7` (direct parent `5ee3e5d985ab7e9a58a9e2a2a26031e6eacf7f35`); independent source, contract, scope and remote checkpoint review passed; Linux and Windows Java 21/Maven regression evidence passed. Separate tracker-only closure recorded below.
+- F6-F11 implementation: BLOCKED pending separate workstream authorization; F6 read-only architectural review is the next eligible controlled step.
 - M8: BLOCKED until full Pre-M8 foundation acceptance.
 - GUI: BLOCKED; interface remains frozen and no GUI implementation is authorized.
 
@@ -50,7 +50,7 @@ Historical assistant runtime check: OpenJDK 17.0.20; mvn is unavailable. The pro
 | F2 | Deterministic recursive inventory | F0/F1 | **ACCEPTED / CLOSED** | Accepted implementation checkpoint: `7a1f8c13ccb6c8722b040159400e7c5e2729b0b8`; direct parent: `0794d9d9ada1ea7f486a4fe87811ded24bfc48fd`; focused 42/42, affected subsystem 435/435, final clean regression 435/435 PASS; Java release 21; 85 production + 34 test sources; remote branch verified at accepted checkpoint |
 | F3 | Metadata-only DICOM inspection | F0/F1 | **ACCEPTED / CLOSED** | Accepted implementation checkpoint: `8f31fddfcd13613b657a753cc571acbb66bca327`; direct parent: `ae498fec251daf70a442c055df727fd38a719881`; focused 30/30, affected subsystem 213/213, final clean regression 465/465 PASS; Java release 21; 92 production + 39 test sources |
 | F4 | Candidate series discovery | F2/F3 | **ACCEPTED / CLOSED**; one complete engineering unit; remote verification complete | Implementation: `c32534e96cfcbb510e40982314df9dc69fd2034f`; direct parent: `16f3c1abc1e89fdd44678b96cf822ede767979cc`; acceptance reconciliation: `bfa1d0d45d42a368497ee06b06d236aee9fb67ec` (tracker-only); 6 production ADDs + 4 test ADDs; focused 24/24, affected subsystem 236/236, final clean 489/489 PASS; Java release 21; 98 production + 43 test sources |
-| F5 | Immutable deterministic organization plan | F1/F2/F4 | **DESIGN FROZEN** under F5-D01; **IMPLEMENTATION NOT STARTED / NOT AUTHORIZED** | F5-C01-F5-C39 normative clauses, F5-T01-F5-T44 prospective acceptance tests; no implementation checkpoint |
+| F5 | Immutable deterministic organization plan | F1/F2/F4 | **ACCEPTED / CLOSED**; complete tests-first engineering unit, verified F5-D01 and F5-C01-F5-C39/F5-T01-F5-T44 | Implementation: `73a19835ff1057c84a8e4cd726038a591d54fdc7` (parent `5ee3e5d985ab7e9a58a9e2a2a26031e6eacf7f35`); 4 production + 6 test ADDs only; focused 46/46, affected 532/532, Linux clean 535/535, Windows clean 535/535 PASS under Java 21; tracker-only reconciliation below |
 | F6 | Verified collision-safe COPY execution | F1/F5 | **NOT STARTED / BLOCKED by applicable sequential dependencies** | None |
 | F7 | Supported project-owned NIfTI-1 reading | F0 and protected generic volume | **NOT STARTED / BLOCKED by applicable sequential dependencies** | None |
 | F8 | Reopen, compare and persist conversion evidence | F1/F7/M7 | **NOT STARTED / BLOCKED by applicable sequential dependencies** | None |
@@ -58,7 +58,7 @@ Historical assistant runtime check: OpenJDK 17.0.20; mvn is unavailable. The pro
 | F10 | Minimal boundary reconciliation | Working F9 | **NOT STARTED / BLOCKED by applicable sequential dependencies** | None |
 | F11 | Synthetic then stakeholder acceptance | F0-F10 | **NOT STARTED / BLOCKED by applicable sequential dependencies** | None |
 
-The matrix records architectural dependencies and the current sequential authorization state. It does not authorize parallel implementation or bypass predecessor acceptance gates. **F0-F4 remain ACCEPTED / CLOSED. F5 read-only architecture and prospective tests are frozen, not implemented or executed. F5-F11 implementation, GUI and M8 remain blocked until their separate gates; the Pre-M8 program-wide acceptance checklist remains unchecked.**
+The matrix records architectural dependencies and the current sequential authorization state. It does not authorize parallel implementation or bypass predecessor acceptance gates. **F0-F5 are ACCEPTED / CLOSED. F6 is eligible for a separate read-only design/review authorization only. F6-F11 implementation, GUI and M8 remain blocked until their respective gates; the Pre-M8 program-wide acceptance checklist remains unchecked.**
 
 ## Global invariants
 
@@ -2469,6 +2469,8 @@ No global Pre-M8 acceptance checkbox is changed by F4 closure. This housekeeping
 
 ## F5 READ-ONLY ARCHITECTURE FREEZE — IMMUTABLE DETERMINISTIC ORGANIZATION PLAN
 
+**Historical freeze qualification:** The prospective and NOT AUTHORIZED statements within this frozen design block describe the pre-implementation state at checkpoint `5ee3e5d985ab7e9a58a9e2a2a26031e6eacf7f35`. They are retained as the immutable design decision history. The F5 final acceptance reconciliation appended below governs the current state.
+
 **Status: DESIGN FROZEN / IMPLEMENTATION NOT AUTHORIZED.**
 **Decision approved:** 2026-10-08 (Asia/Kolkata).
 **Accepted baseline:** `693145e17c482b0df3145bca02b0c42d7ec29bc1` (remote F4 closure).
@@ -2684,3 +2686,47 @@ src/test/java/org/cbihi/mrinormalizer/architecture/OrganizationPlanBoundaryTest.
 
 **F5 DESIGN CONTRACT FROZEN — F5-D01 approved; F5-C01-F5-C39; F5-T01-F5-T44.**
 **F5 IMPLEMENTATION NOT AUTHORIZED.** The next controlled action requires separate explicit F5 engineering authorization on a clean canonical baseline.
+
+---
+
+## F5 FINAL ACCEPTANCE RECONCILIATION — IMMUTABLE DETERMINISTIC ORGANIZATION PLAN
+
+**Status: F5 ACCEPTED / CLOSED (2026-10-08, Asia/Kolkata).**
+
+This tracker-only closure supersedes the historical "implementation not authorized", "not started", and "tests not run" states in the frozen F5 design section above. It does not revise F5-D01 or F5-C01-F5-C39 and does not change any earlier accepted F0-F4 or F1 contract.
+
+### Independently verified implementation checkpoint
+
+- Canonical branch: `feature/pre-m8-foundation`.
+- Implementation commit: `73a19835ff1057c84a8e4cd726038a591d54fdc7`; message: `feat(organization): implement immutable deterministic F5 planning`.
+- Verified immediate predecessor: `5ee3e5d985ab7e9a58a9e2a2a26031e6eacf7f35` (F5-D01 design-contract checkpoint).
+- Independent GitHub compare: exactly **one implementation commit**, **4 production ADDs + 6 test ADDs**, **1,060 insertions**, zero tracked modifications/deletions or other paths. Remote `feature/pre-m8-foundation` pointed exactly to the implementation SHA before this documentation-only reconciliation.
+- Original F5-C01-F5-C39 and F5-T01-F5-T44 contract/test matrix completed; two additional R02 negative regressions included. R01 missing import and R02 direct-plan canonical naming/operation identity constructor integrity corrected and independently source-reviewed. Frozen public API and F1/F2/F3/F4 boundaries preserved.
+- Original source submission independently audited against the checksum-verified ten-file archive; checksum manifest, signed-off source bytes, reviewed scope and R01/R02 corrections validated. The original implementation commit was created from the local Windows worktree and pushed without force.
+
+### Executed verification evidence (not simulated)
+
+| Gate | Execution context | Tests | Failures | Errors | Skipped | Result |
+| --- | --- | ---: | ---: | ---: | ---: | --- |
+| Focused F5 | Linux, Java 21.0.12 / Maven 3.8.7 | 46 | 0 | 0 | 0 | BUILD SUCCESS |
+| Affected-subsystem selection | Linux, Java 21.0.12 / Maven 3.8.7 | 532 | 0 | 0 | 0 | BUILD SUCCESS; original full affected console log not retained; test selection and final Surefire evidence corroborate |
+| Final `mvn clean test` | Linux/overlay, Java 21.0.12 / Maven 3.8.7 | 535 | 0 | 0 | 0 | BUILD SUCCESS; 49 Surefire suites |
+| Focused F5 | Windows 11/NTFS, Java 21.0.12.1 / Maven 3.9.16 | 46 | 0 | 0 | 0 | BUILD SUCCESS |
+| Final `mvn clean test` | Windows 11/NTFS, Java 21.0.12.1 / Maven 3.9.16, elevated process | 535 | 0 | 0 | 0 | BUILD SUCCESS |
+| Prior two Windows filesystem assertion cases | Windows 11/NTFS, elevated process | 2 | 0 | 0 | 0 | BUILD SUCCESS |
+
+- Windows clean regression compiled **102 production** and **49 test** Java source files with `--release 21`.
+- Initial non-elevated Windows failures were diagnosed as symlink-privilege-sensitive filesystem test behavior. The elevated full regression and targeted two-case rerun passed. No F1 filesystem implementation/test or F5 code was changed to suppress or skip tests.
+- Scope audit: exact ten-file staged ADD-only diff; `git diff --cached --check` PASS; repository tracked/index review did not include four protected, unrelated local untracked files. Pre-M8 tracker remained byte-identical to its F5 design-checkpoint version through the implementation commit.
+- Accepted Windows filesystem-provider qualification does not prove power-loss or directory-entry durability; this limitation remains documented. Compiler warnings for legacy use of internal `com.sun.nio.file.ExtendedOpenOption` were observed outside F5 and do not expand this acceptance claim.
+
+### Frozen responsibility and remaining gates
+
+- F5 is purely immutable, deterministic, copy-only logical planning. Its `ContentDigest` inputs are supplied and not authenticated by F5. F5 hashes only in-memory framed identifiers; it does not acquire file bytes, access filesystems, publish provenance, copy, convert, or confer M6/M7 readiness.
+- F6 remains owner of pre-planning original-byte digest acquisition, observation-to-source continuity, execution-time revalidation, no-replace original-byte COPY, output verification and recovery evidence. F1 plan/journal acknowledgement and F9 orchestration are future separately gated work.
+- F0-F5: **ACCEPTED / CLOSED**.
+- F6: **ELIGIBLE FOR SEPARATELY AUTHORIZED READ-ONLY ARCHITECTURAL DESIGN/REVIEW ONLY**; F6 implementation NOT AUTHORIZED by F5 closure.
+- F7-F11 implementation, GUI and M8: **BLOCKED** pending their respective dependency/acceptance gates.
+- Global Pre-M8 acceptance checklist: **INCOMPLETE**; no global checkbox is changed by this tracker-only reconciliation.
+
+**F5 ACCEPTED / CLOSED — implementation `73a19835ff1057c84a8e4cd726038a591d54fdc7`; separate tracker-only reconciliation follows as this documentation checkpoint.**
