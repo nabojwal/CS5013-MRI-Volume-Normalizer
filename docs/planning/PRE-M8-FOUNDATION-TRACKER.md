@@ -4,23 +4,26 @@
 
 ## Program control
 
-- - Date: 2026-10-08 (Asia/Calcutta; final F3 acceptance reconciliation).
+- Date: 2026-10-08 (Asia/Kolkata; proposed final F4 acceptance reconciliation).
 - Branch: feature/pre-m8-foundation.
 - Canonical baseline: 0b91666c03d6247a6882c164aa6b033d9b761101.
 - M6 protected checkpoint: cb7769e; protected tag: pre-demo-m6-2026-10-02.
 - M7 protected checkpoint: d9ad7ea; protected tag: pre-demo-m7-2026-10-03.
-- Current verified checkpoint / accepted F2 parent: 0794d9d9ada1ea7f486a4fe87811ded24bfc48fd (final F1 closure bookkeeping; F1 accepted / closed).
+- Current verified implementation checkpoint: `c32534e96cfcbb510e40982314df9dc69fd2034f` (F4; local implementation verified).
+- F4 direct parent: `16f3c1abc1e89fdd44678b96cf822ede767979cc`.
+- Historical accepted F2 parent: 0794d9d9ada1ea7f486a4fe87811ded24bfc48fd (final F1 closure bookkeeping; F1 accepted / closed).
 - F2 accepted implementation checkpoint: `7a1f8c13ccb6c8722b040159400e7c5e2729b0b8`.
 - Accepted S6 parent: f1257441793f73d951ff1b8659f78b30bfffe4f5 (final F1-S5B acceptance).
-- Current authorization: tracker-only F3 acceptance reconciliation. F0, F1, F2 and F3 are ACCEPTED / CLOSED. F3 accepted implementation checkpoint: `8f31fddfcd13613b657a753cc571acbb66bca327`. F4 is eligible for separate read-only architectural review / authorization only; no F4-F11, GUI or M8 implementation is authorized by this reconciliation.
+- Current authorization: tracker-only F4 acceptance reconciliation. F0-F3 remain ACCEPTED / CLOSED. Proposed F0-F4 status: ACCEPTED / CLOSED, conditional on final review of this F4 reconciliation; formal F4 closure awaits independent diff review and a separate controlled tracker-only commit. F5 is eligible for separate read-only architectural design/review only after reconciliation approval. F5-F11 implementation, GUI and M8 remain blocked. No staging, commit or push is authorized in this task.
 - F0: S1 ACCEPTED at 76b676d; S2 ACCEPTED — ea40616 using user-supplied Java 21/Maven results. S2 was committed and pushed; the accepted remote checkpoint is ea4061672a293745ac5f5fc1b0d8d240d217e64e. S3 ACCEPTED — 8b6e714; F0 IMPLEMENTATION COMPLETE; F0 CLOSURE EVIDENCE PASSED; F0 ACCEPTED / CLOSED.
 - F1: S0 ACCEPTED; S1A ACCEPTED — b7a327d55ac26265474378fec00ae9a03ba7784e; S1B ACCEPTED — 8b57b48e2a677a08a1d2f11f9eb760b0d3b8f00c; S2A ACCEPTED — 99dcd08d3c1e4d8653be1ef89b521422294be274; S2B ACCEPTED — 935fc29ad9a40a53b497a5fe008db5d6d7d485ac; S3 ACCEPTED — 03d598a1606121ecc7918279ec9a5f20f622ee93; S4 ACCEPTED — 233c334023f035eba4c6122a262f9961e08e9b07; S5A ACCEPTED — 26f41054449335fba6d05e5e4e77bad51c3ea641; S5B ACCEPTED — final reconciliation f1257441793f73d951ff1b8659f78b30bfffe4f5, following tested implementation ca25625264ebe96c0d777c3da833e03efc03e7aa and evidence reconciliation fc4de75b18783df45d5757c11c51f1924ea9d535. S6 ACCEPTED — e99d5da170552b55f7d74340b59fabb35615055a. F1 IMPLEMENTATION COMPLETE; F1 CLOSURE EVIDENCE PASSED; F1 ACCEPTED / CLOSED.
 - F1-S6 ACCEPTED — e99d5da170552b55f7d74340b59fabb35615055a
 - F2: ACCEPTED / CLOSED — `7a1f8c13ccb6c8722b040159400e7c5e2729b0b8`; deterministic recursive inventory implementation, executable verification, scope review, commit review and remote checkpoint verification complete.
 - F3: ACCEPTED / CLOSED — `8f31fddfcd13613b657a753cc571acbb66bca327`; bounded metadata-only DICOM inspection implementation, executable verification, static/source review and exact scope review complete.
-- F4: NOT STARTED / NOT AUTHORIZED; eligible for separate read-only architectural review / authorization after F3 closure.
-- F5-F11: NOT STARTED / BLOCKED by their applicable sequential dependencies.
-- M8: BLOCKED until complete Pre-M8 acceptance.
+- F4: ACCEPTED / CLOSED (proposed; subject to tracker reconciliation review) — `c32534e96cfcbb510e40982314df9dc69fd2034f`; one complete engineering unit, implementation and supplied executable/source-review evidence verified.
+- F5: NOT STARTED; eligible for separate read-only architectural design/review only after F4 reconciliation approval; implementation NOT AUTHORIZED.
+- F5-F11 implementation: BLOCKED pending separate authorization.
+- M8: BLOCKED until full Pre-M8 foundation acceptance.
 - GUI: BLOCKED; interface remains frozen and no GUI implementation is authorized.
 
 ## Authority and baseline evidence
@@ -45,8 +48,8 @@ Historical assistant runtime check: OpenJDK 17.0.20; mvn is unavailable. The pro
 | F1 | Persistent provenance/reporting | Accepted F0 | **ACCEPTED / CLOSED**; F1 IMPLEMENTATION COMPLETE; F1 CLOSURE EVIDENCE PASSED; S0, S1A, S1B, S2A, S2B, S3, S4, S5A, S5B and **S6 ACCEPTED**. | S1A: `b7a327d55ac26265474378fec00ae9a03ba7784e`; S1B: `8b57b48e2a677a08a1d2f11f9eb760b0d3b8f00c`; S2A: `99dcd08d3c1e4d8653be1ef89b521422294be274`; S2B: `935fc29ad9a40a53b497a5fe008db5d6d7d485ac`; S3: `03d598a1606121ecc7918279ec9a5f20f622ee93`; S4: `233c334023f035eba4c6122a262f9961e08e9b07`; S5A: `26f41054449335fba6d05e5e4e77bad51c3ea641`; S5B tested implementation: `ca25625264ebe96c0d777c3da833e03efc03e7aa`; S5B acceptance reconciliation: `fc4de75b18783df45d5757c11c51f1924ea9d535`; final acceptance / S6 parent: `f1257441793f73d951ff1b8659f78b30bfffe4f5`; S6: `e99d5da170552b55f7d74340b59fabb35615055a` |
 | F2 | Deterministic recursive inventory | F0/F1 | **ACCEPTED / CLOSED** | Accepted implementation checkpoint: `7a1f8c13ccb6c8722b040159400e7c5e2729b0b8`; direct parent: `0794d9d9ada1ea7f486a4fe87811ded24bfc48fd`; focused 42/42, affected subsystem 435/435, final clean regression 435/435 PASS; Java release 21; 85 production + 34 test sources; remote branch verified at accepted checkpoint |
 | F3 | Metadata-only DICOM inspection | F0/F1 | **ACCEPTED / CLOSED** | Accepted implementation checkpoint: `8f31fddfcd13613b657a753cc571acbb66bca327`; direct parent: `ae498fec251daf70a442c055df727fd38a719881`; focused 30/30, affected subsystem 213/213, final clean regression 465/465 PASS; Java release 21; 92 production + 39 test sources |
-| F4 | Candidate series discovery | F2/F3 | **NOT STARTED / NOT AUTHORIZED**; eligible for separate read-only architectural review / authorization after F3 closure | None |
-| F5 | Immutable deterministic organization plan | F1/F2/F4 | **NOT STARTED / BLOCKED by applicable sequential dependencies** | None |
+| F4 | Candidate series discovery | F2/F3 | **ACCEPTED / CLOSED**, subject to tracker reconciliation review; one complete engineering unit | Implementation: `c32534e96cfcbb510e40982314df9dc69fd2034f`; direct parent: `16f3c1abc1e89fdd44678b96cf822ede767979cc`; 6 production ADDs + 4 test ADDs; focused 24/24, affected subsystem 236/236, final clean 489/489 PASS; Java release 21; 98 production + 43 test sources |
+| F5 | Immutable deterministic organization plan | F1/F2/F4 | **NOT STARTED — ELIGIBLE FOR SEPARATE READ-ONLY ARCHITECTURAL REVIEW ONLY. IMPLEMENTATION NOT AUTHORIZED.** Review eligibility follows F4 reconciliation approval. | None |
 | F6 | Verified collision-safe COPY execution | F1/F5 | **NOT STARTED / BLOCKED by applicable sequential dependencies** | None |
 | F7 | Supported project-owned NIfTI-1 reading | F0 and protected generic volume | **NOT STARTED / BLOCKED by applicable sequential dependencies** | None |
 | F8 | Reopen, compare and persist conversion evidence | F1/F7/M7 | **NOT STARTED / BLOCKED by applicable sequential dependencies** | None |
@@ -54,7 +57,7 @@ Historical assistant runtime check: OpenJDK 17.0.20; mvn is unavailable. The pro
 | F10 | Minimal boundary reconciliation | Working F9 | **NOT STARTED / BLOCKED by applicable sequential dependencies** | None |
 | F11 | Synthetic then stakeholder acceptance | F0-F10 | **NOT STARTED / BLOCKED by applicable sequential dependencies** | None |
 
-The matrix records architectural dependencies and the current sequential authorization state. It does not authorize parallel work or bypass predecessor acceptance gates. **F0, F1, F2 and F3 are accepted / closed. F4 is eligible for separate read-only architectural review / authorization only; no F4-F11, GUI or M8 implementation is authorized by this reconciliation. GUI and M8 remain blocked until complete Pre-M8 acceptance.**
+The matrix records architectural dependencies and the current sequential authorization state. It does not authorize parallel work or bypass predecessor acceptance gates. **F0-F3 remain accepted / closed. F0-F4 are ACCEPTED / CLOSED as the proposed reconciliation status, conditional on final review; F4 formal closure awaits independent diff review and a separate tracker-only commit. F5 is eligible for separate read-only architectural design/review only after reconciliation approval. F5-F11 implementation remains blocked pending separate authorization. GUI and M8 remain blocked until full Pre-M8 foundation acceptance.**
 
 ## Global invariants
 
@@ -2291,3 +2294,172 @@ Known limitations remain factual:
 F4 is now eligible for its own separate read-only architectural review / authorization.
 
 This reconciliation does **not** authorize F4 implementation, F5-F11, GUI work or M8.
+
+## F4 FINAL ACCEPTANCE RECONCILIATION
+
+**Proposed status: F4 ACCEPTED / CLOSED, subject to tracker reconciliation review.**
+
+This record prepares F4 acceptance locally. Formal closure awaits independent diff review and a separate controlled tracker-only commit. It supersedes earlier current-state statements that F4 is unimplemented or only eligible for design; the historical F0-F3 records remain unchanged.
+
+### Acceptance checkpoint
+
+- Repository branch: `feature/pre-m8-foundation`.
+- Verified local implementation checkpoint: `c32534e96cfcbb510e40982314df9dc69fd2034f`.
+- Verified direct parent: `16f3c1abc1e89fdd44678b96cf822ede767979cc`.
+- Exact implementation commit subject: `feat(dataset): add deterministic DICOM candidate series discovery`.
+- Implementation model: **ONE F-NUMBER = ONE COMPLETE ENGINEERING UNIT**.
+- Verified implementation scope: exactly **6 production ADDs + 4 test ADDs**, ten added paths total.
+
+The implementation commit contains exactly:
+
+```text
+ADD
+src/main/java/org/cbihi/mrinormalizer/application/dataset/dicom/DicomSeriesKey.java
+src/main/java/org/cbihi/mrinormalizer/application/dataset/dicom/DicomSeriesMember.java
+src/main/java/org/cbihi/mrinormalizer/application/dataset/dicom/DicomSeriesScreeningFinding.java
+src/main/java/org/cbihi/mrinormalizer/application/dataset/dicom/DicomSeriesCandidate.java
+src/main/java/org/cbihi/mrinormalizer/application/dataset/dicom/DicomSeriesDiscovery.java
+src/main/java/org/cbihi/mrinormalizer/application/service/DicomSeriesDiscoveryService.java
+src/test/java/org/cbihi/mrinormalizer/DicomSeriesDiscoveryModelTest.java
+src/test/java/org/cbihi/mrinormalizer/DicomSeriesDiscoveryServiceTest.java
+src/test/java/org/cbihi/mrinormalizer/infrastructure/dicom/DicomSeriesDiscoveryIntegrationTest.java
+src/test/java/org/cbihi/mrinormalizer/architecture/DicomSeriesDiscoveryBoundaryTest.java
+```
+
+There are no accepted predecessor modifications or tracker, build, dependency, architecture, schema, GUI, M6 or M7 changes in that implementation commit. This pending tracker-only reconciliation is distinct from the implementation checkpoint and does not replace its SHA. This record verifies the local checkpoint only and makes no claim that the F4 implementation has been pushed or remotely verified.
+
+### Frozen F4 contract
+
+F4 accepts the F3 `DicomMetadataCatalog`, including incomplete catalogs, and groups successful observations by exactly `StudyInstanceUID + SeriesInstanceUID`.
+
+- Every successful F3 observation belongs to exactly one candidate.
+- Every failed F3 inspection is retained unchanged in `unassigned`.
+- Exactly-once source coverage permits neither loss nor duplication.
+- Candidate membership is immutable and deterministic.
+- Different composite UID identities are never automatically merged.
+- One UID-defined candidate is never automatically split.
+- Duplicate SOP identities are retained and screened rather than deduplicated.
+- Cross-candidate SOP reuse is flagged across all affected candidates.
+- Discovery and screening do not establish `READY`, M6 compatibility or reconstruction support.
+
+The immutable public model and application service remain:
+
+| Type | Accepted responsibility |
+| --- | --- |
+| `DicomSeriesKey` | Composite StudyInstanceUID + SeriesInstanceUID identity |
+| `DicomSeriesMember` | One accepted successful F3 observation within its candidate |
+| `DicomSeriesScreeningFinding` | Closed screening category/reason evidence |
+| `DicomSeriesCandidate` | Immutable UID-defined membership and findings |
+| `DicomSeriesDiscovery` | Deterministic candidates and unchanged unassigned failed inspections |
+| `DicomSeriesDiscoveryService` | In-memory candidate discovery and conservative screening from the supplied F3 catalog |
+
+### Screening taxonomy
+
+The eight `AMBIGUOUS_SERIES` reasons are:
+
+- `DUPLICATE_SOP_INSTANCE`;
+- `SOP_INSTANCE_REUSED_ACROSS_SERIES`;
+- `MIXED_MODALITY`;
+- `MIXED_SOP_CLASS`;
+- `MIXED_FRAME_OF_REFERENCE`;
+- `MIXED_MATRIX`;
+- `MULTIFRAME_MEMBER`;
+- `MIXED_IMAGE_TYPE`.
+
+The three `MULTIDIMENSIONAL_SERIES` reasons are:
+
+- `MULTIPLE_ACQUISITION_NUMBERS`;
+- `MULTIPLE_TEMPORAL_POSITIONS`;
+- `MULTIPLE_ECHO_NUMBERS`.
+
+Approved architectural refinements remain frozen:
+
+| Refinement | Accepted rule |
+| --- | --- |
+| C15 | Compare only complete Rows/Columns pairs observed on the same member; do not combine partial observations from different members into a matrix. |
+| C27 | Later F9 must honor F4 findings as a safety gate; enforcement remains a deferred F9 obligation. |
+| C28 | Canonical deterministic ordering covers candidates, members, findings and unassigned inspections. |
+| C29 | `screeningPassed()` is removed from the approved API; there is no affirmative screening eligibility API. |
+| C33 | Constructor invariants and the immutable public API are frozen; reconciliation does not relax them or introduce new contracts. |
+
+Missing optional F3 observations are not evidence of absence or compatibility. Different transfer syntaxes alone do not create an F4 finding.
+
+### F4/M6 responsibility boundary
+
+| Owner | Responsibility |
+| --- | --- |
+| F4 | Metadata-only candidate discovery and conservative screening |
+| M6 | Definitive selected-series geometry, orientation, pixel, transfer-syntax and reconstruction compatibility |
+| F5 | Immutable deterministic organization planning |
+| F6 | Content identity, execution-time source revalidation and verified COPY |
+| F8 | Post-conversion reopening and validation |
+| F9 | Headless orchestration, enforcement of F4 findings and passing only one selected composite candidate's members to M6 |
+| F11 | End-to-end and stakeholder evidence that incompatible candidates cannot produce validated successful publication |
+
+F4 performs no filesystem reopening, DICOM parsing, pixel decoding, hashing, copying, persistence, output publication, conversion or GUI interaction. Its findings do not establish M6 readiness, compatibility or reconstruction support. F9 must not ignore findings or silently choose an unapproved subset of members.
+
+### Executable evidence
+
+The following authoritative results are carried forward from the already verified implementation source tree and the supplied acceptance evidence. This documentation-only reconciliation performs no new Maven execution.
+
+| Gate | Tests | Failures | Errors | Skipped | Result |
+| --- | ---: | ---: | ---: | ---: | --- |
+| Focused F4 | 24 | 0 | 0 | 0 | BUILD SUCCESS |
+| Affected subsystem | 236 | 0 | 0 | 0 | BUILD SUCCESS |
+| Final `mvn clean test` | 489 | 0 | 0 | 0 | BUILD SUCCESS |
+
+Focused command:
+
+```powershell
+mvn "-Dtest=DicomSeriesDiscoveryModelTest,DicomSeriesDiscoveryServiceTest,DicomSeriesDiscoveryIntegrationTest,DicomSeriesDiscoveryBoundaryTest" test
+```
+
+Focused breakdown:
+
+- `DicomSeriesDiscoveryBoundaryTest`: 1/1;
+- `DicomSeriesDiscoveryModelTest`: 3/3;
+- `DicomSeriesDiscoveryServiceTest`: 18/18;
+- `DicomSeriesDiscoveryIntegrationTest`: 2/2.
+
+Final full-regression command: `mvn clean test`.
+
+- Java compiler release: **21**.
+- Production source files compiled: **98**.
+- Test source files compiled: **43**.
+- Executable corrective passes consumed: **0**.
+- Independent static/source, public-API, architecture and responsibility-boundary review: **PASS**, as supplied for the verified implementation.
+- Local Git commit review: the exact ten authorized added paths and direct parent are verified; no accepted predecessor modification is included.
+- Existing `com.sun.nio.file.ExtendedOpenOption` internal-API compiler warnings did not prevent BUILD SUCCESS.
+- Existing Windows 11 / `sun.nio.fs.WindowsFileSystemProvider` / NTFS persistence qualification: **PASS** in the supplied clean-regression evidence.
+- Other-platform qualification remains **NOT RUN**; power-loss/directory-entry durability remains **UNPROVED**.
+
+### Limitations
+
+- Candidate discovery does not prove reconstruction compatibility. A candidate without findings is not thereby valid, supported or reconstructable.
+- Missing optional observations can conceal acquisition differences.
+- Benign metadata heterogeneity may be conservatively flagged.
+- F4 cannot prove unchanged source bytes, content identity or snapshot isolation.
+- F6 remains responsible for execution-time source-content revalidation and verified COPY.
+- F9 must enforce findings and pass only the selected composite candidate's approved members to M6; it must not silently select an unapproved subset.
+- F11 must verify that incompatible geometry, acquisitions or profiles cannot produce validated successful publication.
+- F6/F9/F11 retain these deferred integration and acceptance obligations.
+- Other operating systems and power-loss durability remain outside the verified F4 claims.
+- No GUI or M8 implementation is authorized.
+
+### Final disposition
+
+**Proposed F4 ACCEPTED / CLOSED — `c32534e96cfcbb510e40982314df9dc69fd2034f`, subject to final tracker reconciliation review.**
+
+This acceptance record is **PREPARED LOCALLY**. Independent diff review and a separate controlled tracker-only commit are required before formal closure.
+
+```text
+F0-F3: ACCEPTED / CLOSED (historical accepted checkpoints preserved)
+F0-F4: ACCEPTED / CLOSED as the proposed reconciliation status, conditional on final review
+F5: Eligible for separate read-only architectural design/review only after F4 reconciliation approval
+F5-F11 implementation: BLOCKED pending separate authorization
+GUI: BLOCKED
+M8: BLOCKED until full Pre-M8 foundation acceptance
+Pre-M8 final acceptance gate: INCOMPLETE
+```
+
+No global Pre-M8 acceptance checkbox is changed. This task saves only the canonical tracker and normalizes its EOF to one terminating newline. STOP before staging, committing, pushing or beginning F5.
