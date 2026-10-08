@@ -15,7 +15,7 @@
 - Historical accepted F2 parent: 0794d9d9ada1ea7f486a4fe87811ded24bfc48fd (final F1 closure bookkeeping; F1 accepted / closed).
 - F2 accepted implementation checkpoint: `7a1f8c13ccb6c8722b040159400e7c5e2729b0b8`.
 - Accepted S6 parent: f1257441793f73d951ff1b8659f78b30bfffe4f5 (final F1-S5B acceptance).
-- Current authorization: F0-F5 ACCEPTED / CLOSED. F5-D01 and F5-C01-F5-C39/F5-T01-F5-T44 remain frozen. F6 is eligible for a separately authorized architectural review only; F6-F11 implementation, GUI and M8 remain BLOCKED. This checkpoint records F5 acceptance, not implementation of F6 or global Pre-M8 completion.
+- Current authorization: F0-F5 ACCEPTED / CLOSED; frozen F5 contracts unchanged. F6 ARCHITECTURAL DESIGN REVIEW PASSED / DESIGN FROZEN, dependency-gated; tracker-only freeze checkpoint pending commit SHA. The 12-path F1 compatibility amendment requires separate authorization, verification and acceptance before the 15-ADD F6 engineering unit may be authorized. F6 implementation remains BLOCKED / NOT AUTHORIZED; F7-F11, GUI and M8 remain BLOCKED.
 - F0: S1 ACCEPTED at 76b676d; S2 ACCEPTED — ea40616 using user-supplied Java 21/Maven results. S2 was committed and pushed; the accepted remote checkpoint is ea4061672a293745ac5f5fc1b0d8d240d217e64e. S3 ACCEPTED — 8b6e714; F0 IMPLEMENTATION COMPLETE; F0 CLOSURE EVIDENCE PASSED; F0 ACCEPTED / CLOSED.
 - F1: S0 ACCEPTED; S1A ACCEPTED — b7a327d55ac26265474378fec00ae9a03ba7784e; S1B ACCEPTED — 8b57b48e2a677a08a1d2f11f9eb760b0d3b8f00c; S2A ACCEPTED — 99dcd08d3c1e4d8653be1ef89b521422294be274; S2B ACCEPTED — 935fc29ad9a40a53b497a5fe008db5d6d7d485ac; S3 ACCEPTED — 03d598a1606121ecc7918279ec9a5f20f622ee93; S4 ACCEPTED — 233c334023f035eba4c6122a262f9961e08e9b07; S5A ACCEPTED — 26f41054449335fba6d05e5e4e77bad51c3ea641; S5B ACCEPTED — final reconciliation f1257441793f73d951ff1b8659f78b30bfffe4f5, following tested implementation ca25625264ebe96c0d777c3da833e03efc03e7aa and evidence reconciliation fc4de75b18783df45d5757c11c51f1924ea9d535. S6 ACCEPTED — e99d5da170552b55f7d74340b59fabb35615055a. F1 IMPLEMENTATION COMPLETE; F1 CLOSURE EVIDENCE PASSED; F1 ACCEPTED / CLOSED.
 - F1-S6 ACCEPTED — e99d5da170552b55f7d74340b59fabb35615055a
@@ -23,7 +23,7 @@
 - F3: ACCEPTED / CLOSED — `8f31fddfcd13613b657a753cc571acbb66bca327`; bounded metadata-only DICOM inspection implementation, executable verification, static/source review and exact scope review complete.
 - F4: ACCEPTED / CLOSED — implementation `c32534e96cfcbb510e40982314df9dc69fd2034f`; tracker-only acceptance reconciliation `bfa1d0d45d42a368497ee06b06d236aee9fb67ec`; one complete engineering unit, source review and executable verification passed; both checkpoints remote verified.
 - F5: ACCEPTED / CLOSED — implementation `73a19835ff1057c84a8e4cd726038a591d54fdc7` (direct parent `5ee3e5d985ab7e9a58a9e2a2a26031e6eacf7f35`); independent source, contract, scope and remote checkpoint review passed; Linux and Windows Java 21/Maven regression evidence passed. Separate tracker-only closure recorded below.
-- F6-F11 implementation: BLOCKED pending separate workstream authorization; F6 read-only architectural review is the next eligible controlled step.
+- F6: **ARCHITECTURAL DESIGN REVIEW PASSED / DESIGN FROZEN — IMPLEMENTATION BLOCKED**; accepted baseline `c0548bd8aed2c23cbe1973a4ae0575986eaa683b`; tracker-only freeze checkpoint pending commit SHA. F6-D01-D08, F6-C01-C52 and F6-T01-T62 architecturally approved; prerequisite F1 amendment not implementation-authorized or accepted. F7-F11, GUI and M8 remain BLOCKED.
 - M8: BLOCKED until full Pre-M8 foundation acceptance.
 - GUI: BLOCKED; interface remains frozen and no GUI implementation is authorized.
 
@@ -51,14 +51,14 @@ Historical assistant runtime check: OpenJDK 17.0.20; mvn is unavailable. The pro
 | F3 | Metadata-only DICOM inspection | F0/F1 | **ACCEPTED / CLOSED** | Accepted implementation checkpoint: `8f31fddfcd13613b657a753cc571acbb66bca327`; direct parent: `ae498fec251daf70a442c055df727fd38a719881`; focused 30/30, affected subsystem 213/213, final clean regression 465/465 PASS; Java release 21; 92 production + 39 test sources |
 | F4 | Candidate series discovery | F2/F3 | **ACCEPTED / CLOSED**; one complete engineering unit; remote verification complete | Implementation: `c32534e96cfcbb510e40982314df9dc69fd2034f`; direct parent: `16f3c1abc1e89fdd44678b96cf822ede767979cc`; acceptance reconciliation: `bfa1d0d45d42a368497ee06b06d236aee9fb67ec` (tracker-only); 6 production ADDs + 4 test ADDs; focused 24/24, affected subsystem 236/236, final clean 489/489 PASS; Java release 21; 98 production + 43 test sources |
 | F5 | Immutable deterministic organization plan | F1/F2/F4 | **ACCEPTED / CLOSED**; complete tests-first engineering unit, verified F5-D01 and F5-C01-F5-C39/F5-T01-F5-T44 | Implementation: `73a19835ff1057c84a8e4cd726038a591d54fdc7` (parent `5ee3e5d985ab7e9a58a9e2a2a26031e6eacf7f35`); 4 production + 6 test ADDs only; focused 46/46, affected 532/532, Linux clean 535/535, Windows clean 535/535 PASS under Java 21; tracker-only reconciliation below |
-| F6 | Verified collision-safe COPY execution | F1/F5 | **NOT STARTED / BLOCKED by applicable sequential dependencies** | None |
+| F6 | Verified collision-safe COPY execution | F0-F5 plus separately accepted F1 compatibility amendment | **ARCHITECTURAL DESIGN REVIEW PASSED / DESIGN FROZEN**; implementation BLOCKED / NOT AUTHORIZED | Tracker-only freeze checkpoint pending commit SHA; baseline `c0548bd8aed2c23cbe1973a4ae0575986eaa683b`; approved 8 decisions / 52 contracts / 62 test obligations; no F6 executable evidence |
 | F7 | Supported project-owned NIfTI-1 reading | F0 and protected generic volume | **NOT STARTED / BLOCKED by applicable sequential dependencies** | None |
 | F8 | Reopen, compare and persist conversion evidence | F1/F7/M7 | **NOT STARTED / BLOCKED by applicable sequential dependencies** | None |
 | F9 | Headless orchestration through existing M6/M7 | F2-F8 | **NOT STARTED / BLOCKED by applicable sequential dependencies** | None |
 | F10 | Minimal boundary reconciliation | Working F9 | **NOT STARTED / BLOCKED by applicable sequential dependencies** | None |
 | F11 | Synthetic then stakeholder acceptance | F0-F10 | **NOT STARTED / BLOCKED by applicable sequential dependencies** | None |
 
-The matrix records architectural dependencies and the current sequential authorization state. It does not authorize parallel implementation or bypass predecessor acceptance gates. **F0-F5 are ACCEPTED / CLOSED. F6 is eligible for a separate read-only design/review authorization only. F6-F11 implementation, GUI and M8 remain blocked until their respective gates; the Pre-M8 program-wide acceptance checklist remains unchecked.**
+The matrix records architectural dependencies and the current sequential authorization state. It does not authorize parallel implementation or bypass predecessor acceptance gates. **F0-F5 are ACCEPTED / CLOSED. F6 architectural review PASSED and its dependency-gated design is FROZEN; the tracker-only freeze checkpoint is pending commit SHA. The separate 12-path F1 amendment must be authorized, implemented, verified and accepted before F6 implementation authorization. F6-F11 implementation, GUI and M8 remain blocked; the Pre-M8 program-wide acceptance checklist remains unchecked.**
 
 ## Global invariants
 
@@ -2730,3 +2730,500 @@ This tracker-only closure supersedes the historical "implementation not authoriz
 - Global Pre-M8 acceptance checklist: **INCOMPLETE**; no global checkbox is changed by this tracker-only reconciliation.
 
 **F5 ACCEPTED / CLOSED — implementation `73a19835ff1057c84a8e4cd726038a591d54fdc7`; separate tracker-only reconciliation follows as this documentation checkpoint.**
+
+
+---
+
+## F6 ARCHITECTURAL DESIGN — VERIFIED COLLISION-SAFE COPY EXECUTION
+
+**Status: F6 ARCHITECTURAL DESIGN REVIEW PASSED / DESIGN FROZEN — IMPLEMENTATION BLOCKED.**
+
+**ONE F-NUMBER = ONE COMPLETE ENGINEERING UNIT.** The revised F6 architecture, public design surface, F6-D01-D08, F6-C01-C52, F6-T01-T62 and Q01-Q06 resolutions passed independent architectural review and are frozen at design level. This tracker-only reconciliation records that approval, not F6 implementation acceptance or executable evidence. The separately gated F1 compatibility amendment is a mandatory prerequisite; its implementation requires separate explicit scope authorization, verification and an accepted checkpoint. The approved F6-owned budget remains 8 production + 7 test ADD paths; F6 implementation, F7-F11, GUI and M8 remain NOT AUTHORIZED / BLOCKED.
+
+### Verified baseline and audit disposition
+
+- Authoritative branch: `origin/feature/pre-m8-foundation`, fetched and verified at `c0548bd8aed2c23cbe1973a4ae0575986eaa683b`.
+- Accepted F5 tracker-only closure/audit parent: `c0548bd8aed2c23cbe1973a4ae0575986eaa683b`; its direct parent is F5 implementation `73a19835ff1057c84a8e4cd726038a591d54fdc7`.
+- A new detached design worktree is anchored to that exact accepted commit; its pre-edit working tree and index were empty. The historical `f5-work` checkout and its ten untracked Java additions were left untouched.
+- F0-F5 remain **ACCEPTED / CLOSED**. The entire historical F5 design/acceptance text above, F5-D01, F5-C01-F5-C39 and F5-T01-F5-T44 is retained unchanged. Current-status text only records this new design authorization.
+- Accepted source, tests, ADR-004/012/014, tracked Architecture Revision 1.0 and the canonical tracker were reviewed. Older M4/M6 scaffold descriptions do not supersede later accepted APIs or evidence. No unrelated local architecture drafts are authority.
+- Historical corrective-draft record: the first independent review accepted submission integrity and required revisions to completion, failures, authority, source observation, provider/recovery ownership and access times. That corrective pass changed only the F6 section. The subsequent independent review PASSED; this freeze reconciliation updates F6 status only, preserving all F0-F5 history and frozen F5 requirements.
+- This audit executed Git/read-only inspections only. No Maven, imaging COPY, provider probe or F6 executable test was run. Historical Linux/Windows F5/F1 evidence remains historical evidence, not F6 qualification.
+
+### Independent architectural approval — tracker-only freeze reconciliation
+
+- Review disposition: **F6 ARCHITECTURAL DESIGN REVIEW PASSED — IMPLEMENTATION STILL BLOCKED** (2026-10-08, Asia/Kolkata).
+- Accepted baseline: `c0548bd8aed2c23cbe1973a4ae0575986eaa683b`; reviewed tracker SHA-256: `089cdaa541d595e9c065a280281df8bdb077fd27ff16676df3814e93ba61e18b` before this status reconciliation.
+- Independent submission evidence: all six payload checksums PASS; exact accepted baseline tracker blob and byte-identical prior-draft reconstruction; patch reversibility PASS; D01-D08, C01-C52 and T01-T62 consecutive, with 52/52 contracts mapped. These are design/submission checks, not Maven or provider-test results.
+- All eight decisions, 52 normative contracts, 62 acceptance-test obligations and the revised public design surface are **ARCHITECTURALLY APPROVED / FROZEN**, without changing their reviewed behavioral content.
+- Mandatory prerequisite remains the separately authorized **12-MODIFY F1 amendment**: 2 production + 3 schemas + 7 existing tests, exactly as listed below. No predecessor modification is authorized by this freeze; historical canonical bytes and the explicitly limited schema-v1 compatibility policy require amendment acceptance evidence.
+- The **15-ADD F6 implementation budget** (8 production + 7 tests) is architecturally approved but **IMPLEMENTATION BLOCKED / NOT AUTHORIZED** until the prerequisite is accepted and a separate engineering authorization identifies the resulting parent.
+- Actual Linux/Windows provider qualification, capability enforcement, invalid-evidence completion negatives, large-file streaming/resource measurements, focused/affected/full-clean tests and source review remain future executable gates. Snapshot isolation and power-loss/directory durability remain UNPROVED; explicit F5 skip-reason durability remains deferred, accepted as an F6 v1 limitation.
+- Development order: tracker-only design-freeze checkpoint (pending commit SHA) -> separately authorized/verified/accepted F1 amendment -> separately authorized F6 complete engineering unit. F7-F11, GUI and M8 remain gated.
+- This reconciliation does not stage, commit or push. No design-freeze checkpoint SHA exists yet; none is invented. F6 is not ACCEPTED / CLOSED at implementation level.
+
+### Repository facts, reusable primitives and hard boundaries
+
+| Verified accepted contract | Safe F6 reuse / constraint |
+| --- | --- |
+| `RelativePath(Root, path)` | Exact restricted SOURCE/OUTPUT identity; rejects unsafe/nonportable spelling and bounds UTF-8 size. It performs no filesystem resolution or containment proof. Do not substitute `InventoryLocation`. |
+| `ContentDigest(long sizeBytes, String sha256)` | Nonnegative exact byte count and full lowercase 64-hex SHA-256. Its constructor authenticates syntax, not bytes. Hash original stored bytes, including the original gzip wrapper. |
+| F2 `DatasetInventory`, `InventoryEntry`, `InventoryFailure`, `InventoryLimits`; `DatasetScanner.scan()` / `NioDatasetScanner` | Immutable ordered inventory/assessments and original failures; recursive read-only bounded discovery, real-root overlap checks and detected substitution checks. No content binding, snapshot isolation or transferable source handle. |
+| F3 `DicomMetadataReader.inspect(RelativePath)`; `DicomMetadataInspectionService.inspect(DatasetInventory)` / `Dcm4cheMetadataReader` | Metadata-only guarded inspection with controlled failures; no execution identity. Accepted adapter uses pathname opens and weaker observations on null-key providers. Reuse it; do not copy its parser or open pixel values as a discovery task. |
+| F4 `DicomSeriesDiscoveryService.discover(DicomMetadataCatalog)` and `DicomSeriesDiscovery` | Pure deterministic candidate grouping and findings. Preserve exact DICOM coverage, original unassigned failures, UIDs internally and every screening finding; no M6 reconstruction guarantee. |
+| F5 `OrganizationPlanningService.plan(inventory, discovery, suppliedDigests)` | Pure immutable plan. Accepted `OrganizationPlan` constructor enforces layout-v1 destinations, framed operation IDs, exact coverage and coherent dispositions even for manual construction. COMPLETE is logical planning only; never a filesystem execution permission. |
+| F1 `SourceFileRecord`, `ManifestOperation`, `ProvenanceManifest` | Compose unchanged assessments/digests and one COPY per F5 COPY. At most 100000 sources, 100000 operations, 200000 references; bounded canonical codec adds byte limits. F1 cannot persist arbitrary new F6 fields. |
+| `ManifestStore.create`, `append(record, expectedHead)`, `replay(Optional<ManifestReceipt>)`, `close` | Job-scoped restricted persistence with exact acknowledged receipts and replay floors. A valid receipt alone is not evidence that imaging bytes match or that an intent belongs to the current operation. |
+| `ManifestReplay.validateNext`, `accept`, `current` | Pure chain/state checks: RUNNING before intent, one active operation, all expected digest matches, COPY output digest equality. COPY success is not gated on conversion READY, but whole-job COMPLETED rejects any source with BLOCKED readiness or source failures. Zero-operation jobs cannot become RUNNING/COMPLETED. |
+| `CheckpointRecord.Observation` | COPY COMPLETED/IDENTICAL_EXISTING require timestamps, output digest, matched count 1, no disposition or processing evidence. COPY cannot use WRITTEN_UNVERIFIED (conversion-only). RECOVERY_REQUIRED retains known times/digests/count/failures and is not a resume authorization. |
+| `JsonManifestStore`, `JsonPublicReportWriter` | Existing private create-new staging, force, real-provider hard-link publication, `Files.isSameFile`, owner/ACL/FileStore checks, guarded ownership cleanup and Windows null-key pinning are reference mechanisms. They are private/package-private, metadata-sized and NOT callable imaging-COPY primitives. No extraction/refactor or new public methods in accepted classes is proposed. |
+| `ProvenancePersistenceException` | PERSISTENCE-only fixed failures, NOT_PUBLISHED/PUBLISHED/UNKNOWN and optional known receipt; no throwable/provider payload. Stop further mutation on any persistence error, including known publication plus cleanup failure. |
+| Protected M6 `DicomSeriesService.process(DicomSeriesRequest)` and M7 `NiftiVolumeWriter.write(ImageVolume, AffineMatrix4, OutputTarget)` | Do not invoke reconstruction, pixel decoding, conversion or image validation in F6 COPY. `ProcessingEvidence` owns M6/M7 facts and must remain absent for COPY. M7 create-new output policy is not a complete F6 stage/publication/recovery protocol. |
+| Accepted boundary tests | F1 package/API/type inventories and F5's four-type/ten-path surface are closed. New F6 types belong in separate packages; no new declaration in accepted provenance or organization packages. Application coordinates ports; infrastructure owns NIO and provider details; domain/presentation remain untouched. |
+
+Existing test mechanisms to reuse conceptually, not by modifying predecessors: `ManifestStoreTest` intent/outcome/ack-loss and cleanup injection; package-private `JsonManifestStore.Hooks` events; `NioDatasetScanner.FileAccess` substitution/enumeration seams; `Dcm4cheMetadataReader.Observation` bounded-read/change seams; synthetic F5/F1 composition fixtures; JUnit TempDir and compiled dependency/API inventory checks. New F6 package-private seams must inject reads, short writes, force/link/close failures, root swaps and deterministic barriers around the actual F6 algorithm. No runtime test framework or general filesystem abstraction is introduced.
+
+### Architecturally approved / frozen F6 decisions
+
+| Decision | Proposed rule and rationale | Review status |
+| --- | --- | --- |
+| F6-D01 ownership / sequencing | Preserve approved F5-D01: F6 acquires original-byte digests before F5, then revalidates after planning; application-owned F6 COPY sequencing composes F1 and acknowledges intent before any output mutation. F9 later coordinates wider workflows; F6 does not implement F9, conversion or presentation wiring. | ARCHITECTURALLY APPROVED / FROZEN; execution remains prerequisite-gated |
+| F6-D02 discovery-to-byte binding | F6 owns the guarded re-observation lifecycle specified below: re-scan/re-inspect/regroup through unchanged M5/F2/F3/F4 owners, compare every retained fact, bracket each original-byte digest with guards and re-inspection, then repeat complete evidence/digest comparison after F5. The adapter retains a private single-session binding, not a public certificate. | ARCHITECTURALLY APPROVED / FROZEN; execution remains prerequisite-gated |
+| F6-D03 threat / provider profile | Support only independently qualified default-provider local Linux/POSIX stores with stable keys, or Windows local SystemDrive NTFS within F1's actual profile. Cooperative SOURCE owners keep the tree quiescent for acquisition through execution; a controlled private OUTPUT namespace excludes hostile same-owner/privileged mutation. Detected swaps fail closed; snapshot isolation, hostile ABA immunity and broad Windows-drive support are not claimed. | ARCHITECTURALLY APPROVED / FROZEN; execution remains prerequisite-gated |
+| F6-D04 publication | Stream into an owned private CREATE_NEW stage on the final parent's FileStore; force, independently reopen/verify, then use provider-qualified hard-link no-replace publication and guarded `Files.isSameFile(stage, final)` evidence. Never link final directly to SOURCE. No rename/copy/direct-final fallback. Final verification precedes success journal evidence. | ARCHITECTURALLY APPROVED / FROZEN; execution remains prerequisite-gated |
+| F6-D05 concurrency / ownership | Transfer exclusive runtime use of the real job-scoped ManifestStore and copy adapter to CopyExecutionService. Acquire F1 job lease first, then one persistent F6 output-root lease after acknowledged intent; nonblocking conflict, one active COPY/stage, no lease unlink. PreparedCopy requires a private-constructor, one-use acknowledged-intent capability, with real-store replay at the mutation gate. | ARCHITECTURALLY APPROVED / FROZEN; execution remains prerequisite-gated |
+| F6-D06 recovery | Known failed execution is durably FAILED when journal access remains sound; uncertain visibility, ownership, cleanup or append is RECOVERY_REQUIRED. Restart is read-only reconciliation, no automatic same-job mutation. Explicit external approval is required for a fresh job with fresh source binding/digests, unchanged original mappings and independent existing-final verification; the old journal/artifacts remain intact. | ARCHITECTURALLY APPROVED / FROZEN; execution remains prerequisite-gated |
+| F6-D07 error / completion compatibility | Successful nonempty organization requires all F5 COPY outcomes verified and an acknowledged F1 COMPLETED job, independent of conversion readiness. Propose the narrow COPY-only completion and durable failure amendment below; until separately approved/verified, F6 execution is blocked. Never normalize successful organization as FAILED or use PERSISTENCE for imaging I/O. All-skipped is NOTHING_TO_COPY, not success; explicit F5 skip reasons are not durable in F1 v1. | ARCHITECTURALLY APPROVED / FROZEN; execution remains prerequisite-gated |
+| F6-D08 resource / evidence policy | Caller supplies finite streaming/read/failure bounds, no defaults. Preserve bounded partial evidence but no executable subset. Absolute roots, guards and provider facts stay private. SOURCE receives no deliberate write/metadata mutation; provider-managed access-time updates are allowed and excluded from continuity comparison. No hidden persistence sidecar or public restricted diagnostics. | ARCHITECTURALLY APPROVED / FROZEN; execution remains prerequisite-gated |
+
+Java 21 API cross-check (primary documentation, not platform qualification): [Files](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/nio/file/Files.html), [FileLock](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/nio/channels/FileLock.html), [SecureDirectoryStream](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/nio/file/SecureDirectoryStream.html). `ATOMIC_MOVE` does not guarantee refusal to replace an existing target; file locks must be treated as cooperative. SecureDirectoryStream can anchor relative access where supported, but provides no hard-link creation method. Therefore it cannot by itself prove the entire proposed pathname publication protocol.
+
+### Architecturally approved public model/service/port design surface — not implemented
+
+All model collections are immutable, defensively copied, bounded, duplicate-free and deterministically ordered. The acknowledgment capability is private-state lifecycle authority, not an immutable evidence DTO. Constructor misuse uses a fixed non-identifying message. These public values describe facts, not transferable filesystem identity, journal acknowledgment or executable capabilities. The reviewed design surface below is architecturally approved and frozen; no Java declaration has been implemented. Private implementation bodies remain engineering work within these frozen contracts.
+
+```java
+// New package: org.cbihi.mrinormalizer.application.dataset.copy
+public record CopyLimits(long maxFileBytes, long maxReadBytes,
+                         int bufferBytes, int maxFailures) {}
+
+public record CopyFailure(Stage stage, Code code,
+                          Optional<RelativePath> source,
+                          Optional<String> operationId) {
+    public enum Stage { DIGEST_ACQUISITION, REVALIDATION, COPY,
+                        OUTPUT_VERIFICATION, RECOVERY, CLEANUP, JOURNAL }
+    public enum Code { INPUT_UNAVAILABLE, SOURCE_CHANGED,
+        DISCOVERY_BINDING_UNPROVEN, CONTAINMENT_UNPROVEN,
+        ACCESS_CONTROL_UNAVAILABLE, PROVIDER_UNQUALIFIED,
+        RESOURCE_LIMIT, HASH_FAILED, READ_FAILED, WRITE_FAILED, OUTPUT_CONFLICT,
+        VERIFICATION_FAILED, PUBLICATION_UNPROVEN, CLEANUP_FAILED,
+        INTERRUPTED, JOURNAL_BLOCKED, RECOVERY_REQUIRED }
+}
+
+public record SourceDigestBatch(Status status, DatasetInventory inventory,
+        DicomSeriesDiscovery discovery, List<DigestFact> digests,
+        List<CopyFailure> failures) {
+    public enum Status { COMPLETE, BLOCKED }
+    public record DigestFact(RelativePath source, ContentDigest digest) {}
+    public Map<RelativePath, ContentDigest> suppliedDigests();
+}
+
+public record CopyExecutionResult(Status status,
+        Optional<ManifestState> journal,
+        List<OperationResult> operations, List<CopyFailure> failures) {
+    public enum Status { NOTHING_TO_COPY, JOURNAL_COMPLETED,
+                         FAILED, RECOVERY_REQUIRED }
+    public enum Outcome { NOT_STARTED, COMPLETED, IDENTICAL_EXISTING,
+                          FAILED, RECOVERY_REQUIRED }
+    public record OperationResult(String operationId, Outcome outcome,
+                                   Optional<ContentDigest> outputDigest) {}
+}
+
+// New port: org.cbihi.mrinormalizer.application.port.out
+public interface VerifiedCopyAccess extends AutoCloseable {
+    SourceDigestBatch acquire(DatasetInventory inventory,
+                              DicomSeriesDiscovery discovery);
+    List<CopyFailure> revalidate(OrganizationPlan plan,
+                                SourceDigestBatch evidence);
+    PreparedCopy prepare(OrganizationCopyOperation operation);
+    CopyExecutionResult inspect(OrganizationPlan plan, ManifestState replayed);
+    void close();
+    interface PreparedCopy extends AutoCloseable {
+        ContentDigest verifiedSourceDigest();
+        CopyOutcome publish(CopyExecutionService.AcknowledgedCopyIntent intent);
+        void close();
+    }
+    enum Publication { NOT_PUBLISHED, VERIFIED, UNVERIFIED, UNKNOWN }
+    record CopyOutcome(CopyExecutionResult.OperationResult operation,
+                       Publication publication, List<CopyFailure> failures) {}
+    // Approved closed external-I/O failure surface; implementation body not authored.
+    final class AccessFailure extends RuntimeException {
+        public AccessFailure(List<CopyFailure> failures);
+        public List<CopyFailure> failures();
+    }
+}
+
+// New services: org.cbihi.mrinormalizer.application.service
+public final class SourceDigestService {
+    public SourceDigestService(VerifiedCopyAccess access);
+    public SourceDigestBatch acquire(DatasetInventory inventory,
+                                     DicomSeriesDiscovery discovery);
+}
+public final class CopyExecutionService implements AutoCloseable {
+    public CopyExecutionService(VerifiedCopyAccess access,
+                               ManifestStore store, Clock clock);
+    public CopyExecutionResult execute(OrganizationPlan plan,
+                                      SourceDigestBatch evidence, UUID jobId);
+    public CopyExecutionResult inspectRecovery(OrganizationPlan plan,
+                                              Optional<ManifestReceipt> floor);
+    public void close();
+    public static final class AcknowledgedCopyIntent {
+        private AcknowledgedCopyIntent() { /* private owned-session bindings */ }
+        // No public factory, receipt constructor or getters.
+        // The adapter must claim it immediately before its first output mutation.
+        public void claim(VerifiedCopyAccess.PreparedCopy prepared,
+                          OrganizationCopyOperation operation);
+        public void checkLive(VerifiedCopyAccess.PreparedCopy prepared);
+    }
+}
+```
+
+`Optional<String> operationId` is ONLY an existing exact lowercase 64-hex F5 ID, never a free-text channel. If present it must resolve in the relevant plan and agree with `source`; source is SOURCE-only, never absolute. Failure enums admit exactly the proposed stage/code table below (all omitted pairs reject); no arbitrary provider/exception/cause/payload is admitted. `OperationResult.outputDigest` is present only when actual verified bytes are known; COMPLETED/IDENTICAL_EXISTING values require the exact planned digest. JOURNAL_COMPLETED additionally requires a present actual acknowledged COMPLETED journal and every planned operation result verified; NOTHING_TO_COPY requires zero operations and no success claim. Unverified final visibility is represented by publication/uncertainty, not a fabricated verified digest. Outcome/publication/failure constructor coherence must be tested independently of the adapter.
+
+`SourceDigestBatch.COMPLETE` requires a complete failure-free F2 inventory, coherent F4 coverage, no hard planning blocker, exact successful digest coverage for COPY-eligible sources and no acquisition failures. Deliberately conclusive non-MRI skips need no digest. A predecessor-blocked batch preserves the original discovery and may contain no new F6 failure; it remains BLOCKED. A digest-failed batch retains any already observed facts and failures but `suppliedDigests()` must reject it, never hand a partial usable map to F5. COMPLETE with no eligible sources returns an immutable empty map. Passing this record, or manually constructing an equivalent one, does not bypass the adapter's owned-session checks or execution-time byte verification.
+
+`NioVerifiedCopyAccess` is the proposed final infrastructure adapter. Proposed constructor:
+`NioVerifiedCopyAccess(Path sourceRoot, Path outputRoot, Path manifestNamespace, CopyLimits limits, InventoryLimits inventoryLimits, DicomMetadataLimits metadataLimits, FormatDetectionService detection)`.
+It constructs unchanged `NioDatasetScanner` and `Dcm4cheMetadataReader` with its canonical SOURCE root and supplied accepted limits, then invokes accepted inspection/grouping services. Caller-supplied alternative scanners/readers are not a production qualification channel; private package test seams supply only mechanical faults. Trusted construction also binds the real JsonManifestStore to these same SOURCE/OUTPUT/manifest roots and job; no wiring change is part of F6. Absolute roots never enter application values.
+
+`acquire`, `revalidate`, `prepare` and `inspect` create no imaging output directory, stage, lease or probe. At most one adapter-owned prepared handle retains a fully matched guarded source channel, rewound before copying. Raw I/O exceptions never escape: the closed nested `AccessFailure` has immutable bounded CopyFailure facts, a fixed message, no cause/suppression/writable stack. Services translate it into controlled results. All owned release attempts occur even after one close fails; programmer misuse yields fixed errors without identifiers.
+
+**Enforceable publication authority.** CopyExecutionService is the sole trusted sequencing owner and exclusively uses/owns the supplied real ManifestStore and adapter until close; constructors transfer that runtime ownership, and presentation/F9 has no prepared-handle endpoint. Its private session gate serializes execution and revokes all capabilities on any store/adapter error, uncertain append, recovery or close. No public method creates or accepts an acknowledgment token from a receipt. Only successful return from this owner's matching `append(IN_PROGRESS, expectedHead)` plus exact floor replay permits its private constructor to issue AcknowledgedCopyIntent, bound by private object identity to this prepared handle, this adapter/session, exact job/plan/operation/digest and acknowledged head.
+
+The real adapter rejects null/foreign/reused/revoked capabilities. Immediately before the first lease-file/directory/probe/stage mutation, `publish(intent)` calls `intent.claim(this, operation)` under the serialized session gate. Claim consumes the one-use capability and independently calls the owned store's `replay(Optional.of(acknowledgedHead))`; the actual current head must equal that head, job must be RUNNING, and this exact operation must be the sole IN_PROGRESS operation with matched count 1, original start, no failures and exact planned SOURCE/destination/digest. A newer head is not accepted merely because it meets the replay floor. Plan/status/receipt syntax or a fabricated ManifestState is never authority. Claim also checks the retained preparation binding and lifecycle; failure revokes the session before mutation. Each subsequent mutation checks the still-live gate and current source/output guards. An UNKNOWN or even PUBLISHED-with-error append issues no capability and stops, regardless of a later replay showing a record.
+
+There is no no-argument publish overload, public token constructor/factory, receipt-to-token converter or alternate write entry point. The capability has no public data fields/getters and no serializable representation; its public methods only claim this bound prepared operation and check its live authorization; neither issues authority or exposes data. `checkLive(prepared)` rejects before claim, after completion/revocation/close and for a foreign handle; every output mutation must call it. Both methods emit fixed non-identifying refusal on misuse. The port references only this nested application-owned capability, not an orchestration method; that precise dependency is part of the proposed boundary-test freeze. Multiple F6 services sharing a store/adapter, retained external store mutation and hostile reflective/Unsafe JVM access are excluded programmer misuse, not supported runtime concurrency. Real F1's job lease excludes other cooperative store owners; the gate is not a replacement for filesystem/provider checks. Closing CopyExecutionService revokes tokens and attempts adapter and store releases; SourceDigestService borrows the adapter for its prior read phase and does not independently close a transferred execution session.
+
+Resource proposal: maxFileBytes/maxReadBytes are positive longs, bufferBytes is positive and at most 1 MiB, maxFailures is positive and at most 100000. No default values. maxReadBytes counts every F6 streaming read, including pre-planning, revalidation, copy, stage/final verification, identical-existing and recovery reads, using checked long arithmetic and a session-wide non-resettable budget. Delegated M5/F3 inspection retains its own accepted bounds and is accounted separately, not falsely included in an unobservable byte count. At most one active imaging stage of at most maxFileBytes; uncertainty stops before a second stage. At most one prepared source and bounded ancestor handles; never retain an open descriptor per inventory source. Maps/results remain within accepted F1/F5 counts. Failure exhaustion preserves prior facts plus one terminal RESOURCE_LIMIT fact, then stops; journal facts are deduplicated legal codes within F1's 64-failure bound, never truncated. Qualification synthetic bytes/probes count toward the session budget; stage-space availability is not guaranteed by checking free space.
+
+### Guarded discovery/digest session — proposed Q01 resolution
+
+- A session proceeds NEW -> ACQUIRED -> REVALIDATED -> EXECUTING -> CLOSED, with any failed guard/comparison/resource/access check moving irreversibly to BLOCKED. No reuse after failure, recovery or closure. Only private adapter state binds the returned immutable batch to this session; equal manually built records cannot establish that binding.
+- Canonicalize and guard configured roots once, then recheck before/after every scan/inspection/read and operation. Hold at most the current source plus its bounded ancestor guards, never one descriptor per dataset member. On Linux use stable non-null keys and qualified anchored no-follow access; on Windows use qualified sharing-denial handles (including NOSHARE_WRITE where supported) and overlapping no-delete pins for retained objects, with owner/type/store/creation observations. Reject a conflicting writer where observable. Accepted pathname-based M5/F3 reads still have cooperative-profile race limits.
+- Re-scan the complete SOURCE with accepted F2, inspect all DICOM entries with accepted F3 and regroup with unchanged F4. Compare the entire canonical inventory and discovery against supplied values: every SOURCE spelling, full FormatAssessment/raw DetectionResult/diagnostic/support/readiness/extension facts and original inventory failure/location; every candidate key/member/SOURCE; all 14 DicomDiscoveryMetadata components including optional/list presence and order; all screening findings and unassigned inspection failure facts. No subset, UID-only comparison, Unicode repair or ignored warning. Mismatches are DISCOVERY_BINDING_UNPROVEN, not manufactured original discovery errors.
+- For each COPY-eligible source in unsigned-UTF-8 SOURCE order, acquire its guards/read handle, re-observe accepted recognition and, for DICOM, metadata, read the full original byte digest, then re-inspect and recheck guards before release. Require both endpoint facts to equal the supplied facts. At the end, repeat the complete scan/inspection/grouping comparison to catch detectable cohort membership changes. Conclusive skipped entries are also re-observed, although no content digest is invented for them.
+- After F5, `revalidate` repeats complete fact comparison and full eligible-source hashing against the immutable acquired digest map/plan, within the same session. `prepare` freshly verifies the next source's full digest and retains that guarded channel until its COPY/closure. During stream/EOF verify digest/count and guards again. New files, missing entries, changed assessment/metadata/membership or digest block; do not silently replan or issue a token for a partial batch.
+- Comparison excludes access time. SOURCE content, size, type, stable key when provided, modification/creation observations, access policy and ancestor continuity are checked; atime is not an execution identity. This establishes current agreement at guarded observations under quiescent cooperative SOURCE ownership, not authentication of historical DTOs, atomic dataset snapshots or immunity to a privileged same-size/timestamp-restored ABA writer. Re-observation does not implement a new parser or modify accepted readers.
+
+### Proposed complete sequencing and observation rules
+
+1. Establish configured canonical SOURCE/OUTPUT roots and manifest namespace. Reject equal/nested/aliased overlap, special roots, unsafe provider/access or unsupported threat profile. This read-only check grants no mutation permission.
+2. Acquire F2 inventory, accepted F3 metadata and F4 discovery using their owners. F6 guarded re-observation/binding must show the supplied evidence agrees with current original bytes under the approved Q01 profile; any mismatch blocks the entire acquisition. Preserve discovery failures/findings; do not relabel them as HASH_FAILED.
+3. Hash each eligible original stored file sequentially, using guarded SOURCE access, SHA-256, checked exact byte count and bounded buffer. Check root/ancestors/file type, available identity, size and modification observations before open, during read as applicable and after EOF/close. Retain no file bytes in public values. Do not decode DICOM pixels or decompress NIFTI_GZ for hashing.
+4. Hand only the complete immutable digest map to unchanged F5 `plan`. Preserve all restricted discovery evidence and logical skipped decisions. No imaging output writes have occurred.
+5. Require COMPLETE F5 plan; reject BLOCKED/partial/mismatched plan-evidence/session values. Revalidate the entire batch after planning, before F1 composition, as F5-D01 requires. A changed digest/identity or source observation requires fail-closed rescan/new owner-approved plan; no destination/ID adjustment.
+6. Compose schema-v1 F1 ProvenanceManifest with caller jobId and factual Clock instant: unchanged source assessments, known digests and one original F5 mapping per COPY. Never add a guessed operation for a skipped/blocked entry. Proposed source coverage retains all inventory sources; skipped source digest is empty. F5 decisions remain restricted application evidence; explicit skip reasons are not persisted by F1 v1. The separately approved COPY-only completion amendment is required; source assessments/failures are not dropped.
+7. `store.create(plan)` must return a verified sequence-zero receipt for this exact job/plan. Replay its floor and validate exact mappings. Any persistence exception stops all imaging mutation, even PUBLISHED with known receipt; acknowledgment-loss reconciliation is read-only and exact-retry only. No output directory/probe/stage is created before the plan receipt.
+8. A nonempty executable plan requires an acknowledged JOB_OBSERVED RUNNING record. Empty/all-skipped F5 plans yield NOTHING_TO_COPY, at most a PLANNED anchor; no RUNNING/COMPLETED claim. The first authorized publish acquires the F6 output lease after its own intent acknowledgment, before creating any imaging parent/probe/stage; retain it for the mutation session. Known lease conflict is durable EXECUTION/OUTPUT_CONFLICT with a FAILED operation/job when append remains sound; uncertain lease identity/ownership is RECOVERY_REQUIRED. Neither causes COPY. F1 owns its existing lease; never repurpose it as an output-wide lock.
+9. Process canonical F5 operation-ID order. Before each intent, `prepare` reopens/revalidates the exact source and reads its full digest, matching the immutable expected value; retain that channel/guard. An IN_PROGRESS observation with matchedExpectedSourceCount=1 therefore records an actual match already established. Preparing does not create output directories, probes or stages.
+10. Append matching OPERATION_OBSERVED IN_PROGRESS against the current receipt, require successful acknowledgment and replay the exact current head. Only the sequencing owner privately issues the one-use handle-bound AcknowledgedCopyIntent. The real adapter must claim it and independently replay that same current intent immediately before its first output mutation. Null/forged/stale/foreign/reused capabilities and missing, uncertain or failed acknowledgment deny all mutations. Subsequent continuity checks remain mandatory; intent is not proof of future bytes.
+11. Only now acquire/verify the cooperative output lease, create missing destination parents privately one segment at a time, and qualify the actual target parent/store. Create an owned private stage only if no safe identical final is already present. Existing parents/targets are inspected, never chmod/repaired/deleted. A safe existing target is read independently in full; equal size+SHA and source non-alias evidence produce IDENTICAL_EXISTING, otherwise OUTPUT_CONFLICT. A final alias to SOURCE is rejected even if bytes match. A concurrent creator is classified by the same independent verification, never overwritten.
+12. For an absent target, rewind the retained prepared source handle to byte zero, stream to the stage, handle short writes, hash/count copied original bytes through EOF, and recheck source/ancestors. Never reopen a different source pathname as an implicit replacement for that handle. Require expected source equality, successful write/force/close, independently reopened full stage equality, and guarded ownership. A stage that has not passed all these checks is never published.
+13. Publish via the provider-qualified no-replace stage-to-final hard link. Require distinct guarded stage/final paths, same qualified FileStore, `Files.isSameFile` on the two existing no-follow checked objects, complete final size+SHA, source non-alias checks and unchanged directory/access guards. Equal-path shortcut from isSameFile is not usable evidence. Distinguish NOT_PUBLISHED, VERIFIED, UNVERIFIED and UNKNOWN. Never delete or repair any final on failure.
+14. Clean only a definitely owned temporary link under qualified cleanup conditions; never remove a SOURCE or final. Cleanup/close uncertainty retains artifacts and yields CLEANUP_FAILED plus a recovery stop. Even a verified visible final is not acknowledged operation success if cleanup/close or outcome persistence fails. Known output facts remain restricted evidence; do not use COPY WRITTEN_UNVERIFIED.
+15. Append factual COMPLETED or IDENTICAL_EXISTING with exact output ContentDigest, matched count 1 and original start/actual finish only after all success conditions. Failures use the exact approved F1 mapping table below; uncertainty retains known facts and records RECOVERY_REQUIRED where legal. Require the returned outcome receipt before preparing/mutating the next operation.
+16. Successful nonempty organization requires every planned COPY to reach acknowledged COMPLETED/IDENTICAL_EXISTING, clean per-operation resources, safe output-lease release and acknowledged JOB COMPLETED under the separately approved COPY-only F1 amendment. Original conversion readiness remains unchanged, including BLOCKED; do not report normal verified organization as FAILED for readiness alone. Return JOURNAL_COMPLETED only after that job acknowledgment. Known ordinary failure yields FAILED; uncertainty yields RECOVERY_REQUIRED. Do not execute before the amendment is approved and verified. All-skipped/empty remains NOTHING_TO_COPY, not organization success.
+17. Restart uses `replay(Optional.empty())` normally, or a known minimum receipt when available; missing acknowledged/corrupt/gapped evidence is fatal. Match replayed plan against unchanged F5 mappings, re-hash current sources/outputs and inspect leftovers read-only. Terminal success is historical verification, not proof of today's bytes. Interrupted IN_PROGRESS, RECOVERY_REQUIRED, damaged outputs or unverifiable ownership stop normal work; preserve original evidence. A new approved job, not journal rollback, is required for any later retry.
+
+F1 still enforces its own bounded journal and reserved outcome/control capacity. F6 must not advance an in-memory head before append acknowledgment or implement a second canonical codec/replay reducer. Job control/start/finish times must satisfy F1 chronology and use supplied Clock; a backward/inconsistent clock stops before the affected fact or mutation rather than inventing a timestamp. Partial operations that completed before a later fault remain factual; v1 is not a whole-batch filesystem transaction and performs no destructive rollback.
+
+### Total durable classification — proposed Q03 resolution
+
+This table applies to every admitted CopyFailure stage/code. Conditions are classified by measured activity and certainty, not exception-message parsing. Exact source/operation references remain restricted; no raw payload enters F1. Discovery blockers remain original F2/F3/F4 facts, not synthetic F1 errors. The amendment below is prerequisite for pairs marked **new**.
+
+| F6 condition / closed code | Durable F1 phase/code | Known vs uncertain outcome |
+| --- | --- | --- |
+| INPUT_UNAVAILABLE; inaccessible/disappeared SOURCE | HASHING/INPUT_UNAVAILABLE during source observation/hash, EXECUTION/INPUT_UNAVAILABLE during guarded COPY access | Known failure; no COPY success |
+| SOURCE_CHANGED; digest/continuity mismatch | HASHING/SOURCE_CHANGED, including checks made during execution | Known failure if no uncertain final/ownership; otherwise retain this plus recovery |
+| DISCOVERY_BINDING_UNPROVEN; fresh facts differ from supplied discovery | HASHING/SOURCE_CHANGED when a measured comparison differs; no journal before plan | Whole acquisition/revalidation blocked; never convert original F3 error to hash error |
+| CONTAINMENT_UNPROVEN; invalid source/output root/ancestor/alias | HASHING/CONTAINMENT_UNPROVEN for source acquisition; EXECUTION/CONTAINMENT_UNPROVEN for execution/output | Known refusal if no uncertain mutation; otherwise recovery |
+| ACCESS_CONTROL_UNAVAILABLE; source guard/output private access cannot be established | HASHING/ACCESS_CONTROL_UNAVAILABLE **new** or EXECUTION/ACCESS_CONTROL_UNAVAILABLE **new** | Known refusal; never repair permissions; uncertain replacement/ownership additionally recovery |
+| PROVIDER_UNQUALIFIED; unsupported no-replace/provider capability | EXECUTION/PUBLICATION_UNAVAILABLE **new** for output publication; HASHING/ACCESS_CONTROL_UNAVAILABLE **new** for unsupported SOURCE guards before/during source hashing | Known refusal before stage publication; no fallback |
+| RESOURCE_LIMIT; caller bound exhausted | HASHING/RESOURCE_LIMIT for original hashing; EXECUTION/RESOURCE_LIMIT **new** for COPY/output/recovery verification | Known stop if visibility/ownership proven; never discard prior failure evidence |
+| HASH_FAILED; original-byte SHA computation cannot finish | HASHING/HASH_FAILED | Known failure; interruption additionally uses INTERRUPTED below |
+| OUTPUT_CONFLICT; different final, namespace lease conflict, incompatible winner | EXECUTION/OUTPUT_CONFLICT | Known failure, preserve existing target and earlier successes |
+| WRITE_FAILED; stage create/write/short-write/force failure | EXECUTION/WRITE_FAILED **new** | Known FAILED if no final published and all owned cleanup confirmed; unknown publication/ownership adds recovery |
+| READ_FAILED; original SOURCE or stage/final/recovery-output read cannot finish | HASHING/READ_FAILED **new** for source hashing; EXECUTION/READ_FAILED **new** for COPY/output/recovery verification (measured mismatch uses next row) | No verified output inferred; known retained final can be FAILED, uncertain object/visibility is recovery |
+| VERIFICATION_FAILED; measured stage/final size+SHA differs or forbidden SOURCE alias | EXECUTION/VERIFICATION_FAILED; alias containment also CONTAINMENT_UNPROVEN | Known FAILED; do not delete a definitely present bad final; uncertain identity adds recovery |
+| PUBLICATION_UNPROVEN; hard-link operation definitely refused/unavailable | EXECUTION/PUBLICATION_UNAVAILABLE **new** | Known FAILED with proven NOT_PUBLISHED and clean ownership; independent concurrent winner verification may instead yield IDENTICAL_EXISTING |
+| PUBLICATION_UNPROVEN; link result/visibility cannot be established | EXECUTION/PUBLICATION_UNAVAILABLE **new** + EXECUTION/RECOVERY_REQUIRED | Uncertain; retain stage/final/known facts, never success/ordinary FAILED |
+| CLEANUP_FAILED; definitely owned artifact cannot be removed or resource cannot be confirmed closed | EXECUTION/CLEANUP_FAILED; also EXECUTION/RECOVERY_REQUIRED when any residual ownership/handle/guard is uncertain | Known retained artifact may be FAILED but no later operation starts; any uncertainty is recovery |
+| INTERRUPTED; observed interruption/cancellation before or during execution | HASHING/INTERRUPTED **new** during acquisition/hash; EXECUTION/INTERRUPTED **new** elsewhere | No silent retry; preserve interrupt flag. Known no-publication and confirmed cleanup -> FAILED when journaled; interrupted link/force/cleanup with unknown effects -> recovery plus exact activity failure |
+| JOURNAL_BLOCKED; real store create/append/replay/close failure | Preserve exact original PERSISTENCE pairs, publication outcome and known receipt from ProvenancePersistenceException | No new capability or imaging mutation. Do not fabricate a successful failure append; unresolved durable outcome is recovery until read-only replay |
+| RECOVERY_REQUIRED; uncertain ownership, replay discrepancy, interrupted intent or crash residue | EXECUTION/RECOVERY_REQUIRED plus every already known applicable fact | Read-only reconciliation; retain acknowledged facts, never silently relabel as known failure |
+
+Before an acknowledged plan exists, blocked acquisition/revalidation returns the complete restricted evidence with no invented job/operation journal. After plan acknowledgment but before intent, known failure is recorded as JOB FAILED with exact applicable failures (remaining operations stay NOT_STARTED); no fictitious IN_PROGRESS count or skipped operation. After acknowledged intent, known failure with proven visibility/ownership appends OPERATION FAILED, then JOB FAILED, requiring both acknowledgments and stopping further work. The accepted FAILED observation has original start, actual finish, empty output digest, matched count 0 and no disposition/processing evidence; the earlier count=1 intent remains immutable historical evidence. A known visible but invalid final is retained, not automatically uncertainty if its identity/bytes are actually known.
+
+Any uncertain publication/cleanup/continuity instead appends legal OPERATION RECOVERY_REQUIRED retaining known start/finish/output/count/failures and recovery disposition, then JOB RECOVERY_REQUIRED, if the store is sound. A NOT_STARTED operation cannot jump to recovery; record job recovery only before its intent. A persistence error or invalid chronology prevents further mutation and may prevent a durable terminal append: retain the actual last acknowledgment and return RECOVERY_REQUIRED; never claim FAILED/COMPLETED was persisted. Recovery inspections report today's known facts separately from uncertainty, without overwriting earlier journal facts. No operation succeeds merely because writing a failure record was impossible.
+
+### Architecturally approved closed F6 failure stage applicability
+
+G = DIGEST_ACQUISITION, V = REVALIDATION, C = COPY, O = OUTPUT_VERIFICATION, R = RECOVERY, X = CLEANUP, J = JOURNAL. A source-hashing subactivity keeps HASHING provenance even when it occurs inside C/R; stage describes workflow location, not an alternative phase. O covers stage/final validation, including its reads. Root/whole-job failures may lack a source/operation reference; per-operation failures must name the exact planned SOURCE/ID. J never manufactures imaging codes and always retains original store facts separately.
+
+| F6 Code | Exactly allowed Stage values |
+| --- | --- |
+| INPUT_UNAVAILABLE, SOURCE_CHANGED | G,V,C,R |
+| DISCOVERY_BINDING_UNPROVEN | G,V |
+| CONTAINMENT_UNPROVEN, ACCESS_CONTROL_UNAVAILABLE, PROVIDER_UNQUALIFIED | G,V,C,O,R |
+| RESOURCE_LIMIT, INTERRUPTED | G,V,C,O,R,X |
+| HASH_FAILED | G,V,C,R |
+| READ_FAILED | G,V,C,O,R |
+| WRITE_FAILED, OUTPUT_CONFLICT, PUBLICATION_UNPROVEN | C |
+| VERIFICATION_FAILED | C,O,R |
+| CLEANUP_FAILED | G,V,C,O,R,X |
+| JOURNAL_BLOCKED | J |
+| RECOVERY_REQUIRED | C,O,R,X,J |
+
+CLEANUP_FAILED at G/V covers read-handle/guard close failure with no output stage. INTERRUPTED at X qualifies a cleanup/release stop, not certainty that the artifact disappeared. RESOURCE_LIMIT at X only means retained-failure evidence exhaustion, never an unmeasured disk reservation. All methods preserve the prior facts plus the single terminal failure-bound fact; no ordinary retained failure is erased.
+
+### Narrow F1 compatibility amendment proposal — separate approval required
+
+**No accepted F1 path is changed here.** These are exact future MODIFY candidates and regressions, not permission to repair F1 during F6. The current 15-ADD F6 proposal cannot meet normal completion/failure contracts against unamended F1. Implementation remains blocked until independent review separately authorizes, implements, verifies and accepts the amendment at a new canonical parent; no extra F6 path is silently introduced.
+
+**Completion amendment:** in ManifestReplay, distinguish actual SourceFileRecord.failures from conversion-BLOCKED assessment. For a nonempty plan whose operations are all COPY, conversion readiness alone (including an unused intentionally skipped source) must not prevent JOB COMPLETED or constitute evidence for JOB FAILED. Actual source failures anywhere, active/uncertain operations, unsuccessful/noneligible operations and job/operation failures still prevent completion. Retain the existing nonempty/at-least-one-verified-COPY and every other chronology/transition/digest condition; F6 itself requires every planned COPY verified, never synthesizes SKIPPED_POLICY. Mixed/conversion plans retain accepted readiness/processing semantics. Preserve all source assessments exactly; do not promote READY, drop unused failures or change conversion operation eligibility. Empty plans stay non-completable.
+
+**Taxonomy amendment:** retain all existing enum names/order and append only Code.INTERRUPTED. Keep Phase, records/ports/checkpoint fields, schemaVersion=1 and canonical encoding unchanged. Precisely expand allowed pairs:
+
+| Code | Proposed complete allowed phases |
+| --- | --- |
+| WRITE_FAILED, PUBLICATION_UNAVAILABLE | EXECUTION, PERSISTENCE |
+| READ_FAILED, ACCESS_CONTROL_UNAVAILABLE | HASHING, EXECUTION, PERSISTENCE |
+| RESOURCE_LIMIT | HASHING, EXECUTION, PERSISTENCE |
+| INTERRUPTED (new terminal enum member) | HASHING, EXECUTION |
+
+All other code applicability remains accepted. JsonManifestCodec already serializes enum names and validates through ManifestFailure, so no codec production change is proposed. PublicJobReport/ManifestProjection already derive workflow vocabularies/applicability from those enums; no projection/value production change is needed, but the public report schema's HASHING/EXECUTION/PERSISTENCE allowlists and tests must match. ProvenancePersistenceException remains PERSISTENCE-only; no imaging error is wrapped in it, and INTERRUPTED is not admitted there. Existing source-failure limits of 64 and canonical ordering remain; no free-text reason or new metadata field.
+
+Exact separately gated predecessor budget: **12 MODIFY candidates, zero ADD**, all requiring fresh explicit approval:
+
+| Repository path | Narrow change / required regression |
+| --- | --- |
+| `src/main/java/org/cbihi/mrinormalizer/application/provenance/manifest/ManifestReplay.java` | COPY-only job eligibility separates conversion readiness from real failure; no conversion/mixed relaxation |
+| `src/main/java/org/cbihi/mrinormalizer/application/provenance/manifest/ManifestFailure.java` | Exactly the applicability table above and final INTERRUPTED enum member |
+| `docs/schemas/provenance-plan-v1.schema.json` | Same fields/version; new enum member and exact failure-pair conditionals |
+| `docs/schemas/provenance-checkpoint-v1.schema.json` | Matching closed failure vocabulary/pair constraints; observation shapes unchanged |
+| `docs/schemas/public-job-report-v1.schema.json` | Matching aggregate workflow namespace allowlists, no restricted field |
+| `src/test/java/org/cbihi/mrinormalizer/ManifestValueTest.java` | Exhaustive phase x code acceptance/refusal, old enum prefix/order/limits/neutral errors |
+| `src/test/java/org/cbihi/mrinormalizer/ManifestReplayTest.java` | Conversion-BLOCKED COPY + unused non-MRI completion; actual unused source failure still blocks; empty/mixed/conversion/uncertain/failed operation negatives; every new known-failure terminal sequence |
+| `src/test/java/org/cbihi/mrinormalizer/infrastructure/filesystem/JsonManifestCodecTest.java` | Golden old bytes unchanged; each new pair/INTERRUPTED canonical round-trip; illegal pairs still reject; public aggregates match schema |
+| `src/test/java/org/cbihi/mrinormalizer/infrastructure/filesystem/ManifestStoreTest.java` | Actual create/intent/failure-or-success/reopen/replay chains and acknowledgment uncertainty for new semantics |
+| `src/test/java/org/cbihi/mrinormalizer/ManifestProjectionTest.java` | Correct aggregate state/code counts for amended success/failure, unchanged privacy/no new report fields |
+| `src/test/java/org/cbihi/mrinormalizer/infrastructure/filesystem/PublicReportWriterTest.java` | Actual canonical export for new legal aggregates, no receipt/decoder/leakage regression |
+| `src/test/java/org/cbihi/mrinormalizer/architecture/ProvenanceContractBoundaryTest.java` | Explicitly approve only appended enum member; frozen record components, port signatures, class inventory and dependency rules remain |
+
+This is an explicit amendment to the previously frozen v1 semantic/wire vocabulary, not an already backward/forward compatible deployment claim. Old canonical records keep their bytes; the amended reader accepts them, except that historical COPY-only completion eligibility is intentionally corrected. Older readers/schemas reject new pairs/INTERRUPTED. Writer, replay, schemas and public consumer must move together at the reviewed checkpoint; no journal with new facts is handed to an older reader. If independent review requires a new schema version instead, stop and separately redesign that migration rather than changing versioning implicitly. No M5/M6/M7/build/dependency/wiring/store/public-writer production change is proposed.
+
+### Filesystem, threat, privacy and provider qualification
+
+The proposed assurance is measured byte equality and collision refusal at guarded observation/publication points, under the reviewed cooperative ownership profile. A full SHA-256 is a content identity under its normal collision-resistance assumption, not proof of historical provenance, medical validity or anonymization. File keys, birth/modified times, canonical strings and length checks are supplementary continuity observations; none authenticates arbitrary hostile concurrent contents.
+
+SOURCE is read-only: F6 never deliberately writes contents, changes permissions/timestamps/metadata, adds links, renames or deletes; read-induced provider access-time updates are permitted, excluded from continuity comparisons, and never restored by F6; this qualification follows [Linux mount(2) MS_RELATIME/MS_STRICTATIME](https://man7.org/linux/man-pages/man2/mount.2.html), not an F6 platform test; do not create source-side lock artifacts. A permitted shared read guard/handle is not asserted to defeat noncooperating POSIX writes. Configured symlink ancestors may resolve safely once to canonical roots; discovered symlink/reparse aliases below those roots, unsafe junctions, special files or unproven mount/provider transitions fail closed. Check containment and overlap through canonical/provider evidence as well as syntax; bind manifest namespace outside SOURCE and away from layout-v1 destinations. F6-created final files must not alias any known source. SOURCE-to-SOURCE hard links preserve distinct logical mappings and are revalidated separately; no deduplication by inode or digest.
+
+OUTPUT directories/stages and original patient-containing COPY bytes are restricted at creation (proposed POSIX 0700/0600 or owner-private Windows ACL); inherited/broad existing access is rejected without changing it. Qualification must not weaken privacy to make tests pass. Existing SOURCE permissions need not be rewritten to match output policy. Existing output hard links/aliases cannot be repaired; broad/uncertain access or inability to exclude SOURCE alias blocks. External same-owner aliases beyond known roots remain a stated limitation; no complete hard-link graph proof is available from portable BasicFileAttributes.
+
+Candidate strategies: POSIX stable non-null keys plus anchored directory-relative access where available; Windows local NTFS null basic keys require qualified overlapping no-delete-sharing handles for owned artifacts, private ACL/owner/store checks, birth-time substitution observations and real stage/final isSameFile. Qualify SOURCE read opens with write/delete-sharing denial on Windows where supported; denial must coexist with accepted M5/F3 read opens. A conflicting writer blocks. NOSHARE_DELETE alone does not prevent content changes. POSIX shared locks are cooperative, not universal write exclusion. Do not manufacture file identity from a pathname or treat birth time as identity. Unsupported open options/access/identity evidence fail qualification; no unconditional null-key rejection on qualified Windows and no unpinned null-key cleanup fallback. The release-to-delete race remains inside the controlled/cooperative namespace assumption; outside it, retain rather than delete.
+
+Lease ownership is explicit: the already-existing canonical OUTPUT root must meet private owner/access policy before mutation. A fixed `.f6-copy.lease` entry directly under that root is reserved outside layout-v1 destinations. Create-new or safely open the existing regular, no-follow, owner-private same-store entry, hold its identity/pin and exclusive FileChannel.tryLock, and recheck guards at each operation. Acquire F1's job lease first, this output lease second; never wait/retry in a loop, never unlink either entry or replace a contested lease. Symlink/ACL/owner/store/replacement anomalies block. Retain the output lease through the entire mutation session; per-operation handles/stages are closed before outcome ACK. Release the output lease after the last outcome and before JOB COMPLETED; persistent lease files are intentional, not leaked temporary stages. Release uncertainty stops job completion, retains evidence and revokes capabilities. This serializes cooperating F6 jobs across separate manifest jobs; hostile same-owner/privileged namespace mutation remains excluded.
+
+Runtime qualification is required for the actual provider, output parent/FileStore, access policy, link refusal under competing writers, complete visibility, source guards and cleanup behavior. Accepted F1 evidence does not qualify F6 streaming payloads automatically. Initially reject network/UNC/unproved mapped volumes, ZIP/custom providers and unqualified filesystems. Accepted JsonManifestStore's Windows implementation currently restricts output to the local SystemDrive NTFS volume; F6 end-to-end support cannot claim a broader drive profile without separately approved F1 qualification. Record real OS/provider/store and key capability in controlled test output only, never as a public error payload.
+
+Files/force success does not prove directory-entry persistence, whole-batch atomicity, power-loss survival, network durability or snapshot isolation. Those remain UNPROVED unless separately demonstrated with an approved protocol. Different source/output volumes may be supported by streaming; stage/final must be on the same qualified output store, with no cross-store publication fallback. Interruptions, growth while reading, close faults, disk-full/quota and ambiguous link completion are first-class negative cases.
+
+Public diagnostics expose only fixed controlled F6 categories/aggregate facts. Restricted paths, operation IDs, hashes, UIDs, absolute roots, metadata, filenames, raw causes/messages/stack traces and default record toString values must never be automatically logged/exported/presented. Restricted source-to-destination F1 mapping is preserved. COPY retains original identifying DICOM contents; opaque output naming is not de-identification. F6 does not introduce a public report/writer or serialize its private provider/session identity.
+
+### Architecturally approved / frozen normative contracts
+
+| Contract | Independently verifiable requirement |
+| --- | --- |
+| F6-C01 | F5-D01 digest-before-plan/revalidate-after-plan sequencing is preserved; F6 alone hashes original imaging bytes. |
+| F6-C02 | All F6 source/types are additive outside accepted F1/F5 packages. Only the separately approved 12-path F1 amendment may change predecessors before F6; this draft changes no source/test/schema/build/wiring. |
+| F6-C03 | Null, malformed, wrong-root, extra/duplicate source, plan or operation values reject with fixed non-identifying errors before I/O/mutation. |
+| F6-C04 | Preserve every supplied F2 entry/failure, F3 failure and F4 finding; exact F2-DICOM/F4 coverage is required; no original diagnostic reclassification. |
+| F6-C05 | The exact guarded lifecycle/whole-fact equality rules bind current F2/F3/F4 naming facts to original-byte observations under cooperative quiescent SOURCE; stale/unbound/subset evidence blocks, no snapshot claim. |
+| F6-C06 | Canonical SOURCE/OUTPUT/manifest roots must be safe, separate and nonoverlapping through actual provider evidence, not lexical normalization alone. |
+| F6-C07 | Discovered links/unsafe reparse aliases, directory substitutions, escaped paths and special files are rejected; safe configured ancestor aliases are resolved, not blanket banned. |
+| F6-C08 | Hash full original stored bytes with SHA-256 and exact long size; never decompress/re-encode/parse imaging content for hashing/COPY. |
+| F6-C09 | Check source/ancestors before open, across the observation/read interval and after EOF; detected key/type/size/time/content changes invalidate evidence. |
+| F6-C10 | Null keys are not pathname identities; qualified Windows uses real handle/provider evidence, POSIX supplied stable keys must remain equal; unsupported profiles fail closed. |
+| F6-C11 | Caller limits bound per-file size, cumulative read bytes, buffer and failures with checked arithmetic; no defaults, readAllBytes or silent truncation. |
+| F6-C12 | No SOURCE deliberate write, metadata/permission/time change, link, rename or delete; read-only acquisition/revalidation/preparation/inspection creates no imaging artifacts. Provider-managed atime updates are allowed and ignored for identity. |
+| F6-C13 | Retain bounded partial digest/failure facts on failure, but BLOCKED batches cannot supply an executable digest map or authorize a subset. |
+| F6-C14 | COMPLETE digest coverage is exact for eligible sources, immutable and unsigned-UTF-8 ordered; empty all-skipped input is explicitly supported without COPY success. |
+| F6-C15 | Execute only the full coherent COMPLETE F5 plan and matching adapter session/evidence; BLOCKED plans, manual forged evidence and subset execution never authorize mutation. |
+| F6-C16 | Before F1 composition revalidate the entire batch against immutable F5 digests/mappings; changes require owner-approved rescan/new plan, never rename/rekey. |
+| F6-C17 | Preserve every F5 COPY ID, source, destination, digest and distinct source mapping; only COPY, no MOVE/delete/conversion/readiness upgrade. |
+| F6-C18 | F1 composition retains all inventory sources/assessments and exact digests/COPY mappings. F5 skip decisions stay restricted in memory; explicit skip reasons are NOT durably persisted in v1 and are deferred to separately designed F9 policy. |
+| F6-C19 | F1 plan publication, matching receipt/floor validation and nonempty RUNNING acknowledgment precede output artifacts. Empty plans never become fictitious RUNNING/COMPLETED jobs. |
+| F6-C20 | Prepare verifies each source's full expected digest before IN_PROGRESS count=1; acknowledged matching intent precedes all operation output mutations. |
+| F6-C21 | Publication requires the private-constructor, one-use, owner-issued acknowledged-intent capability and real-store exact-current-head replay at mutation; null/forged/stale/foreign/reused/revoked values or uncertain append permit no mutation. |
+| F6-C22 | Maintain one active operation/stage and deterministic F5-ID order; each outcome acknowledgment precedes the next preparation/mutation. |
+| F6-C23 | F1 job lease then fixed persistent output-root lease, nonblocking and guarded, serialize cooperative ownership. Never unlink leases; output lease release precedes job completion and errors revoke mutation authority. |
+| F6-C24 | Missing output directories/stages are created private and no-follow checked only after acknowledgment; existing unsafe directories/ACLs are rejected without repair. |
+| F6-C25 | Source hard-link aliases retain separate logical operations; final may never alias SOURCE, and publication may link only a verified owned stage. |
+| F6-C26 | Existing target is opened without following links and fully rehashed; only exact size+SHA and safe non-alias/guard/access evidence permit IDENTICAL_EXISTING. |
+| F6-C27 | Conflicting bytes, file-as-parent, case/provider aliases, unsafe links or incompatible concurrent winners never overwrite/delete/rename any target. |
+| F6-C28 | Stream original bytes into a CREATE_NEW private stage on the final store; handle short reads/writes and all source guards; one bounded stage only. |
+| F6-C29 | Successful force/close and independent full stage reopen verification against the plan are prerequisites to publication. |
+| F6-C30 | Publish only through provider-qualified no-replace hard-link semantics; no ATOMIC_MOVE, Files.copy, direct-final write or replacement fallback. |
+| F6-C31 | Prove distinct stage/final hard-link association using guarded isSameFile and full final size+SHA; classify unknown visibility conservatively. |
+| F6-C32 | Delete only definitely owned temporary links under qualified cleanup guards; uncertain replacement/stage/probe ownership retains artifact and reports CLEANUP_FAILED. |
+| F6-C33 | Never remove/repair a SOURCE or final, including unverified final, conflicting winner or rollback of an earlier completed COPY. |
+| F6-C34 | COPY success requires verified output, closed per-operation resources and acknowledged factual F1 outcome, no WRITTEN_UNVERIFIED/ProcessingEvidence. Job success additionally requires output-lease release and COMPLETED acknowledgment. |
+| F6-C35 | Failure/unknown persistence acknowledgment immediately stops subsequent imaging mutation; preserve original PERSISTENCE facts, outcome and known receipt. |
+| F6-C36 | F6 closed error/stage models admit no arbitrary free text, Throwable, provider identifier, absolute location or metadata bag. |
+| F6-C37 | Every admitted ordinary failure has the total stage/activity/certainty F1 mapping. Known failures durably FAIL when possible; only actual uncertainty uses recovery. The separate F1 amendment is prerequisite; no PERSISTENCE imaging faults. |
+| F6-C38 | Factual operation timestamps/counts/digests are coherent and retain acknowledged facts; backward clocks or illegal transitions fail before further mutation. |
+| F6-C39 | After the approved amendment, nonempty all-verified COPY organization ends in acknowledged F1 COMPLETED despite unchanged conversion-BLOCKED assessments. Actual failures still block; empty/all-skipped is NOTHING_TO_COPY, never READY promotion. |
+| F6-C40 | Interrupt/disk-full/quota/force/close failure distinguishes known FAILED from uncertain RECOVERY_REQUIRED, preserves interrupt flag and prior facts, stops further operations, never rolls back verified finals. |
+| F6-C41 | On restart replay complete canonical journal with optional floor; corruption/orphans/gaps/acknowledged loss cannot fall back to an older usable state. |
+| F6-C42 | Recovery independently checks current sources/outputs and retains prior facts; journal success alone proves no current filesystem equality. |
+| F6-C43 | Interrupted intent/uncertain visibility/orphan stage permits read-only reconciliation only; no automatic promote/delete/resume or RECOVERY_REQUIRED-to-RUNNING transition. |
+| F6-C44 | External explicit approval of fresh UUID/job/journal is required for retry; preserve old evidence/artifacts, acquire fresh whole-source binding/digests and reproduce exact mappings, independently verify existing finals, never reuse old capabilities. |
+| F6-C45 | At most one prepared source and bounded ancestor handles/buffers; no per-dataset descriptor accumulation or unbounded retry/qualification artifacts. |
+| F6-C46 | Runtime qualification applies to actual target store/provider/profile; reject unqualified/network/custom providers; predecessor tests are not inherited proof. |
+| F6-C47 | Separate actual Linux/POSIX stable-key/anchored/cooperative guard and Windows SystemDrive NTFS null-key/private-ACL/write-delete-sharing tests qualify the supported profile; fixture privilege failure is not runtime success. |
+| F6-C48 | No power-loss/directory-entry/network durability, hostile-writer immunity or batch snapshot/transaction claim without separate evidence. |
+| F6-C49 | Public diagnostics and exceptions are fixed/controlled; no restricted path/UID/hash/provider/patient payload, cause, suppressed message or automatic restricted-record logging. |
+| F6-C50 | Restricted F1 mapping retains distinct sources and actual per-operation statuses; COPY data and hashed names do not constitute de-identification. |
+| F6-C51 | Source/parser/COPY/provenance duties stay in their owners: no M6/M7 invocation, F7 reader, F8 validation, F9 wiring, public reporting or GUI/M8 in F6. |
+| F6-C52 | Independent design approval, exact API/scope authorization, tests-first gates, provider qualification and separate implementation/closure reviews are mandatory before F6 acceptance. |
+
+### Architecturally approved / frozen acceptance-test obligations — not executed
+
+Every row requires assertions of both expected success/retained facts and refusal/no unintended mutation. U = unit/model, I = integration, A = adversarial filesystem, R = recovery, B = architecture. P = synthetic/port fixture (not provider qualification); L = actual qualified Linux/POSIX; W = actual qualified Windows/local NTFS. L+W rows must run independently on both; absence/privilege error is NOT RUN or failed qualification, never a passing/skipped test. Injectable tests supplement real providers and do not establish native behavior.
+
+| Test | Proposed owning JUnit class | Contracts | Exact positive / negative evidence | Kind / provider |
+| --- | --- | --- | --- | --- |
+| F6-T01 | `VerifiedCopyModelTest` | C02,C03,C36 | Exact revised public/nested API and enum inventory, including nonconstructible/nonserializable capability and no no-arg publish; reject extra payload/methods, roots/IDs. | U / P |
+| F6-T02 | `VerifiedCopyModelTest` | C11,C45 | Positive finite limits and exact boundaries; zero/negative/overflow/oversize buffer reject, no hidden defaults. | U / P |
+| F6-T03 | `VerifiedCopyModelTest` | C13,C14 | Complete exact digest coverage and immutable ordered map; partial/extra/duplicate/blocked map handoff rejects. | U / P |
+| F6-T04 | `VerifiedCopyModelTest` | C04,C18 | Retain every original failure/finding/assessment and skipped source; reject inconsistent discovery coverage. | U / P |
+| F6-T05 | `VerifiedCopyModelTest` | C31,C34,C38 | Coherent result/publication/digest/time values; reject success without measured output and incompatible states. | U / P |
+| F6-T06 | `VerifiedCopyModelTest` | C36,C37 | Closed source/operation failure pairing and stage/code table; reject arbitrary text/provider/Throwable-equivalent payload. | U / P |
+| F6-T07 | `VerifiedCopyModelTest` | C14,C17,C22 | Permute inputs, stable SOURCE UTF-8/result-ID order and defensive snapshots; caller mutation has no effect. | U / P |
+| F6-T08 | `VerifiedCopyModelTest` | C39,C49,C50 | COPY-only vs journal completion and restricted evidence shape; reject READY/anonymous-source/diagnostic leakage claims. | U / P |
+| F6-T09 | `SourceDigestAcquisitionTest` | C01,C08 | Independently computed empty/ordinary/large SHA vectors and DICOM/.nii/.nii.gz stored-byte fixtures; wrapper bytes are hashed, not decompressed content. Empty hashing evidence cannot bypass F2 recognition blockers. | I / L+W |
+| F6-T10 | `SourceDigestAcquisitionTest` | C04,C05 | Exact stable inventory/discovery agrees; vary each assessment/diagnostic and all 14 metadata fields/optional/list values, findings/unassigned failures/membership; each mismatch blocks despite a valid new digest. | I,A / L+W |
+| F6-T11 | `SourceDigestAcquisitionTest` | C06 | Separate canonical roots pass; equal/nested/canonical aliases and unsafe manifest namespace fail before imaging mutation. | A / L+W |
+| F6-T12 | `SourceDigestAcquisitionTest` | C07 | Safe configured ancestor resolution passes; discovered file/directory links, junction escapes and special files block. | A / L+W |
+| F6-T13 | `SourceDigestAcquisitionTest` | C09,C10 | Stable identity/size/time passes; replaced key/type, disappear/reappear and null-key transition block without fabricated identity. | A / P plus L+W |
+| F6-T14 | `SourceDigestAcquisitionTest` | C05,C09 | Before/during/after hashing change barriers block; same-size/timestamp-restored content change is detected by hash/re-observation where observable, residual ABA limitation explicitly retained. | A / L+W |
+| F6-T15 | `SourceDigestAcquisitionTest` | C11,C40 | Large synthetic streams at/over max bytes and growing source; bounded memory, exact long count, no overflow/truncation. | U,I / P plus L+W |
+| F6-T16 | `SourceDigestAcquisitionTest` | C13 | One unavailable/hash-failing source retains prior facts and blocks all handoff; no executable subset is returned. | I / P plus L+W |
+| F6-T17 | `SourceDigestAcquisitionTest` | C11,C13 | Failure budget retains earlier facts plus terminal RESOURCE_LIMIT; first excess stops deterministically. | U / P |
+| F6-T18 | `SourceDigestAcquisitionTest` | C12,C50 | SOURCE bytes, names, size, modification/creation observations, permissions and link counts unchanged; zero deliberate write/setTimes/chmod/rename/delete calls. Allow provider-managed atime change without reset or false continuity failure; no imaging output/probe/lease artifacts. | I / L+W |
+| F6-T19 | `SourceDigestAcquisitionTest` | C14,C19 | Empty/all-non-MRI cohort returns empty complete map/NOTHING_TO_COPY; corrupt/incomplete/F3-failed cohorts preserve blockers, never success. | U,I / P |
+| F6-T20 | `SourceDigestAcquisitionTest` | C03,C05,C15,C16 | NEW/ACQUIRED/REVALIDATED/EXECUTING/CLOSED/BLOCKED lifecycle and complete re-observation/digest equality; copied DTO, wrong root, stale/closed/failed session or changed skipped entry cannot authorize execution. | I,A / P plus L+W |
+| F6-T21 | `VerifiedCopyExecutionTest` | C15,C17 | Complete canonical plan copies exact bytes/paths/IDs; blocked/subset/foreign/renamed/rekeyed operations cause zero writes. | I / L+W |
+| F6-T22 | `VerifiedCopyExecutionTest` | C16,C20 | Batch and per-source pre-intent hashes match; post-plan change causes stop/new-plan requirement, never destination adaptation. | I,A / L+W |
+| F6-T23 | `VerifiedCopyExecutionTest` | C25,C50 | Distinct source hard links produce distinct operation records; final-source aliases are rejected and source link counts stay unchanged. | A / L+W |
+| F6-T24 | `VerifiedCopyExecutionTest` | C26 | Safe existing identical target is fully read/hashed and unchanged; same name/size but wrong bytes or missing source rejects. | I,A / L+W |
+| F6-T25 | `VerifiedCopyExecutionTest` | C17,C26,C27 | Compatible distinct source mappings share one destination with separate outcomes; differing digests/semantics never merge/rename. | I / L+W |
+| F6-T26 | `VerifiedCopyExecutionTest` | C07,C24,C27 | Existing safe parents pass; file-as-parent, case/provider alias, symlink and broad ACL block without repairing them. | A / L+W |
+| F6-T27 | `VerifiedCopyExecutionTest` | C24,C28 | Private CREATE_NEW stage/directory attributes exist immediately; competing stage/name/access failures never truncate another artifact. | A / L+W |
+| F6-T28 | `VerifiedCopyExecutionTest` | C08,C28,C40 | Inject short reads/writes and zero-progress/read/write failure; exact byte stream succeeds or stops, never decodes/converts/claims a partial copy. | U,I / P plus L+W |
+| F6-T29 | `VerifiedCopyExecutionTest` | C29 | Successful force/close/reopen hash allows publish; force/close/stage corruption prevents publication. | I,A / P plus L+W |
+| F6-T30 | `VerifiedCopyExecutionTest` | C30,C31 | Actual hard-link association and complete verified final; unsupported publication refuses, no rename/copy fallback. | A / L+W |
+| F6-T31 | `VerifiedCopyExecutionTest` | C27,C30 | Barrier-controlled simultaneous final creators leave winner intact; equal winner independently verifies, differing winner conflicts. | A / L+W |
+| F6-T32 | `VerifiedCopyExecutionTest` | C31,C33 | Final corruption/root change after link produces unverified/unknown outcome; final remains untouched, no success. | A / L+W |
+| F6-T33 | `VerifiedCopyExecutionTest` | C32 | Owned cleanup passes; stage/probe replacement or uncertain ownership is retained with CLEANUP_FAILED, including null-key path. | A / L+W |
+| F6-T34 | `VerifiedCopyExecutionTest` | C22,C45 | Multiple operations use canonical order, one stage/handle and bounded state; unknown stage halts before creating another. | I / P plus L+W |
+| F6-T35 | `CopyJournalSequenceTest` | C18,C19 | Exact one-to-one F5/F1 COPY composition with all source assessments/digests; no guessed skip ID/new mappings/processing facts. | U,I / P |
+| F6-T36 | `CopyJournalSequenceTest` | C19,C21 | Plan receipt and RUNNING acknowledged before output artifacts; create/receipt/floor mismatch causes zero imaging writes. | I / spy port + real store |
+| F6-T37 | `CopyJournalSequenceTest` | C20,C21 | Real adapter rejects publication before intent ACK, null/fabricated token, stale receipt/head, foreign handle/job/operation, reuse/revocation and UNKNOWN append (even replay-visible). Valid private capability claims exact real-store intent before lease/mkdir/probe/stage; direct prepared-handle misuse performs zero writes. | I / spy port + real store |
+| F6-T38 | `CopyJournalSequenceTest` | C21,C35 | NOT_PUBLISHED/PUBLISHED/UNKNOWN store failures preserve exact receipt/facts; all stop later mutations, including published cleanup error. | I,R / real store injection |
+| F6-T39 | `CopyJournalSequenceTest` | C22,C34 | Verified COPY/identical-existing outcome ACK before next prepare; acknowledgment loss leaves factual prior intent and stops. | I,R / P plus real store |
+| F6-T40 | `CopyJournalSequenceTest` | C34,C38 | Exact COPY timestamps/output digest/count, empty ProcessingEvidence; WRITTEN_UNVERIFIED/conversion observations reject. | U,I / real replay |
+| F6-T41 | `CopyJournalSequenceTest` | C36,C37 | Exhaustively cover every stage/code/certainty row after separately approved amendment: real FAILED then JOB FAILED for known I/O/interrupt/resource/access/link faults; unknown publication/cleanup goes recovery. Never create PERSISTENCE imaging errors; invalid pairs still reject. Failures before intent use truthful job-only record. | U / real F1 values |
+| F6-T42 | `CopyJournalSequenceTest` | C39 | Amended real replay completes all-verified COPY with unchanged conversion-BLOCKED assessment and unused non-MRI source. Actual source/operation/job failure, active/uncertain/empty or unverified work still forbids success; mixed/conversion rules unchanged, no READY promotion. Until amendment exists execution is blocked. | U,I / real replay |
+| F6-T43 | `CopyJournalSequenceTest` | C14,C18,C19,C39 | All-skipped/empty is NOTHING_TO_COPY/PLANNED at most; no invented operation or completion. Retain decisions in restricted plan/result context; reopen F1 v1 proves original source assessment but not durable F5 skip reason; never infer a historical reason from current rediscovery. | U,I / real replay |
+| F6-T44 | `CopyJournalSequenceTest` | C11,C22,C35 | Real F1 capacity reservation refuses unreservable intent before COPY; terminal/control facts remain legal and head does not advance on failure. | I / real store |
+| F6-T45 | `CopyJournalSequenceTest` | C38,C40 | Clock chronology, known interrupt with confirmed cleanup -> durable INTERRUPTED/FAILED, ambiguous link/close -> recovery; interrupt flag retained, no retries. Backwards clock cannot invent finish/count/verified output. | U,I / P |
+| F6-T46 | `CopyJournalSequenceTest` | C17,C33,C39 | Earlier verified operations remain after a later batch failure; final statuses are factual, no rollback or global byte-success claim. | I / L+W |
+| F6-T47 | `VerifiedCopyProviderTest` | C10,C46,C47 | Actual Linux/POSIX keys, parent/store/private attrs and link refusal qualify; disappearing keys or changed store block. | A / L |
+| F6-T48 | `VerifiedCopyProviderTest` | C10,C32,C47 | Actual Windows NTFS null keys, overlapping pins, isSameFile, ACLs and cleanup qualify; unsupported sharing option denies mutation. | A / W |
+| F6-T49 | `VerifiedCopyProviderTest` | C05,C09,C47 | Windows qualified write/delete-sharing denial permits accepted M5/F3 read opens but refuses conflicting writer/deleter; null keys never become pathname identity. Linux stable keys/anchored access and cooperative quiescence limitations are explicit; no universal lock/snapshot claim. | A / L+W |
+| F6-T50 | `VerifiedCopyProviderTest` | C23,C30,C46 | Two independent jobs/processes acquire F1 then output lease; contention, lease symlink/ACL/owner/key replacement, release failure and noncooperating final creator tested. No split lease/unlink/retry/replacement; per-op ACK and final job completion observe release order. | A / L+W, second process |
+| F6-T51 | `VerifiedCopyProviderTest` | C06,C30,C46 | Source/output different local stores stream safely where qualified; stage/final cross-store, network/UNC/mapped/ZIP/custom profiles reject. | A / actual qualified stores + injected unsupported cases |
+| F6-T52 | `VerifiedCopyProviderTest` | C47,C48 | Real OS/provider/store qualification line, symlink/junction fixture created and refusal proved; privilege failure/other OS NOT RUN never counts PASS. Durability remains UNPROVED. | A / L+W |
+| F6-T53 | `VerifiedCopyRecoveryTest` | C40,C41 | Crash after plan/RUNNING/intent, before stage or during partial stream reopens factual journal and stops; zero success inferred. | R / second JVM, L+W |
+| F6-T54 | `VerifiedCopyRecoveryTest` | C31,C41,C43 | Crash after force/link/final verify before outcome ACK retains stage/final/intent; no stage promotion, deletion or same-job resume. | R / second JVM, L+W |
+| F6-T55 | `VerifiedCopyRecoveryTest` | C35,C41 | Crash after outcome publication before caller ACK is replayed exactly; floor loss/gaps/corruption/orphans refuse fallback. | R / real store, L+W |
+| F6-T56 | `VerifiedCopyRecoveryTest` | C32,C42,C43 | Read-only recovery reports current known digest/collision separately from uncertain ownership; source atime may change. No artifact promotion/deletion/permission repair or inference of durable skip reason; prior facts retained. | R,A / L+W |
+| F6-T57 | `VerifiedCopyRecoveryTest` | C38,C43 | Legal uncertainty retains known timestamps/digest/count/failures; altered facts or recovery-to-normal transitions reject in real F1 replay. | U,R / real replay |
+| F6-T58 | `VerifiedCopyRecoveryTest` | C26,C42,C44 | External fresh-job approval, fresh UUID/journal/session and all-source observation/digests reproduce exact old mappings; actual final full-hash verification permits identical-existing. No approval/stale evidence/changed UID/digest/mapping blocks, old journal/artifacts remain, no automatic same-job resume. | R / synthetic approval fixture, L+W |
+| F6-T59 | `VerifiedCopyBoundaryTest` | C02,C51,C52 | Exact separately approved F1 amendment plus F6 15-ADD inventories and compiled dependency rules; capability has private constructor/no public factory/getters/serialization, adapter no alternate mutation endpoint; no unauthorized build/wiring/predecessor edits. | B / compiled classes + Git audit |
+| F6-T60 | `VerifiedCopyBoundaryTest` | C01,C08,C51 | Hash/file I/O only in F6 infrastructure; service/model contains no Files/channel/parser/pixel/conversion dependency and never calls M6/M7. | B / bytecode and controlled spies |
+| F6-T61 | `VerifiedCopyBoundaryTest` | C36,C49,C50 | Patient/path/UID/provider/exception sentinels cannot escape controlled public errors/logs; restricted F1 mapping remains intact. | B,I / P plus real faults |
+| F6-T62 | `VerifiedCopyBoundaryTest` | C46,C48,C52 | Missing design approval/provider evidence blocks acceptance; no assumed/skipped/disabled negative case, no inherited snapshot/durability/READY claim. | B / review evidence audit |
+
+The 62 rows are behavioral obligations, not an invented executed test count. A row can need multiple @Test methods/parameterized cases. Future source audit must map every C01-C52 to assertions, and every row to real test names/provider evidence; count actual discovered tests only after execution.
+
+### Architecturally approved F6 implementation scope — IMPLEMENTATION NOT AUTHORIZED
+
+Eight production ADD candidates (nested DTOs/port prepared-handle/result types stay in these files; no general helper library):
+
+```text
+ADD src/main/java/org/cbihi/mrinormalizer/application/dataset/copy/CopyLimits.java
+ADD src/main/java/org/cbihi/mrinormalizer/application/dataset/copy/CopyFailure.java
+ADD src/main/java/org/cbihi/mrinormalizer/application/dataset/copy/SourceDigestBatch.java
+ADD src/main/java/org/cbihi/mrinormalizer/application/dataset/copy/CopyExecutionResult.java
+ADD src/main/java/org/cbihi/mrinormalizer/application/port/out/VerifiedCopyAccess.java
+ADD src/main/java/org/cbihi/mrinormalizer/application/service/SourceDigestService.java
+ADD src/main/java/org/cbihi/mrinormalizer/application/service/CopyExecutionService.java
+ADD src/main/java/org/cbihi/mrinormalizer/infrastructure/filesystem/NioVerifiedCopyAccess.java
+```
+
+Seven test ADD candidates separate model, hashing, execution, journal, native provider, crash/recovery and boundary responsibilities:
+
+```text
+ADD src/test/java/org/cbihi/mrinormalizer/VerifiedCopyModelTest.java
+ADD src/test/java/org/cbihi/mrinormalizer/infrastructure/filesystem/SourceDigestAcquisitionTest.java
+ADD src/test/java/org/cbihi/mrinormalizer/infrastructure/filesystem/VerifiedCopyExecutionTest.java
+ADD src/test/java/org/cbihi/mrinormalizer/CopyJournalSequenceTest.java
+ADD src/test/java/org/cbihi/mrinormalizer/infrastructure/filesystem/VerifiedCopyProviderTest.java
+ADD src/test/java/org/cbihi/mrinormalizer/infrastructure/filesystem/VerifiedCopyRecoveryTest.java
+ADD src/test/java/org/cbihi/mrinormalizer/architecture/VerifiedCopyBoundaryTest.java
+```
+
+Architecturally approved F6-owned ceiling: **15 ADD paths (8 production + 7 tests)**. The prerequisite F1 amendment retains **12 separately gated MODIFY candidates** listed above. Separate implementation authorization is required for each; the F6 budget is not expanded implicitly. F6 remains blocked until the amendment is implemented, verified and accepted. Future source implementation leaves the tracker unchanged until reconciliation is separately authorized. The only presently authorized repository change is this tracker-only design-freeze reconciliation.
+
+Protected: every accepted F0-F5/F1 value/API/codec/store/test, M5/M6/M7, schemas, POM/dependencies, architecture documents, configuration, Main/DependencyContainer and presentation. New F6 models do not enter the accepted F1/F5 compiled type inventories. The 12 exact predecessor candidates above remain protected until their separate authorization; all other predecessors remain unchanged. No implicit permission or undocumented extra path.
+
+### Q01-Q06 — architecturally approved resolutions and remaining engineering gates
+
+| Question | Architecturally approved disposition | Remaining approval/evidence gate |
+| --- | --- | --- |
+| Q01 discovery binding/session | Adopt the exact guarded lifecycle, complete fact-level comparisons and constructor ownership above; quiescent cooperative SOURCE, no historical certificate or snapshot claim. | Design rules/API approved; actual guard/coexistence/substitution tests remain required on each platform |
+| Q02 organization success | Nonempty all-verified organization ends in acknowledged F1 COMPLETED independent of conversion readiness; preserve all assessments/unused sources and real failures. No normal COPY_OPERATIONS_VERIFIED/FAILED fallback. | Separately approve/verify the precise COPY-only ManifestReplay amendment and regressions before F6 execution |
+| Q03 durable failures | Adopt total activity/certainty matrix, known FAILED vs uncertain recovery, exact applicability expansion and one INTERRUPTED enum member. Only inability/uncertainty of the actual journal may leave its acknowledged intent unresolved. | Separately approve the 12-path amendment including schemas/codec/store/public privacy/boundary regressions; no imaging PERSISTENCE classification |
+| Q04 provider/ownership | Linux default local POSIX stable-key/private namespace or Windows default local SystemDrive NTFS with actual null-key/private-ACL/share-denial qualification. Fixed persistent output lease, F1-first order, controlled cooperative writers and guarded cleanup. | Independent L+W evidence per actual store/configuration; broader drives/network/hostile ownership remain unsupported, not promised |
+| Q05 skip durability | F6 v1 accepts all-skipped NOTHING_TO_COPY without fictitious success/operations. All original sources/assessments are in F1; exact F5 decisions/reasons are retained in restricted runtime plan context only. Durable explicit skip-reason history is deferred to separately designed/approved F9 reporting policy; F6 recovery does not reconstruct historical skip reasons from present discovery. | F6 v1 limitation explicitly accepted. A future durable-history requirement needs separate design/schema approval; no sidecar or invented operation |
+| Q06 restart/retry | Read-only reconciliation; no automatic same-job resume. Known vs uncertain facts remain separate. A new job requires external explicit approval, fresh UUID/store/session/whole-source evidence and exact mapping reproduction; verified existing finals may be identical-existing, old artifacts/journal never repaired. | New-job policy approved architecturally; tests simulate external approval, not a new F9 orchestrator/UI. Changed source facts require a separately approved new plan, not an implicit retry |
+
+These resolutions passed independent architectural review and are **DESIGN FROZEN**, including publication authority and access-time qualification. No F1 amendment implementation, F6 source implementation or native evidence is authorized/claimed by this reconciliation. Any later change to these approved boundaries requires independent design review; do not weaken tests during engineering.
+
+### Future acceptance and checkpoint discipline
+
+1. Independent architectural review **PASSED**; the dependency-gated F6-D/C/T, public design surface, Q01-Q06 resolutions and 15-ADD budget are frozen. This authorized tracker-only freeze reconciliation is prepared; checkpoint SHA remains pending commit. Separately authorize, implement, verify and accept the 12-MODIFY F1 amendment before authorizing the 15-ADD F6 unit; source/API/schema regression evidence must establish compatibility at the resulting canonical parent. Commit/push requires separate authorization.
+2. Explicit authorization for **ONE complete F6 engineering unit**, at a verified accepted parent; tests first, synthetic non-identifying fixtures, all obligations covered. No F6-S1/S2 fragmentation, no GUI/F7-F11/M8 work.
+3. Focused candidate gate, after API/scope freeze:
+   `mvn "-Dtest=VerifiedCopyModelTest,SourceDigestAcquisitionTest,VerifiedCopyExecutionTest,CopyJournalSequenceTest,VerifiedCopyProviderTest,VerifiedCopyRecoveryTest,VerifiedCopyBoundaryTest" test`.
+4. Document an explicit affected selection including all F6 suites, F0 assessment/boundaries, all F1 plan/replay/value/persistence/codec/store/projection/public-writer/boundary contracts, F2/F3/F4 discovery and filesystem tests, F5's six suites, existing architecture suites and protected M6/M7 hardening/conversion tests. Freeze the actual selection at implementation authorization; do not claim an unrun count or silently exclude native negative tests.
+5. Final single `mvn clean test`, Java release 21: record actual production/test compile counts and tests/failures/errors/skips, BUILD SUCCESS, exact source revision and unchanged protected tree. All gates require zero failures/errors/skips; no @Disabled, assumptions or provider-success shortcut replacing required negative evidence.
+6. Independent native Linux/POSIX and Windows/local NTFS qualification, including null file keys, private creation, no-replace, concurrent processes, symlink/junction rejection, guarded ownership cleanup, changed sources and interruption/restart. Record other providers NOT RUN; power-loss/directory-entry/network durability remains UNPROVED. Test setup privileges only enable fixtures; runtime safety must not depend on silently elevated access or missing symlink privilege.
+7. Independent source/API/architecture/privacy audit maps C01-C52 and T01-T62 to meaningful actual assertions. Verify no deliberate SOURCE content/metadata writes (provider atime updates allowed), imaging decode/conversion, unbounded reads, unsafe cleanup, exception leakage, false receipt/status claim or changed F5 naming. Audit new source bytes, including untracked whitespace.
+8. Exact Git scope review: verified accepted parent/remote, clean protected tracked tree, empty prior index, only authorized additions; diff/check/status/cached audit, byte hashes tied to reviewed artifacts and executable evidence. Do not stage outside scope or modify the tracker during implementation.
+9. Only after independent implementation review and explicit commit/push authorization: exact implementation checkpoint with verified direct parent, authorized paths and remote fetch comparison. No force push/history rewrite.
+10. Separate explicitly authorized tracker-only acceptance reconciliation records the actual implementation SHA and verified evidence. F6 becomes ACCEPTED / CLOSED only after that independent closure gate. F7-F11/GUI/M8 remain gated; F6 closure is not global Pre-M8 completion.
+
+**F6 ARCHITECTURAL DESIGN REVIEW PASSED / DESIGN FROZEN — tracker-only freeze checkpoint pending commit SHA; F1 prerequisite not implemented or accepted; F6 IMPLEMENTATION BLOCKED / NOT AUTHORIZED.**
