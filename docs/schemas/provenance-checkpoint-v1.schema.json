@@ -197,7 +197,8 @@
             "CLEANUP_FAILED",
             "RECOVERY_REQUIRED",
             "OUTPUT_CONFLICT",
-            "VERIFICATION_FAILED"
+            "VERIFICATION_FAILED",
+            "INTERRUPTED"
           ]
         }
       },
@@ -360,6 +361,7 @@
               "phase": {
                 "type": "string",
                 "enum": [
+                  "EXECUTION",
                   "PERSISTENCE"
                 ]
               }
@@ -379,6 +381,7 @@
               "phase": {
                 "type": "string",
                 "enum": [
+                  "EXECUTION",
                   "PERSISTENCE"
                 ]
               }
@@ -398,6 +401,8 @@
               "phase": {
                 "type": "string",
                 "enum": [
+                  "HASHING",
+                  "EXECUTION",
                   "PERSISTENCE"
                 ]
               }
@@ -455,6 +460,8 @@
               "phase": {
                 "type": "string",
                 "enum": [
+                  "HASHING",
+                  "EXECUTION",
                   "PERSISTENCE"
                 ]
               }
@@ -475,6 +482,7 @@
                 "type": "string",
                 "enum": [
                   "HASHING",
+                  "EXECUTION",
                   "PERSISTENCE"
                 ]
               }
@@ -556,6 +564,26 @@
                 "enum": [
                   "EXECUTION",
                   "POST_WRITE_VALIDATION"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "code": {
+                "const": "INTERRUPTED"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "phase": {
+                "type": "string",
+                "enum": [
+                  "HASHING",
+                  "EXECUTION"
                 ]
               }
             }

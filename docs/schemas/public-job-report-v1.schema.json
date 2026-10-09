@@ -203,7 +203,10 @@
                   "INPUT_UNAVAILABLE",
                   "SOURCE_CHANGED",
                   "HASH_FAILED",
-                  "RESOURCE_LIMIT"
+                  "READ_FAILED",
+                  "ACCESS_CONTROL_UNAVAILABLE",
+                  "RESOURCE_LIMIT",
+                  "INTERRUPTED"
                 ]
               },
               "count": {
@@ -230,10 +233,16 @@
                   "INVALID_REFERENCE",
                   "CONTAINMENT_UNPROVEN",
                   "INPUT_UNAVAILABLE",
+                  "WRITE_FAILED",
+                  "PUBLICATION_UNAVAILABLE",
+                  "READ_FAILED",
+                  "ACCESS_CONTROL_UNAVAILABLE",
+                  "RESOURCE_LIMIT",
                   "CLEANUP_FAILED",
                   "RECOVERY_REQUIRED",
                   "OUTPUT_CONFLICT",
-                  "VERIFICATION_FAILED"
+                  "VERIFICATION_FAILED",
+                  "INTERRUPTED"
                 ]
               },
               "count": {

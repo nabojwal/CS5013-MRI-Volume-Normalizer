@@ -14,6 +14,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
+import org.cbihi.mrinormalizer.application.dataset.model.ConversionReadiness;
 import org.cbihi.mrinormalizer.application.dataset.model.FormatAssessment;
 import org.cbihi.mrinormalizer.application.provenance.ProvenanceRecord;
 import org.cbihi.mrinormalizer.application.provenance.manifest.*;
@@ -430,6 +431,49 @@ class ManifestProjectionTest {
         var a = new FailureCount(FailureNamespace.DETECTION, "INPUT_NOT_FOUND", Long.MAX_VALUE);
         var b = new FailureCount(FailureNamespace.DETECTION, "INPUT_IS_DIRECTORY", 1);
         rejectPublic(() -> publicValue(zeroBins(), List.of(a, b)));
+    }
+
+    @Test void amendedCopyCompletionKeepsOriginalDetectionWithoutWorkflowFailure() {
+        var source = source("synthetic/copied", DetectionDiagnostic.INVALID_DICOM, List.of());
+        var unused = source("synthetic/unused.txt", DetectionDiagnostic.UNSUPPORTED_FORMAT, List.of());
+        var plan = new ProvenanceManifest(1, JOB, CREATED, List.of(source, unused),
+                List.of(operation(1, ManifestOperation.Kind.COPY, source.source(), "organized/copy")));
+        var replay = new ManifestReplay(plan, HASH);
+        acceptJob(replay, JobState.RUNNING, List.of());
+        acceptOperation(replay, observed(State.IN_PROGRESS, Optional.empty()), List.of());
+        acceptOperation(replay, observed(State.COMPLETED, Optional.empty()), List.of());
+        acceptJob(replay, JobState.COMPLETED, List.of());
+        var report = ManifestProjection.publicReport(replay.current());
+        assertEquals(JobState.COMPLETED, report.state()); assertEquals(2, report.sourceCount());
+        assertEquals(1, count(report, ManifestOperation.Kind.COPY, State.COMPLETED));
+        assertEquals(List.of(new FailureCount(FailureNamespace.DETECTION, "INVALID_DICOM", 1),
+                new FailureCount(FailureNamespace.DETECTION, "UNSUPPORTED_FORMAT", 1)), report.failureCounts());
+        assertEquals(ConversionReadiness.BLOCKED, replay.current().plan().sources().get(0).assessment().readiness());
+        for (var restricted : List.of("synthetic/copied", "synthetic/unused.txt", "organized/copy", HASH, DIGEST.sha256(), JOB.toString()))
+            assertFalse(report.toString().contains(restricted));
+    }
+
+    @Test void amendedWorkflowAggregatesHaveExactNamespacesAndCounts() {
+        for (var pair : List.of("HASHING/READ_FAILED", "HASHING/ACCESS_CONTROL_UNAVAILABLE", "HASHING/INTERRUPTED",
+                "EXECUTION/WRITE_FAILED", "EXECUTION/PUBLICATION_UNAVAILABLE", "EXECUTION/READ_FAILED",
+                "EXECUTION/ACCESS_CONTROL_UNAVAILABLE", "EXECUTION/RESOURCE_LIMIT", "EXECUTION/INTERRUPTED")) {
+            var tokens = pair.split("/"); var fact = new ManifestFailure(Phase.valueOf(tokens[0]), Code.valueOf(tokens[1]));
+            var source = source("synthetic/restricted", DetectionDiagnostic.NONE, List.of());
+            var plan = new ProvenanceManifest(1, JOB, CREATED, List.of(source),
+                    List.of(operation(1, ManifestOperation.Kind.COPY, source.source(), "organized/copy")));
+            var replay = new ManifestReplay(plan, HASH);
+            acceptJob(replay, JobState.RUNNING, List.of());
+            acceptOperation(replay, observed(State.IN_PROGRESS, Optional.empty()), List.of());
+            acceptOperation(replay, observed(State.FAILED, Optional.empty()), List.of(fact));
+            acceptJob(replay, JobState.FAILED, List.of(fact));
+            var report = ManifestProjection.publicReport(replay.current());
+            assertEquals(JobState.FAILED, report.state());
+            assertEquals(List.of(new FailureCount(FailureNamespace.valueOf(tokens[0]), tokens[1], 2)), report.failureCounts());
+            assertEquals(1, count(report, ManifestOperation.Kind.COPY, State.FAILED));
+            assertFalse(report.toString().contains("synthetic/restricted"));
+            if (!tokens[0].equals("PERSISTENCE")) assertEquals(0, failures(report, FailureNamespace.PERSISTENCE, tokens[1]));
+        }
+        assertEquals(38, validFailures().size());
     }
 
     private static ImageVolume volume() {

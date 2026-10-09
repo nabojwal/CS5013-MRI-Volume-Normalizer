@@ -10,7 +10,7 @@ public record ManifestFailure(Phase phase, Code code) {
         SOURCE_CHANGED, HASH_FAILED, CHECKPOINT_CONFLICT, WRITE_FAILED,
         PUBLICATION_UNAVAILABLE, READ_FAILED, UNSUPPORTED_SCHEMA, CORRUPT_CHECKPOINT,
         ACCESS_CONTROL_UNAVAILABLE, RESOURCE_LIMIT, CLEANUP_FAILED, RECOVERY_REQUIRED,
-        OUTPUT_CONFLICT, VERIFICATION_FAILED
+        OUTPUT_CONFLICT, VERIFICATION_FAILED, INTERRUPTED
     }
 
     public ManifestFailure {
@@ -18,16 +18,16 @@ public record ManifestFailure(Phase phase, Code code) {
             throw new IllegalArgumentException("Failure components must be non-null");
         }
         boolean applicable = switch (code) {
-            case INVALID_MANIFEST, CHECKPOINT_CONFLICT, WRITE_FAILED, PUBLICATION_UNAVAILABLE,
-                    READ_FAILED, UNSUPPORTED_SCHEMA, CORRUPT_CHECKPOINT, ACCESS_CONTROL_UNAVAILABLE ->
+            case INVALID_MANIFEST, CHECKPOINT_CONFLICT, UNSUPPORTED_SCHEMA, CORRUPT_CHECKPOINT ->
                 phase == Phase.PERSISTENCE;
-            case INVALID_REFERENCE, INPUT_UNAVAILABLE, CONTAINMENT_UNPROVEN ->
+            case INVALID_REFERENCE, INPUT_UNAVAILABLE, CONTAINMENT_UNPROVEN,
+                    READ_FAILED, ACCESS_CONTROL_UNAVAILABLE, RESOURCE_LIMIT ->
                 phase == Phase.HASHING || phase == Phase.EXECUTION || phase == Phase.PERSISTENCE;
             case SOURCE_CHANGED, HASH_FAILED -> phase == Phase.HASHING;
-            case RESOURCE_LIMIT -> phase == Phase.HASHING || phase == Phase.PERSISTENCE;
-            case CLEANUP_FAILED, RECOVERY_REQUIRED, OUTPUT_CONFLICT ->
+            case CLEANUP_FAILED, RECOVERY_REQUIRED, OUTPUT_CONFLICT, WRITE_FAILED, PUBLICATION_UNAVAILABLE ->
                 phase == Phase.EXECUTION || phase == Phase.PERSISTENCE;
             case VERIFICATION_FAILED -> phase == Phase.EXECUTION || phase == Phase.POST_WRITE_VALIDATION;
+            case INTERRUPTED -> phase == Phase.HASHING || phase == Phase.EXECUTION;
         };
         if (!applicable) {
             throw new IllegalArgumentException("Failure code does not apply to phase");

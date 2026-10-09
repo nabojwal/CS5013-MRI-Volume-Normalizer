@@ -53,13 +53,17 @@ public final class ManifestReplay {
         this.blockingEvidence = new boolean[size];
         this.copyDigests = new ContentDigest[size];
 
+        // COPY completion records verified transfer, not conversion readiness.
+        // Empty and mixed/conversion plans keep the accepted readiness semantics.
+        boolean copyOnly = size > 0 && plan.operations().stream()
+                .allMatch(operation -> operation.kind() == ManifestOperation.Kind.COPY);
         var sources = new HashMap<RelativePath, SourceFileRecord>();
         boolean anySourceFailure = false;
         boolean anySourceUncertainty = false;
         for (var source : plan.sources()) {
             sources.put(source.source(), source);
             anySourceFailure |= !source.failures().isEmpty()
-                    || source.assessment().readiness() == ConversionReadiness.BLOCKED;
+                    || (!copyOnly && source.assessment().readiness() == ConversionReadiness.BLOCKED);
             anySourceUncertainty |= hasUncertainty(source.failures());
         }
         this.sourceFailures = anySourceFailure;

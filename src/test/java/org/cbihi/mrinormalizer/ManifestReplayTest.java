@@ -614,6 +614,95 @@ class ManifestReplayTest {
         }
     }
 
+    @Test
+    void verifiedCopyCompletesWithoutPromotingBlockedAssessmentOrUnusedNonMri() {
+        var original = plan(ManifestOperation.Kind.COPY, 1, Optional.of(DIGEST), List.of());
+        var raw = DetectionResult.identified(DetectionOutcome.NIFTI);
+        var blocked = new FormatAssessment(raw, ImagingFormat.NIFTI, FormatVariant.NIFTI_PAIR,
+                ValidityStatus.VALID, SupportStatus.UNSUPPORTED, ConversionReadiness.BLOCKED,
+                List.of(org.cbihi.mrinormalizer.application.dataset.model.AssessmentReason.UNSUPPORTED_FORMAT_VARIANT));
+        var copied = new SourceFileRecord(original.sources().get(0).source(), Optional.of(DIGEST), blocked, List.of());
+        var unused = new SourceFileRecord(new RelativePath(RelativePath.Root.SOURCE, "synthetic/readme.txt"), Optional.empty(),
+                FormatAssessment.fromDetection(DetectionResult.unknown(DetectionDiagnostic.UNSUPPORTED_FORMAT)), List.of());
+        var plan = new ProvenanceManifest(1, JOB, CREATED, List.of(copied, unused), original.operations());
+        for (var success : List.of(State.COMPLETED, State.IDENTICAL_EXISTING)) {
+            var replay = new ManifestReplay(plan, PLAN_HASH);
+            rejectAtomic(replay, () -> replay.accept(job(replay, JobState.FAILED, List.of()), RECORD_HASH));
+            apply(replay, job(replay, JobState.RUNNING, List.of()));
+            rejectAtomic(replay, () -> replay.accept(job(replay, JobState.COMPLETED, List.of()), RECORD_HASH));
+            apply(replay, operation(replay, id(1), observed(State.IN_PROGRESS), List.of()));
+            rejectAtomic(replay, () -> replay.accept(job(replay, JobState.COMPLETED, List.of()), RECORD_HASH));
+            apply(replay, operation(replay, id(1), observed(success), List.of()));
+            rejectAtomic(replay, () -> replay.accept(job(replay, JobState.FAILED, List.of()), RECORD_HASH));
+            apply(replay, job(replay, JobState.COMPLETED, List.of()));
+            assertSame(plan, replay.current().plan());
+            assertSame(blocked, replay.current().plan().sources().get(0).assessment());
+            assertEquals(ConversionReadiness.BLOCKED, copied.assessment().readiness());
+            assertEquals(List.of(copied, unused), replay.current().plan().sources());
+            assertTrue(replay.current().operations().get(0).observation().processingEvidence().isEmpty());
+        }
+    }
+
+    @Test
+    void mixedAndConversionPlansKeepBlockedReadinessFailureSemantics() {
+        for (boolean mixed : new boolean[] {false, true}) {
+            var original = plan(ManifestOperation.Kind.COPY, 1, Optional.of(DIGEST), List.of());
+            var unused = new SourceFileRecord(new RelativePath(RelativePath.Root.SOURCE, "unused"), Optional.empty(),
+                    FormatAssessment.fromDetection(DetectionResult.unknown(DetectionDiagnostic.UNSUPPORTED_FORMAT)), List.of());
+            var ops = new ArrayList<ManifestOperation>();
+            if (mixed) ops.addAll(original.operations());
+            ops.add(new ManifestOperation(id(2), ManifestOperation.Kind.CONVERT_DICOM_TO_NIFTI,
+                    List.of(original.sources().get(0).source()), output("conversion")));
+            var replay = new ManifestReplay(new ProvenanceManifest(1, JOB, CREATED,
+                    List.of(original.sources().get(0), unused), ops), PLAN_HASH);
+            apply(replay, job(replay, JobState.RUNNING, List.of()));
+            if (mixed) {
+                apply(replay, operation(replay, id(1), observed(State.IN_PROGRESS), List.of()));
+                apply(replay, operation(replay, id(1), observed(State.COMPLETED), List.of()));
+            }
+            apply(replay, operation(replay, id(2), observed(State.SKIPPED_POLICY), List.of()));
+            rejectAtomic(replay, () -> replay.accept(job(replay, JobState.COMPLETED, List.of()), RECORD_HASH));
+            apply(replay, job(replay, JobState.FAILED, List.of()));
+            assertEquals(JobState.FAILED, replay.current().state());
+        }
+    }
+
+    @Test
+    void everyNewFailurePairPreservesIntentTerminalFactsAndRestart() {
+        for (var pair : List.of("HASHING/READ_FAILED", "HASHING/ACCESS_CONTROL_UNAVAILABLE", "HASHING/INTERRUPTED",
+                "EXECUTION/WRITE_FAILED", "EXECUTION/PUBLICATION_UNAVAILABLE", "EXECUTION/READ_FAILED",
+                "EXECUTION/ACCESS_CONTROL_UNAVAILABLE", "EXECUTION/RESOURCE_LIMIT", "EXECUTION/INTERRUPTED")) {
+            var tokens = pair.split("/");
+            var failure = new ManifestFailure(Phase.valueOf(tokens[0]), Code.valueOf(tokens[1]));
+            var plan = plan(ManifestOperation.Kind.COPY, 1, Optional.of(DIGEST), List.of());
+            var replay = new ManifestReplay(plan, PLAN_HASH);
+            var records = new ArrayList<CheckpointRecord>();
+            records.add(job(replay, JobState.RUNNING, List.of())); apply(replay, records.getLast());
+            records.add(operation(replay, id(1), observed(State.IN_PROGRESS), List.of())); apply(replay, records.getLast());
+            records.add(operation(replay, id(1), observed(State.FAILED), List.of(failure))); apply(replay, records.getLast());
+            rejectAtomic(replay, () -> replay.accept(job(replay, JobState.COMPLETED, List.of()), RECORD_HASH));
+            records.add(job(replay, JobState.FAILED, List.of(failure))); apply(replay, records.getLast());
+            var restart = new ManifestReplay(plan, PLAN_HASH);
+            for (var record : records) apply(restart, record);
+            assertEquals(replay.current(), restart.current());
+            assertEquals(List.of(failure), restart.current().operations().get(0).failures());
+            assertEquals(List.of(failure), restart.current().jobFailures());
+            assertEquals(Optional.of(START), restart.current().operations().get(0).observation().startedAt());
+            assertTrue(restart.current().operations().get(0).observation().outputDigest().isEmpty());
+        }
+    }
+
+    @Test
+    void hashingInterruptionInSourceCannotAuthorizeIntentOrCompletion() {
+        var failure = new ManifestFailure(Phase.HASHING, Code.valueOf("INTERRUPTED"));
+        var replay = new ManifestReplay(plan(ManifestOperation.Kind.COPY, 1, Optional.of(DIGEST), List.of(failure)), PLAN_HASH);
+        apply(replay, job(replay, JobState.RUNNING, List.of()));
+        rejectAtomic(replay, () -> replay.accept(operation(replay, id(1), observed(State.IN_PROGRESS), List.of()), RECORD_HASH));
+        rejectAtomic(replay, () -> replay.accept(job(replay, JobState.COMPLETED, List.of()), RECORD_HASH));
+        apply(replay, job(replay, JobState.FAILED, List.of()));
+        assertEquals(List.of(failure), replay.current().plan().sources().get(0).failures());
+    }
+
     private static ManifestReplay fresh(ManifestOperation.Kind kind) {
         return new ManifestReplay(plan(kind, 1, Optional.of(DIGEST), List.of()), PLAN_HASH);
     }

@@ -363,6 +363,47 @@ class PublicReportWriterTest {
         neutral(error); assertEquals(outcome, error.outcome());
         assertEquals(java.util.Set.of(codes), new java.util.HashSet<>(error.failures().stream().map(ManifestFailure::code).toList()));
     }
+
+    @Test void amendedWorkflowAggregatesExportCanonicalBytesWithoutRestrictedFacts() throws Exception {
+        var f = fixture(); var codec = new JsonManifestCodec();
+        var digest = new ContentDigest(12, HASH); var job = new UUID(0, 7);
+        for (var pair : List.of("HASHING/READ_FAILED", "HASHING/ACCESS_CONTROL_UNAVAILABLE", "HASHING/INTERRUPTED",
+                "EXECUTION/WRITE_FAILED", "EXECUTION/PUBLICATION_UNAVAILABLE", "EXECUTION/READ_FAILED",
+                "EXECUTION/ACCESS_CONTROL_UNAVAILABLE", "EXECUTION/RESOURCE_LIMIT", "EXECUTION/INTERRUPTED")) {
+            var tokens = pair.split("/"); var fact = new ManifestFailure(Phase.valueOf(tokens[0]), Code.valueOf(tokens[1]));
+            var source = new SourceFileRecord(new RelativePath(RelativePath.Root.SOURCE, "synthetic/restricted/image"), Optional.of(digest),
+                    FormatAssessment.fromDetection(DetectionResult.identified(DetectionOutcome.DICOM)), List.of());
+            var operation = new ManifestOperation(ID, ManifestOperation.Kind.COPY, List.of(source.source()),
+                    new RelativePath(RelativePath.Root.OUTPUT, "organized/restricted/copy"));
+            var plan = new ProvenanceManifest(1, job, TIME, List.of(source), List.of(operation));
+            var replay = new ManifestReplay(plan, HASH);
+            var intent = new CheckpointRecord.Observation(State.IN_PROGRESS, Optional.of(TIME), Optional.empty(), Optional.empty(), 1,
+                    Optional.empty(), Optional.empty());
+            var failed = new CheckpointRecord.Observation(State.FAILED, Optional.of(TIME), Optional.of(TIME), Optional.empty(), 0,
+                    Optional.empty(), Optional.empty());
+            replay.accept(new CheckpointRecord(1, job, 1, HASH, TIME, CheckpointRecord.Kind.JOB_OBSERVED,
+                    Optional.empty(), Optional.empty(), Optional.of(ManifestState.JobState.RUNNING), List.of()), HASH);
+            replay.accept(new CheckpointRecord(1, job, 2, HASH, TIME, CheckpointRecord.Kind.OPERATION_OBSERVED,
+                    Optional.of(ID), Optional.of(intent), Optional.empty(), List.of()), HASH);
+            replay.accept(new CheckpointRecord(1, job, 3, HASH, TIME, CheckpointRecord.Kind.OPERATION_OBSERVED,
+                    Optional.of(ID), Optional.of(failed), Optional.empty(), List.of(fact)), HASH);
+            replay.accept(new CheckpointRecord(1, job, 4, HASH, TIME, CheckpointRecord.Kind.JOB_OBSERVED,
+                    Optional.empty(), Optional.empty(), Optional.of(ManifestState.JobState.FAILED), List.of(fact)), HASH);
+            var report = ManifestProjection.publicReport(replay.current());
+            var target = f.output.resolve(tokens[0] + "-" + tokens[1] + ".json");
+            writer(f).write(report, new OutputTarget(target.toString()));
+            var bytes = Files.readAllBytes(target); assertArrayEquals(codec.encode(report), bytes);
+            var json = new String(bytes, StandardCharsets.UTF_8);
+            assertTrue(json.contains("\"state\":\"FAILED\""));
+            assertTrue(json.contains("\"failureCounts\":[{\"namespace\":\"" + tokens[0] + "\",\"code\":\"" + tokens[1] + "\",\"count\":2}]"));
+            for (var sensitive : List.of(source.source().path(), operation.destination().path(), HASH, ID, job.toString(), "jobId", "operationId", "exception"))
+                assertFalse(json.contains(sensitive), sensitive);
+            preserved(f); assertNoTemporary(f);
+        }
+        assertEquals(void.class, PublicReportWriter.class.getDeclaredMethod("write", PublicJobReport.class, OutputTarget.class).getReturnType());
+        assertFalse(Arrays.stream(JsonManifestCodec.class.getDeclaredMethods()).anyMatch(method -> method.getReturnType() == PublicJobReport.class));
+    }
+
     private static PublicJobReport projected() {
         UUID job = new UUID(0, 7); var digest = new ContentDigest(12, HASH);
         var source = new SourceFileRecord(new RelativePath(RelativePath.Root.SOURCE, "Patient Alice/PID-123/1.2.840.77/Écho.dcm"),

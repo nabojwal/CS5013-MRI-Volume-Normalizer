@@ -705,6 +705,99 @@ class ManifestStoreTest {
                 .filter(method -> Modifier.isPublic(method.getModifiers())).map(java.lang.reflect.Method::getName).sorted().toList());
     }
 
+    @Test void blockedConversionCopyAndUnusedSourceCompleteAcrossRestart() throws Exception {
+        var f = fixture("amended-copy");
+        var original = plan(1); var source = original.sources().get(0);
+        var copied = new SourceFileRecord(source.source(), source.digest(),
+                FormatAssessment.fromDetection(DetectionResult.corrupt(org.cbihi.mrinormalizer.domain.model.DetectionDiagnostic.INVALID_DICOM)), List.of());
+        var unused = new SourceFileRecord(new RelativePath(RelativePath.Root.SOURCE, "unused.txt"), Optional.empty(),
+                FormatAssessment.fromDetection(DetectionResult.unknown(org.cbihi.mrinormalizer.domain.model.DetectionDiagnostic.UNSUPPORTED_FORMAT)), List.of());
+        var proposed = new ProvenanceManifest(1, JOB, TIME, List.of(copied, unused), original.operations());
+        ManifestReceipt done;
+        try (var store = f.open()) {
+            var anchor = store.create(proposed);
+            var started = store.append(job(anchor, JobState.RUNNING, List.of()), anchor);
+            var intent = store.append(operation(started, 1, State.IN_PROGRESS), started);
+            assertEquals(2, intent.sequence());
+            failure(Code.INVALID_MANIFEST, PublicationOutcome.NOT_PUBLISHED,
+                    () -> store.append(job(intent, JobState.COMPLETED, List.of()), intent));
+            var verified = store.append(operation(intent, 1, State.IDENTICAL_EXISTING), intent);
+            done = store.append(job(verified, JobState.COMPLETED, List.of()), verified);
+        }
+        try (var reopened = f.open()) {
+            var state = reopened.replay(Optional.of(done)).orElseThrow();
+            assertEquals(JobState.COMPLETED, state.state()); assertEquals(proposed, state.plan());
+            assertEquals(org.cbihi.mrinormalizer.application.dataset.model.ConversionReadiness.BLOCKED,
+                    state.plan().sources().get(0).assessment().readiness());
+            assertEquals(2, state.plan().sources().size());
+            assertEquals(ManifestProjection.publicReport(state).state(), JobState.COMPLETED);
+        }
+        // Reducer completion folds supplied journal facts, not F5 eligibility or imaging bytes.
+        assertFalse(Files.exists(f.source().resolve(source.source().path())));
+    }
+
+    @Test void eachNewFailurePairPersistsWithAcknowledgedIntentAndFailedJob() throws Exception {
+        for (var pair : List.of("HASHING/READ_FAILED", "HASHING/ACCESS_CONTROL_UNAVAILABLE", "HASHING/INTERRUPTED",
+                "EXECUTION/WRITE_FAILED", "EXECUTION/PUBLICATION_UNAVAILABLE", "EXECUTION/READ_FAILED",
+                "EXECUTION/ACCESS_CONTROL_UNAVAILABLE", "EXECUTION/RESOURCE_LIMIT", "EXECUTION/INTERRUPTED")) {
+            var tokens = pair.split("/"); var fact = new ManifestFailure(Phase.valueOf(tokens[0]), Code.valueOf(tokens[1]));
+            var f = fixture("amended-" + tokens[0] + "-" + tokens[1]); ManifestReceipt done;
+            try (var store = f.open()) {
+                var anchor = store.create(plan(1));
+                var running = store.append(job(anchor, JobState.RUNNING, List.of()), anchor);
+                var intent = store.append(operation(running, 1, State.IN_PROGRESS), running);
+                assertTrue(Files.isRegularFile(f.record(intent.sequence())));
+                var record = failedOperation(intent, fact);
+                var terminal = store.append(record, intent);
+                assertEquals(terminal, store.append(record, intent));
+                done = store.append(job(terminal, JobState.FAILED, List.of(fact)), terminal);
+            }
+            try (var reopened = f.open()) {
+                var state = reopened.replay(Optional.of(done)).orElseThrow();
+                assertEquals(JobState.FAILED, state.state()); assertEquals(List.of(fact), state.jobFailures());
+                assertEquals(List.of(fact), state.operations().get(0).failures());
+                assertEquals(State.FAILED, state.operations().get(0).observation().state());
+                assertEquals(Optional.of(TIME), state.operations().get(0).observation().startedAt());
+                assertTrue(state.operations().get(0).observation().outputDigest().isEmpty());
+            }
+        }
+    }
+
+    @Test void interruptedOutcomeAcknowledgmentLossKeepsJournalFaultSeparate() throws Exception {
+        var f = fixture("amended-ack-loss"); boolean[] enabled = {false};
+        JsonManifestStore.Hooks hooks = (event, path) -> {
+            if (enabled[0] && (event == JsonManifestStore.Event.AFTER_PUBLISH || event == JsonManifestStore.Event.CLASSIFY))
+                throw new IOException("synthetic private provider detail");
+        };
+        var fact = new ManifestFailure(Phase.EXECUTION, Code.valueOf("INTERRUPTED"));
+        ManifestReceipt intent;
+        try (var store = f.open(hooks)) {
+            var anchor = store.create(plan(1)); var running = store.append(job(anchor, JobState.RUNNING, List.of()), anchor);
+            intent = store.append(operation(running, 1, State.IN_PROGRESS), running);
+            enabled[0] = true;
+            var error = failure(Code.RECOVERY_REQUIRED, PublicationOutcome.UNKNOWN,
+                    () -> store.append(failedOperation(intent, fact), intent));
+            assertTrue(error.failures().stream().allMatch(value -> value.phase() == Phase.PERSISTENCE));
+            assertFalse(error.failures().stream().anyMatch(value -> value.code().name().equals("INTERRUPTED")));
+            assertTrue(error.knownPublication().isEmpty()); enabled[0] = false;
+        }
+        try (var reopened = f.open()) {
+            var state = reopened.replay(Optional.of(intent)).orElseThrow();
+            assertEquals(State.FAILED, state.operations().get(0).observation().state());
+            assertEquals(List.of(fact), state.operations().get(0).failures());
+            assertEquals(JobState.RUNNING, state.state());
+            var done = reopened.append(job(state.receipt(), JobState.FAILED, List.of(fact)), state.receipt());
+            assertEquals(JobState.FAILED, reopened.replay(Optional.of(done)).orElseThrow().state());
+        }
+    }
+
+    private static CheckpointRecord failedOperation(ManifestReceipt head, ManifestFailure failure) {
+        var observation = new Observation(State.FAILED, Optional.of(TIME), Optional.of(TIME), Optional.empty(), 0,
+                Optional.empty(), Optional.empty());
+        return new CheckpointRecord(1, JOB, head.sequence() + 1, head.headSha256(), TIME, Kind.OPERATION_OBSERVED,
+                Optional.of(id(1)), Optional.of(observation), Optional.empty(), List.of(failure));
+    }
+
     private Fixture fixture(String name) throws IOException {
         Path base = Files.createDirectory(temporary.resolve(name));
         return new Fixture(Files.createDirectory(base.resolve("source")), Files.createDirectory(base.resolve("output")));

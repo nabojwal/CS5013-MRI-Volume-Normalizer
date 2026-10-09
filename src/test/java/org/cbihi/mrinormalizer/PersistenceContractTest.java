@@ -294,7 +294,7 @@ class PersistenceContractTest {
                 }
             }
         }
-        assertEquals(29, canonical.size());
+        assertEquals(38, canonical.size());
         var supplied = new ArrayList<>(canonical);
         Collections.reverse(supplied);
         assertEquals(canonical, checkpoint(JOB, State.BLOCKED, supplied).failures());

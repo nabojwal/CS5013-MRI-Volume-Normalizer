@@ -363,7 +363,7 @@ class JsonManifestCodecTest {
                 catch (IllegalArgumentException ignored) { /* Owning model rejects inapplicable pairs. */ }
             }
         }
-        assertEquals(29, allowed.size());
+        assertEquals(38, allowed.size());
         var recoveryRecord = operation(State.RECOVERY_REQUIRED);
         roundTrip(new CheckpointRecord(1, JOB, 1, HASH, TIME, recoveryRecord.kind(), recoveryRecord.operationId(), recoveryRecord.observation(), Optional.empty(), allowed));
     }
@@ -411,6 +411,69 @@ class JsonManifestCodecTest {
             assertFalse(schema.contains("detectionDiagnostic"));
             assertFalse(schema.contains("EXISTING_DIAGNOSTIC"));
             assertFalse(schema.contains("sha 256"));
+        }
+    }
+
+    @Test
+    void amendedFailurePairsHaveExactCanonicalTokensAndRoundTrip() throws Exception {
+        String directory = System.getProperty("provenance.fixture.directory");
+        for (var pair : List.of("HASHING/READ_FAILED", "HASHING/ACCESS_CONTROL_UNAVAILABLE", "HASHING/INTERRUPTED",
+                "EXECUTION/WRITE_FAILED", "EXECUTION/PUBLICATION_UNAVAILABLE", "EXECUTION/READ_FAILED",
+                "EXECUTION/ACCESS_CONTROL_UNAVAILABLE", "EXECUTION/RESOURCE_LIMIT", "EXECUTION/INTERRUPTED")) {
+            var tokens = pair.split("/");
+            var failure = new ManifestFailure(ManifestFailure.Phase.valueOf(tokens[0]), ManifestFailure.Code.valueOf(tokens[1]));
+            var original = operation(State.FAILED);
+            var record = new CheckpointRecord(1, JOB, 1, HASH, TIME, original.kind(), original.operationId(),
+                    original.observation(), original.jobState(), List.of(failure));
+            var expected = text(codec.encode(original)).replace("\"phase\":\"PERSISTENCE\",\"code\":\"WRITE_FAILED\"",
+                    "\"phase\":\"" + tokens[0] + "\",\"code\":\"" + tokens[1] + "\"");
+            assertArrayEquals(utf8(expected), codec.encode(record));
+            roundTrip(record);
+            var originalSource = unicodePlan().sources().get(0);
+            var plan = new ProvenanceManifest(1, JOB, TIME, List.of(new SourceFileRecord(originalSource.source(),
+                    originalSource.digest(), originalSource.assessment(), List.of(failure))), unicodePlan().operations());
+            roundTrip(plan);
+            var report = publicReport(JobState.FAILED, List.of(new PublicJobReport.FailureCount(
+                    PublicJobReport.FailureNamespace.valueOf(tokens[0]), tokens[1], 1)));
+            assertArrayEquals(utf8(publicGolden("FAILED", "[{\"namespace\":\"" + tokens[0]
+                    + "\",\"code\":\"" + tokens[1] + "\",\"count\":1}]")), codec.encode(report));
+            reject(() -> codec.decodeCheckpoint(utf8(expected.replace("\"phase\":\"" + tokens[0] + "\"",
+                    "\"phase\":\"POST_WRITE_VALIDATION\""))));
+            if (directory != null) {
+                var folder = Path.of(directory); Files.createDirectories(folder);
+                String suffix = tokens[0].toLowerCase(java.util.Locale.ROOT) + "-" + tokens[1].toLowerCase(java.util.Locale.ROOT);
+                Files.write(folder.resolve("amended-checkpoint-" + suffix + ".json"), codec.encode(record));
+                Files.write(folder.resolve("amended-plan-" + suffix + ".json"), codec.encode(plan));
+                Files.write(folder.resolve("amended-public-" + suffix + ".json"), codec.encode(report));
+            }
+        }
+        String interrupted = text(codec.encode(job(JobState.FAILED))).replace("WRITE_FAILED", "INTERRUPTED");
+        reject(() -> codec.decodeCheckpoint(utf8(interrupted))); // PERSISTENCE/INTERRUPTED remains forbidden.
+    }
+
+    @Test
+    void restrictedSchemasFreezeEveryFailureConditional() throws Exception {
+        var pattern = java.util.regex.Pattern.compile("\"code\"\\s*:\\s*\\{\\s*\"const\"\\s*:\\s*\"([A-Z_]+)\"\\s*}\\s*}\\s*},\\s*\"then\"\\s*:\\s*\\{\\s*\"properties\"\\s*:\\s*\\{\\s*\"phase\"\\s*:\\s*\\{\\s*\"type\"\\s*:\\s*\"string\",\\s*\"enum\"\\s*:\\s*\\[([^]]+)]");
+        for (var name : List.of("plan", "checkpoint")) {
+            var matcher = pattern.matcher(Files.readString(Path.of("docs/schemas/provenance-" + name + "-v1.schema.json")));
+            int index = 0;
+            while (matcher.find()) {
+                assertEquals(ManifestFailure.Code.values()[index++].name(), matcher.group(1));
+                var allowed = switch (matcher.group(1)) {
+                    case "INVALID_MANIFEST", "CHECKPOINT_CONFLICT", "UNSUPPORTED_SCHEMA", "CORRUPT_CHECKPOINT" -> List.of("PERSISTENCE");
+                    case "INVALID_REFERENCE", "CONTAINMENT_UNPROVEN", "INPUT_UNAVAILABLE", "READ_FAILED", "ACCESS_CONTROL_UNAVAILABLE", "RESOURCE_LIMIT" -> List.of("HASHING", "EXECUTION", "PERSISTENCE");
+                    case "SOURCE_CHANGED", "HASH_FAILED" -> List.of("HASHING");
+                    case "WRITE_FAILED", "PUBLICATION_UNAVAILABLE", "CLEANUP_FAILED", "RECOVERY_REQUIRED", "OUTPUT_CONFLICT" -> List.of("EXECUTION", "PERSISTENCE");
+                    case "VERIFICATION_FAILED" -> List.of("EXECUTION", "POST_WRITE_VALIDATION");
+                    case "INTERRUPTED" -> List.of("HASHING", "EXECUTION");
+                    default -> throw new AssertionError("Unexpected schema failure code");
+                };
+                var phases = new ArrayList<String>();
+                var token = java.util.regex.Pattern.compile("\"([A-Z_]+)\"").matcher(matcher.group(2));
+                while (token.find()) phases.add(token.group(1));
+                assertEquals(allowed, phases, matcher.group(1));
+            }
+            assertEquals(19, index);
         }
     }
 
@@ -540,7 +603,7 @@ class JsonManifestCodecTest {
                 } }
             }
         }
-        assertEquals(63, failures.size());
+        assertEquals(72, failures.size());
         var bins = new ArrayList<>(publicReport(JobState.FAILED, List.of()).operationCounts());
         for (int i = 0; i < bins.size(); i++) bins.set(i, new PublicJobReport.OperationCount(bins.get(i).kind(), bins.get(i).state(), i == 0 ? 100000 : 0));
         var bytes = codec.encode(new PublicJobReport(1, JobState.FAILED, 100000, bins, failures));
@@ -548,7 +611,7 @@ class JsonManifestCodecTest {
         for (var f : failures) assertTrue(text(bytes).contains("{\"namespace\":\"" + f.namespace().name() + "\",\"code\":\"" + f.code() + "\",\"count\":1}"));
         var field = JsonManifestCodec.class.getDeclaredField("PUBLIC_REPORT_BYTES"); field.setAccessible(true);
         assertEquals(16 * 1024 * 1024, field.getInt(null));
-        // A valid schema-1 report has only 18 bins and 63 closed failure codes;
+        // A valid schema-1 report has only 18 bins and 72 closed namespace/code pairs;
         // an over-budget valid model cannot be constructed without weakening S5A.
     }
 

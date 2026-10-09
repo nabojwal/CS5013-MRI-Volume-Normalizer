@@ -54,7 +54,7 @@ class ProvenanceContractBoundaryTest {
                     "INPUT_UNAVAILABLE", "SOURCE_CHANGED", "HASH_FAILED", "CHECKPOINT_CONFLICT", "WRITE_FAILED",
                     "PUBLICATION_UNAVAILABLE", "READ_FAILED", "UNSUPPORTED_SCHEMA", "CORRUPT_CHECKPOINT",
                     "ACCESS_CONTROL_UNAVAILABLE", "RESOURCE_LIMIT", "CLEANUP_FAILED", "RECOVERY_REQUIRED",
-                    "OUTPUT_CONFLICT", "VERIFICATION_FAILED")),
+                    "OUTPUT_CONFLICT", "VERIFICATION_FAILED", "INTERRUPTED")),
             Map.entry(ProcessingEvidence.Scope.class, List.of("RECONSTRUCTION", "CONVERSION")),
             Map.entry(ManifestOperation.Kind.class, List.of("COPY", "CONVERT_DICOM_TO_NIFTI")),
             Map.entry(CheckpointRecord.Kind.class, List.of("OPERATION_OBSERVED", "JOB_OBSERVED")),
@@ -295,6 +295,22 @@ class ProvenanceContractBoundaryTest {
                 method("replay", Modifier.PUBLIC | Modifier.ABSTRACT, optional(ManifestState.class), optional(ManifestReceipt.class)),
                 method("close", Modifier.PUBLIC | Modifier.ABSTRACT, value(void.class)));
         freezeMethods(PublicReportWriter.class, method("write", Modifier.PUBLIC | Modifier.ABSTRACT, value(void.class), value(PublicJobReport.class), value(OutputTarget.class)));
+    }
+
+    @Test void amendmentAddsOnlyFinalControlledCodeAndNeverPersistenceInterruption() throws Exception {
+        var codes = ManifestFailure.Code.values();
+        assertEquals(19, codes.length); assertEquals("INTERRUPTED", codes[18].name());
+        assertEquals(17, ManifestFailure.Code.VERIFICATION_FAILED.ordinal());
+        freezeEnum(ManifestFailure.Code.class, ENUMS.get(ManifestFailure.Code.class));
+        freezeEnum(ManifestFailure.Phase.class, ENUMS.get(ManifestFailure.Phase.class));
+        freezeRecords(); freezeServicesAndPorts();
+        for (var phase : List.of(ManifestFailure.Phase.HASHING, ManifestFailure.Phase.EXECUTION)) {
+            var fact = new ManifestFailure(phase, ManifestFailure.Code.valueOf("INTERRUPTED"));
+            assertThrowsExactly(IllegalArgumentException.class, () -> new ProvenancePersistenceException(List.of(fact),
+                    ProvenancePersistenceException.PublicationOutcome.NOT_PUBLISHED, Optional.empty()));
+        }
+        assertThrowsExactly(IllegalArgumentException.class, () -> new ManifestFailure(
+                ManifestFailure.Phase.PERSISTENCE, ManifestFailure.Code.valueOf("INTERRUPTED")));
     }
 
     private static void freezeRecord(Class<?> type, Component... expected) throws Exception {

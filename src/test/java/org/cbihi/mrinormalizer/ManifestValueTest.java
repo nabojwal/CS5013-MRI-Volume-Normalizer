@@ -115,7 +115,7 @@ class ManifestValueTest {
                 "INPUT_UNAVAILABLE", "SOURCE_CHANGED", "HASH_FAILED", "CHECKPOINT_CONFLICT", "WRITE_FAILED",
                 "PUBLICATION_UNAVAILABLE", "READ_FAILED", "UNSUPPORTED_SCHEMA", "CORRUPT_CHECKPOINT",
                 "ACCESS_CONTROL_UNAVAILABLE", "RESOURCE_LIMIT", "CLEANUP_FAILED", "RECOVERY_REQUIRED",
-                "OUTPUT_CONFLICT", "VERIFICATION_FAILED"},
+                "OUTPUT_CONFLICT", "VERIFICATION_FAILED", "INTERRUPTED"},
                 Arrays.stream(Code.values()).map(Enum::name).toArray(String[]::new));
     }
 
@@ -226,21 +226,23 @@ class ManifestValueTest {
         assertEquals(List.of(failure), record.failures());
     }
 
-    // V04: independent expected matrix exhausts all 4 x 18 phase/code pairs.
+    // V04: independent expected matrix exhausts all 4 x 19 phase/code pairs.
     @Test
     void workflowFailuresHaveOnlyApprovedPhaseCodePairs() {
         for (var code : Code.values()) {
-            var allowed = switch (code) {
-                case INVALID_MANIFEST, CHECKPOINT_CONFLICT, WRITE_FAILED, PUBLICATION_UNAVAILABLE,
-                        READ_FAILED, UNSUPPORTED_SCHEMA, CORRUPT_CHECKPOINT, ACCESS_CONTROL_UNAVAILABLE ->
+            var allowed = switch (code.name()) {
+                case "INVALID_MANIFEST", "CHECKPOINT_CONFLICT", "UNSUPPORTED_SCHEMA", "CORRUPT_CHECKPOINT" ->
                     EnumSet.of(Phase.PERSISTENCE);
-                case INVALID_REFERENCE, INPUT_UNAVAILABLE, CONTAINMENT_UNPROVEN ->
+                case "INVALID_REFERENCE", "INPUT_UNAVAILABLE", "CONTAINMENT_UNPROVEN",
+                        "READ_FAILED", "ACCESS_CONTROL_UNAVAILABLE", "RESOURCE_LIMIT" ->
                     EnumSet.of(Phase.HASHING, Phase.EXECUTION, Phase.PERSISTENCE);
-                case SOURCE_CHANGED, HASH_FAILED -> EnumSet.of(Phase.HASHING);
-                case RESOURCE_LIMIT -> EnumSet.of(Phase.HASHING, Phase.PERSISTENCE);
-                case CLEANUP_FAILED, RECOVERY_REQUIRED, OUTPUT_CONFLICT ->
+                case "SOURCE_CHANGED", "HASH_FAILED" -> EnumSet.of(Phase.HASHING);
+                case "INTERRUPTED" -> EnumSet.of(Phase.HASHING, Phase.EXECUTION);
+                case "CLEANUP_FAILED", "RECOVERY_REQUIRED", "OUTPUT_CONFLICT",
+                        "WRITE_FAILED", "PUBLICATION_UNAVAILABLE" ->
                     EnumSet.of(Phase.EXECUTION, Phase.PERSISTENCE);
-                case VERIFICATION_FAILED -> EnumSet.of(Phase.EXECUTION, Phase.POST_WRITE_VALIDATION);
+                case "VERIFICATION_FAILED" -> EnumSet.of(Phase.EXECUTION, Phase.POST_WRITE_VALIDATION);
+                default -> throw new AssertionError("Unexpected failure code");
             };
             for (var phase : Phase.values()) {
                 if (allowed.contains(phase)) {
@@ -313,8 +315,24 @@ class ManifestValueTest {
         var ordered = List.copyOf(failures);
         Collections.reverse(failures);
         var value = new SourceFileRecord(source(), Optional.empty(), assessment(), failures);
-        assertEquals(29, value.failures().size());
+        assertEquals(38, value.failures().size());
         assertEquals(ordered, value.failures());
+    }
+
+    @Test
+    void imagingFailuresCannotBecomePersistenceExceptions() {
+        for (var phase : List.of(Phase.HASHING, Phase.EXECUTION)) {
+            for (var token : List.of("READ_FAILED", "ACCESS_CONTROL_UNAVAILABLE", "RESOURCE_LIMIT", "INTERRUPTED")) {
+                var failure = new ManifestFailure(phase, Code.valueOf(token));
+                reject("Persistence failures must be unique persistence facts", () ->
+                        new org.cbihi.mrinormalizer.application.provenance.manifest.ProvenancePersistenceException(
+                                List.of(failure),
+                                org.cbihi.mrinormalizer.application.provenance.manifest.ProvenancePersistenceException.PublicationOutcome.NOT_PUBLISHED,
+                                Optional.empty()));
+            }
+        }
+        reject("Failure code does not apply to phase", () -> new ManifestFailure(Phase.PERSISTENCE, Code.valueOf("INTERRUPTED")));
+        reject("Failure code does not apply to phase", () -> new ManifestFailure(Phase.POST_WRITE_VALIDATION, Code.valueOf("INTERRUPTED")));
     }
 
     private static RelativePath source() {
