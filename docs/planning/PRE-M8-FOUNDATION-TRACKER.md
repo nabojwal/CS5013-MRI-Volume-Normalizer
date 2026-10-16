@@ -4,7 +4,7 @@
 
 ## Program control
 
-- Date: 2026-10-14 (Asia/Kolkata; F6 implementation checkpoint published; tracker-only reconciliation prepared; formal F6 closure pending).
+- Date: 2026-10-16 (Asia/Kolkata; F7 technically ACCEPTED / CLOSED; implementation PUBLISHED / LIVE-REMOTE VERIFIED; separate tracker-only publication record).
 - Branch: feature/pre-m8-foundation.
 - Canonical baseline: 0b91666c03d6247a6882c164aa6b033d9b761101.
 - M6 protected checkpoint: cb7769e; protected tag: pre-demo-m6-2026-10-02.
@@ -15,7 +15,7 @@
 - Historical accepted F2 parent: 0794d9d9ada1ea7f486a4fe87811ded24bfc48fd (final F1 closure bookkeeping; F1 accepted / closed).
 - F2 accepted implementation checkpoint: `7a1f8c13ccb6c8722b040159400e7c5e2729b0b8`.
 - Accepted S6 parent: f1257441793f73d951ff1b8659f78b30bfffe4f5 (final F1-S5B acceptance).
-- Current authorization: F0-F5 ACCEPTED / CLOSED; original F1 closure and frozen F5 contracts unchanged. F6 design remains frozen at `ad503a6ef7545e186a9156581ed368b986583042`; the accepted/published F1 compatibility amendment `e8a1c9aea04ea0b78b64a5a09363f714138ac979` satisfies its prerequisite. The authorized 15-ADD F6 implementation is committed and user-published at `6a5f04aa9bd3757a8a93938325e744132a689f25`; independent implementation acceptance is recommended, while formal F6 closure remains pending. F7-F11, GUI and M8 remain BLOCKED; global Pre-M8 acceptance remains incomplete.
+- Current authorization: F0-F6 remain ACCEPTED / CLOSED within recorded limitations. F7 is technically ACCEPTED / CLOSED on the final corrected 15-file identity; implementation publication is COMPLETE / REMOTE VERIFIED at `15f2ea1879ff1af902114ffed25f85f6ec175615`. The new explicit F7 release authorization permits Codex to stage, commit and push exactly the implementation and separate canonical tracker reconciliation; it supersedes the earlier user-only push restriction for these two commits only. F8-F11, GUI and M8 remain NOT AUTHORIZED / BLOCKED; global Pre-M8 acceptance remains incomplete. Historical predecessor records are retained without reopening qualification.
 - F0: S1 ACCEPTED at 76b676d; S2 ACCEPTED — ea40616 using user-supplied Java 21/Maven results. S2 was committed and pushed; the accepted remote checkpoint is ea4061672a293745ac5f5fc1b0d8d240d217e64e. S3 ACCEPTED — 8b6e714; F0 IMPLEMENTATION COMPLETE; F0 CLOSURE EVIDENCE PASSED; F0 ACCEPTED / CLOSED.
 - F1: S0 ACCEPTED; S1A ACCEPTED — b7a327d55ac26265474378fec00ae9a03ba7784e; S1B ACCEPTED — 8b57b48e2a677a08a1d2f11f9eb760b0d3b8f00c; S2A ACCEPTED — 99dcd08d3c1e4d8653be1ef89b521422294be274; S2B ACCEPTED — 935fc29ad9a40a53b497a5fe008db5d6d7d485ac; S3 ACCEPTED — 03d598a1606121ecc7918279ec9a5f20f622ee93; S4 ACCEPTED — 233c334023f035eba4c6122a262f9961e08e9b07; S5A ACCEPTED — 26f41054449335fba6d05e5e4e77bad51c3ea641; S5B ACCEPTED — final reconciliation f1257441793f73d951ff1b8659f78b30bfffe4f5, following tested implementation ca25625264ebe96c0d777c3da833e03efc03e7aa and evidence reconciliation fc4de75b18783df45d5757c11c51f1924ea9d535. S6 ACCEPTED — e99d5da170552b55f7d74340b59fabb35615055a. F1 IMPLEMENTATION COMPLETE; F1 CLOSURE EVIDENCE PASSED; F1 ACCEPTED / CLOSED.
 - F1-S6 ACCEPTED — e99d5da170552b55f7d74340b59fabb35615055a
@@ -24,7 +24,8 @@
 - F3: ACCEPTED / CLOSED — `8f31fddfcd13613b657a753cc571acbb66bca327`; bounded metadata-only DICOM inspection implementation, executable verification, static/source review and exact scope review complete.
 - F4: ACCEPTED / CLOSED — implementation `c32534e96cfcbb510e40982314df9dc69fd2034f`; tracker-only acceptance reconciliation `bfa1d0d45d42a368497ee06b06d236aee9fb67ec`; one complete engineering unit, source review and executable verification passed; both checkpoints remote verified.
 - F5: ACCEPTED / CLOSED — implementation `73a19835ff1057c84a8e4cd726038a591d54fdc7` (direct parent `5ee3e5d985ab7e9a58a9e2a2a26031e6eacf7f35`); independent source, contract, scope and remote checkpoint review passed; Linux and Windows Java 21/Maven regression evidence passed. Separate tracker-only closure recorded below.
-- F6: **DESIGN FROZEN / IMPLEMENTED / QUALIFIED / PUBLISHED; INDEPENDENT ACCEPTANCE RECOMMENDED; FORMAL CLOSURE PENDING**. Implementation `6a5f04aa9bd3757a8a93938325e744132a689f25` has parent `8df70af472b7018072a2a4c9a733f68959bfab81`; local and remote branch refs match. F6-D01-D08, F6-C01-C52, F6-T01-T62, Q01-Q06 and the 15-ADD ceiling remain frozen. Supported-profile evidence and limitations are recorded in the F6 reconciliation below. F7-F11, GUI and M8 remain BLOCKED.
+- F6: **ACCEPTED / CLOSED within recorded limitations, per the 2026-10-16 authorization**. Published implementation `6a5f04aa9bd3757a8a93938325e744132a689f25`, parent `8df70af472b7018072a2a4c9a733f68959bfab81`; published tracker parent for F7 `35550c75d9f13ccd1b0cba8f19fa9c1230c66529`. Earlier closure-pending records remain historical; this update does not independently reconstruct a separate F6 closure decision or extend ordinary-user Windows F6 qualification.
+- F7: **F7 ACCEPTED / CLOSED - October 16, 2026** (final corrected implementation, frozen supported profile); **IMPLEMENTATION PUBLISHED / LIVE-REMOTE VERIFIED** at `15f2ea1879ff1af902114ffed25f85f6ec175615`, direct parent `35550c75d9f13ccd1b0cba8f19fa9c1230c66529`. Codex performed the ordinary push under the new explicit two-commit release authorization. This separate tracker-only publication record retains all post-T37 evidence and limitations; its containing commit identity belongs to Git history and the final release report.
 - M8: BLOCKED until full Pre-M8 foundation acceptance.
 - GUI: BLOCKED; interface remains frozen and no GUI implementation is authorized.
 
@@ -53,14 +54,14 @@ Historical assistant runtime check: OpenJDK 17.0.20; mvn is unavailable. The pro
 | F4 | Candidate series discovery | F2/F3 | **ACCEPTED / CLOSED**; one complete engineering unit; remote verification complete | Implementation: `c32534e96cfcbb510e40982314df9dc69fd2034f`; direct parent: `16f3c1abc1e89fdd44678b96cf822ede767979cc`; acceptance reconciliation: `bfa1d0d45d42a368497ee06b06d236aee9fb67ec` (tracker-only); 6 production ADDs + 4 test ADDs; focused 24/24, affected subsystem 236/236, final clean 489/489 PASS; Java release 21; 98 production + 43 test sources |
 | F5 | Immutable deterministic organization plan | F1/F2/F4 | **ACCEPTED / CLOSED**; complete tests-first engineering unit, verified F5-D01 and F5-C01-F5-C39/F5-T01-F5-T44 | Implementation: `73a19835ff1057c84a8e4cd726038a591d54fdc7` (parent `5ee3e5d985ab7e9a58a9e2a2a26031e6eacf7f35`); 4 production + 6 test ADDs only; focused 46/46, affected 532/532, Linux clean 535/535, Windows clean 535/535 PASS under Java 21; tracker-only reconciliation below |
 | F1 amendment | COPY completion and controlled failure compatibility | Frozen F6 design `ad503a6ef7545e186a9156581ed368b986583042`; separately approved predecessor amendment | **IMPLEMENTED / VERIFIED / ACCEPTED / PUBLISHED**; original F1 remains ACCEPTED / CLOSED | `e8a1c9aea04ea0b78b64a5a09363f714138ac979`; direct parent `ad503a6ef7545e186a9156581ed368b986583042`; 13 MODIFY paths; Linux and Windows Java 21 clean regression 549/549 each; evidence entry below |
-| F6 | Verified collision-safe COPY execution | F0-F5 plus accepted F1 compatibility amendment (SATISFIED) | **IMPLEMENTED / QUALIFIED / PUBLISHED; INDEPENDENT ACCEPTANCE RECOMMENDED; FORMAL CLOSURE PENDING** | Implementation `6a5f04aa9bd3757a8a93938325e744132a689f25` (parent `8df70af472b7018072a2a4c9a733f68959bfab81`); 15 ADD paths; elevated Windows and non-root WSL2 Linux focused 103, affected 652, clean 652 each with zero failures/errors/skips; review and remaining limits below |
-| F7 | Supported project-owned NIfTI-1 reading | F0 and protected generic volume | **NOT STARTED / BLOCKED by applicable sequential dependencies** | None |
+| F6 | Verified collision-safe COPY execution | F0-F5 plus accepted F1 compatibility amendment (SATISFIED) | **ACCEPTED / CLOSED within recorded limitations**, per 2026-10-16 authorization; historical qualification/review record retained | Implementation `6a5f04aa9bd3757a8a93938325e744132a689f25` (parent `8df70af472b7018072a2a4c9a733f68959bfab81`); 15 ADD paths; elevated Windows and non-root WSL2 Linux focused 103, affected 652, clean 652 each with zero failures/errors/skips; review and remaining limits below |
+| F7 | Supported Project-Owned NIfTI-1 Reading | F0 and protected generic volume; accepted F0-F6 parent | **ACCEPTED / CLOSED - October 16, 2026 (technical); IMPLEMENTATION PUBLISHED / REMOTE VERIFIED**; separate tracker-only reconciliation | Implementation `15f2ea1879ff1af902114ffed25f85f6ec175615`; direct parent `35550c75d9f13ccd1b0cba8f19fa9c1230c66529`; exactly 15 ADDs (8 production, 7 test), all committed blobs match accepted corrected SHA-256. Live GitHub branch verified at implementation after push. Linux focused 75, affected 727, clean 727; Windows focused 75; mandatory gates zero failures/errors/skips. Tracker checkpoint identity: containing Git commit / release report; failed supplementary Windows regression retained below |
 | F8 | Reopen, compare and persist conversion evidence | F1/F7/M7 | **NOT STARTED / BLOCKED by applicable sequential dependencies** | None |
 | F9 | Headless orchestration through existing M6/M7 | F2-F8 | **NOT STARTED / BLOCKED by applicable sequential dependencies** | None |
 | F10 | Minimal boundary reconciliation | Working F9 | **NOT STARTED / BLOCKED by applicable sequential dependencies** | None |
 | F11 | Synthetic then stakeholder acceptance | F0-F10 | **NOT STARTED / BLOCKED by applicable sequential dependencies** | None |
 
-The matrix records architectural dependencies and the current sequential authorization state. It does not authorize parallel implementation or bypass predecessor acceptance gates. **F0-F5 are ACCEPTED / CLOSED. F6 design remains FROZEN; its 15-ADD implementation is committed, user-published and qualified at `6a5f04aa9bd3757a8a93938325e744132a689f25`. Independent implementation acceptance is recommended; the separate formal F6 closure gate remains pending. F7-F11, GUI and M8 remain blocked, and the Pre-M8 program-wide acceptance checklist remains unchecked.**
+The matrix records architectural dependencies and the current sequential authorization state. It does not authorize parallel implementation or bypass predecessor acceptance gates. **F0-F6 remain ACCEPTED / CLOSED within recorded limitations. F7 is technically ACCEPTED / CLOSED; its exact accepted implementation is published and live-remote verified at `15f2ea1879ff1af902114ffed25f85f6ec175615`. This is the separate tracker-only reconciliation record; its own commit identity is recorded by Git history and the final release report. F8-F11, GUI and M8 remain gated; every Pre-M8 program-wide acceptance checkbox remains unchecked.** Earlier statements in dated predecessor sections are historical; the October 16 lifecycle record distinguishes technical acceptance and publication.
 
 ## Global invariants
 
@@ -3280,3 +3281,233 @@ The clean Windows Maven build used Java release **21** and compiled **110 produc
 **Profile and qualification limits.** Ordinary-user Windows qualification remains **uncompleted / NOT RUN**: the prior Medium-integrity token could not create the native symbolic-link test fixtures. That fixture limitation does not establish a production application requirement for elevation; the production publication path uses hard links. The elevated Windows pass applies to its recorded High-integrity profile, and the Linux pass applies to non-root WSL2. Native owner reassignment and actual unavailability of Windows sharing options remain NOT RUN; the corresponding injected tests are labelled as decision tests. Qualification remains confined to the frozen cooperative/private-namespace provider profile. Power-loss/directory-entry/network durability, hostile-writer immunity, snapshot isolation, broader Windows drives and durable F5 skip-reason history remain outside the proved F6 v1 scope.
 
 **Remaining control gate.** Implementation publication and an independent acceptance recommendation are recorded; this tracker-only reconciliation still requires its own review and separately authorized checkpoint before any formal F6 ACCEPTED / CLOSED declaration. This documentation change does not authorize F7-F11, GUI, M8 or global Pre-M8 completion. No new Maven gate is inferred from unchanged source bytes.
+
+---
+
+## F7 FINAL ACCEPTANCE RECONCILIATION - SUPPORTED PROJECT-OWNED NIFTI-1 READING
+
+### Acceptance, authority and publication lifecycle - 2026-10-16
+
+**F7 ACCEPTED / CLOSED — October 16, 2026.** Technical acceptance applies only to the final corrected 15-file implementation, its frozen C01-C32 / T01-T44 supported-input contract, and the limitations below. It records the independent decision in `F7-INDEPENDENT-ACCEPTANCE.md`; this documentation reconciliation does not rerun or replace that review.
+
+**F7 IMPLEMENTATION COMMIT / PUSH — COMPLETE / LIVE-REMOTE VERIFIED.** Published implementation: `15f2ea1879ff1af902114ffed25f85f6ec175615`; direct parent: `35550c75d9f13ccd1b0cba8f19fa9c1230c66529`; message: `feat(f7): add accepted project-owned NIfTI-1 reader`. Codex staged exactly the approved 15 additions, verified index/committed blobs against the corrected acceptance manifest, created the implementation commit and completed an ordinary push under the new explicit user authorization. An independent post-push `git ls-remote origin refs/heads/feature/pre-m8-foundation` returned the exact implementation SHA on October 16 at approximately 18:20 Asia/Kolkata.
+
+**F7 TRACKER RECONCILIATION — SEPARATE TRACKER-ONLY PUBLICATION RECORD.** This second publication unit contains only the canonical tracker modification and follows the implementation commit directly. Its own final SHA and post-push remote verification are recorded in Git history and the final release report, not as an invented self-reference here. Technical/publication completion does not satisfy the global Pre-M8 gate.
+
+- Historical documentation-reconciliation preflight (before publication): working directory and Git root: `D:\Projects\CS5013-MRI-Volume-Normalizer`; branch `feature/pre-m8-foundation`; HEAD `35550c75d9f13ccd1b0cba8f19fa9c1230c66529`. Read-only live `git ls-remote origin refs/heads/feature/pre-m8-foundation` on October 16 resolved to that same SHA at `https://github.com/nabojwal/CS5013-MRI-Volume-Normalizer.git`. No F7 publication is present in the observed local history or live branch ref; this observation does not predict later remote state.
+- That HEAD is the published F6 tracker-reconciliation parent, `docs: reconcile published F6 implementation and qualification`, following F6 implementation `6a5f04aa9bd3757a8a93938325e744132a689f25`. It remains the exact accepted F7 parent.
+- Historical documentation-only preflight: canonical tracked document `docs/planning/PRE-M8-FOUNDATION-TRACKER.md`; tracked diff and index were then empty. All 15 F7 Java paths were untracked, alongside six unrelated untracked paths: `.roomodes`, `docs/architecture/ARCHITECTURE-REVISION-1.0 - Copy.md`, `docs/architecture/ARCHITECTURE-REVISION-1.0-RC2.md`, `docs/architecture/ARCHITECTURE-REVISION-1.0-RC3.md`, `docs/project/DESIGN_DOCUMENT.pdf`, and `planningPRE-M8-FOUNDATION-TRACKER.md`. None is an alternative canonical tracker; all are preserved.
+- Lifecycle discrepancy: the parent tracker still described F6 formal closure as pending and F7 as not started/blocked. The supplied frozen F7 contract and current explicit authorization affirm F0-F6 ACCEPTED / CLOSED within their limitations. Current control/ledger fields now reflect that authority; all earlier F0-F6 narrative, design and qualification records remain historical and unchanged. This is not a new F6 qualification or independently reconstructed F6 closure audit; no additional F6 closure SHA is invented.
+- Historical documentation-only authorization permitted the local tracker reconciliation before F7 publication and prohibited staging/committing/pushing. The subsequent explicit F7 release authorization supersedes that restriction solely for the two narrowly scoped F7 commits and ordinary pushes. It does not authorize source edits, predecessor qualification or F8-F11/GUI/M8.
+
+- Release preflight before Unit A: local HEAD and live GitHub branch both equalled `35550c75d9f13ccd1b0cba8f19fa9c1230c66529`; branch/origin matched authorization; index empty; only the already-prepared canonical tracker was tracked-modified. Exactly 15 accepted Java additions plus the same six unrelated files were untracked. All 15 source hashes matched the authoritative corrected Windows manifest before staging, in the staged index and in the implementation commit. The tracker was excluded from Unit A.
+
+### Exact accepted implementation scope and source identity
+
+**15 ADD, 0 MODIFY, 0 DELETE, 0 RENAME: eight production and seven test additions.** The final bundle's patch contains 15 new-file sections; its corrected source copies, final manifest, corrected Linux before/after manifests, corrected Windows manifest and all 15 original-repository Java files match by SHA-256. This is artifact/source identity evidence, separate from Git publication.
+
+Paths below are relative to the repository root. They were untracked at the original reconciliation and are now committed/published in `15f2ea1879ff1af902114ffed25f85f6ec175615`. All 15 committed Git blobs and unchanged working-tree files match these accepted SHA-256 values; hashes identify source bytes, not generated class files.
+
+| Kind | Accepted path | SHA-256 |
+| --- | --- | --- |
+| Production ADD | `src/main/java/org/cbihi/mrinormalizer/application/dataset/nifti/NiftiReadFailure.java` | `9712e3ba7a87e09459d594671b63496e2b83cf573c3c054fb3042e4a9e130089` |
+| Production ADD | `src/main/java/org/cbihi/mrinormalizer/application/dataset/nifti/NiftiReadFinding.java` | `843e0711d2af0dc2b04bb5e0090dfd3c39e86f4da8022698fbceb5bb39ec1352` |
+| Production ADD | `src/main/java/org/cbihi/mrinormalizer/application/dataset/nifti/NiftiReadLimits.java` | `12e8e43a4ab08a3017bae78904a5b9bdd093bc5ab476a7a7769b3df35d7ddc80` |
+| Production ADD | `src/main/java/org/cbihi/mrinormalizer/application/dataset/nifti/NiftiReadResult.java` | `d2c8003079540f2f58198c14bb28505819c08e360f3606100983a9a59b59a5e8` |
+| Production ADD | `src/main/java/org/cbihi/mrinormalizer/application/port/out/NiftiVolumeReader.java` | `15d66f46c6b2abfddbb35790d19470304dbc951a0ebbd650fd1cae3a2b5fb52f` |
+| Production ADD | `src/main/java/org/cbihi/mrinormalizer/infrastructure/nifti/Nifti1Header.java` | `940c6f009b1e89dd19574f8cf3d5bb4d293c9e96246e8f304d417bccb2f785ae` |
+| Production ADD | `src/main/java/org/cbihi/mrinormalizer/infrastructure/nifti/Nifti1VolumeReader.java` | `7cf40e1dec081076c55c3deac41a97991fe45ac63d5a7c79970262fe8e8e10bb` |
+| Production ADD | `src/main/java/org/cbihi/mrinormalizer/infrastructure/nifti/StrictGzipInputStream.java` | `a5117a25c3158ee66c8e558e869f7ab56894c5690f60894e328062f40f2802c6` |
+| Test ADD | `src/test/java/org/cbihi/mrinormalizer/NiftiReadModelTest.java` | `f065cde43066ce80bdfb6939fbe1d0f2bc154eb193fa6e3c54a6ead21debb56f` |
+| Test ADD | `src/test/java/org/cbihi/mrinormalizer/architecture/NiftiReadBoundaryTest.java` | `34bc8228fc6e20804d6a701813a143916b5de9878d7fd20df35ce178202fb474` |
+| Test ADD | `src/test/java/org/cbihi/mrinormalizer/infrastructure/nifti/Nifti1VolumeReaderTest.java` | `876c74890cc6fae0849bbae2e263feebd8501d4d6d4b626f23c80b24880453af` |
+| Test ADD | `src/test/java/org/cbihi/mrinormalizer/infrastructure/nifti/NiftiReadBoundsTest.java` | `5e3fea312036b39fb8b784f71865b4115b41abf5cd54010ce70fe2012387d4c6` |
+| Test ADD | `src/test/java/org/cbihi/mrinormalizer/infrastructure/nifti/NiftiReadGeometryTest.java` | `e6197db2c560991b5e84c06e714079625fb68360606de27f44fb5eec24f3a205` |
+| Test ADD | `src/test/java/org/cbihi/mrinormalizer/infrastructure/nifti/NiftiReadGzipTest.java` | `6313372afbbae62699e978bcd94f35becdff0e76b43ec468274256c1cfe56b11` |
+| Test ADD | `src/test/java/org/cbihi/mrinormalizer/infrastructure/nifti/NiftiReadIntegrationTest.java` | `e1231a6f43e4635c6beeeef0c1ba8c0514ec1ec29af5743c6e6f11ae01d56fe7` |
+
+Final manifest: `F7-FINAL-ACCEPTANCE-BUNDLE.zip!/F7-final-corrected-source.sha256`, SHA-256 `865525cc5bde64c00fe0d2bc67f1dccce899933aa5a49042b772d4a6d223ff90`. The bundle's `corrected-source/` entries match it 15/15. No patient data or generated imaging output is part of this scope.
+
+**T37 portability correction.** Only `NiftiReadIntegrationTest.java` changed relative to the original implementation archive: original SHA-256 `8ff374a8f1120f4490c0b03c4b9c74f70f2024a1290caac97f0a1c4eb5a079f5`; corrected accepted SHA-256 `e1231a6f43e4635c6beeeef0c1ba8c0514ec1ec29af5743c6e6f11ae01d56fe7`. The reviewed patch makes synthetic file-key substitution conditional on `real.isRegularFile()`, with explicit `original`/`substituted` keys, retaining real directory keys and the separate null-key case. It prevents provider-dependent directory observations from defeating the intended file-continuity injection. It changes neither production behavior nor assertions requiring controlled refusal. All eight production files and the other six test files remain byte-identical to the original package. Corrected T37 methods pass in final Linux and Windows XML; the earlier Windows focused run with one T37 failure is historical and is not the accepted gate.
+
+### Frozen public API and ownership
+
+| Component | Implemented contract |
+| --- | --- |
+| `application.dataset.nifti.NiftiReadLimits` | Record with six explicit `long` components: `maxEncodedBytes`, `maxDecodedBytes`, `maxVoxels`, `maxPrefixBytes`, `maxWorkingBytes`, `maxGzipHeaderBytes`. Positive bounds; prefix minimum 352; gzip-header minimum 10; voxel ceiling `Integer.MAX_VALUE - 8`. No default profile or no-argument configuration. |
+| `NiftiReadFailure` / `NiftiReadFinding` | Closed enum vocabularies for controlled failures and observations. No provider exception text, header text, UID, extension body, gzip name/comment or raw diagnostic path is exposed through them. |
+| `NiftiReadResult` | `(RelativePath source, Optional<ImageVolume> volume, List<NiftiReadFailure> failures, List<NiftiReadFinding> findings)`. Non-null components/entries; lists copied, deduplicated and ordered by enum declaration. A volume exists iff failures are empty; success requires exactly one selected-transform finding. Findings may survive later failure. Construction proves structural coherence, not that I/O occurred. |
+| `application.port.out.NiftiVolumeReader` | Exactly `NiftiReadResult read(RelativePath source)`. Uses accepted logical source-reference and generic volume contracts. |
+| `infrastructure.nifti.Nifti1VolumeReader` | Public final adapter; public constructor `(Path inputRoot, NiftiReadLimits limits)` and `read(RelativePath)`. Root configuration and I/O are infrastructure responsibilities; mechanical test seams are nonpublic. |
+| `Nifti1Header` / `StrictGzipInputStream` | Package-private final helpers for bounded header/geometry semantics and strict gzip framing/inflation. No extra application/parser API. |
+
+The reader reuses `ImageVolume`, `ImmutableVoxelData`, `VolumeGeometry`, `ScalarType`, `IntensityTransform` and `RelativePath`. It introduces the approved reader-facing application values and output port without modifying accepted functionality. No dependency, schema, application service, `Main`, dependency-container or Swing wiring changed. The protected `Nifti1VolumeWriter` remains unchanged; writer integration is test evidence only.
+
+### Supported NIfTI-1 profile and intensity representation
+
+- Project-owned single-file NIfTI-1 only: exact `n+1\0` magic, 348-byte header and four-byte extender. Plain versus gzip is detected from content; byte order is determined from `sizeof_hdr == 348`, supporting little and big endian. Filename extensions do not establish support, validity or container type.
+- Strict true-3D input: `dim[0] == 3`, dimensions 1-32767, inactive `dim[4..7]` each 0 or 1, and scalar-image `intent_code == 0`. Depth one and `1 x 1 x 1` retain real slice spacing/direction. Paired NIfTI, NIfTI-2, ANALYZE, 2D/4D headers (including singleton-time 4D), nonzero intents, float, complex, RGB/vector and wider integers are outside the profile. Recognized unsupported variants are distinguished from malformed supported input.
+
+| NIfTI datatype name | Code | Required bitpix | Existing scalar type | Exact stored range |
+| --- | ---: | ---: | --- | --- |
+| Unsigned 8-bit integer | 2 | 8 | `UINT8` | 0 to 255 |
+| Signed 8-bit integer | 256 | 8 | `INT8` | -128 to 127 |
+| Unsigned 16-bit integer | 512 | 16 | `UINT16` | 0 to 65535 |
+| Signed 16-bit integer | 4 | 16 | `INT16` | -32768 to 32767 |
+
+Datatype/bitpix mismatch is `INVALID_HEADER`; other datatype codes are `UNSUPPORTED_DATATYPE`. Decoding preserves exact signed/unsigned stored integers in `ImmutableVoxelData`, with x fastest, then y, then z: `index = x + width * (y + height * z)`. No resampling, reorientation, interpolation, flipping, voxel reordering or implicit stored-value modification occurs.
+
+Finite nonzero `scl_slope` (including negative slope) and finite `scl_inter` are retained as declared intensity metadata; scaling is not applied destructively to stored voxels. Either sign of zero slope produces `IntensityTransform.identityNotDeclared()` and ignores the intercept, including a nonfinite ignored intercept. Nonfinite slope or nonfinite intercept with active nonzero slope produces `INVALID_SCALING`. Calibration/descriptive/extension fields do not invent intensity interpretation.
+
+### Spatial geometry and verified numerical policies
+
+Voxel indices map voxel centres into **NIfTI RAS millimetres**, with the origin at the centre of voxel `(0,0,0)`. Spatial unit codes 1/2/3 mean metres/mm/micrometres and use factors 1000/1/0.001. All three spatial affine rows, including translation, and spacing are normalized consistently; the homogeneous final row is unchanged. Unknown spatial units fail. Known temporal encodings have no operational effect in the accepted 3D profile; reserved high bits and unknown temporal encoding fail header validation. Header `pixdim[1..3]` must be finite and strictly positive, including singleton axes.
+
+Transform code 0 means absent; codes 1-5 are recognized. Negative or unknown positive codes make that transform unusable and, when present, record the corresponding `INVALID_*FORM_IGNORED` observation. A valid alternative may be used. Valid sform is preferred; valid qform is the fallback. Neither usable produces `GEOMETRY_UNAVAILABLE`; identity geometry is never invented. Both usable transforms must agree: material disagreement produces `TRANSFORM_DISAGREEMENT` with no volume, rather than allowing preference to conceal disagreement.
+
+| Policy | Exact accepted rule, verified against contract and `Nifti1Header` |
+| --- | --- |
+| Sform validity and conditioning | Finite entries, finite nonzero column norms and normalized-column determinant magnitude **greater than `1e-8`**. This dimensionless floor excludes near-degenerate bases without depending on physical voxel scale. |
+| Sform/header spacing consistency | Each normalized-mm column length must satisfy `abs(s_affine - s_header) <= 1e-5 mm + 1e-6 * max(s_affine, s_header)`. Mismatch makes sform unusable; valid qform fallback is allowed with the invalid-sform finding. |
+| Qfac | `pixdim[0] == 0` means positive qfac and `QFAC_ZERO_AS_POSITIVE`; exactly +1/-1 is accepted. Other/nonfinite qfac makes qform unusable. Qfac applies to the third voxel-axis column. |
+| Quaternion | Finite quaternion/offsets; evaluate `s = b*b + c*c + d*d` in double precision. For `s <= 1`, use `a = sqrt(1-s)`; for `1 < s <= 1 + 1e-6`, normalize `(b,c,d)`, set `a=0` and record `QUATERNION_ROUNDING_NORMALIZED`; above that bound qform is unusable. |
+| Transform agreement | Compare Euclidean displacement at all eight test-box corners, with axis extents `e_i = max(1, n_i-1)`. Every displacement must be `<= 1e-4 mm + 1e-6 * max(1 mm, L)`, where `L` is the largest origin-to-corner physical distance under either transform. Tolerance depends on field extent, not absolute world origin. Singleton axes retain unit test extent to expose conflicting directions. |
+| Geometry representation | Selected affine columns become their norms and normalized directions in `VolumeGeometry`; x-column norm maps to `columnSpacingMm`, y-column norm to `rowSpacingMm`, z-column norm to slice spacing. Preserve obliquity, shear and handedness without orthogonalization. |
+
+Independent analytic fixtures cover translations, rotations, half turns, units, depth-one/singleton axes, shear, handedness, determinant conditioning and neighboring-float tolerance boundaries. Protected writer round trips supplement those independent oracles.
+
+### Extensions, bounds and complete-stream safety
+
+`vox_offset` must be finite, integral, at least 352 and within the configured prefix bound, with no rounding/default substitution. A no-extension offset need not be 16-byte aligned. Extender bytes 1-3 must be zero. Zero byte 0 permits bounded uninterpreted padding; nonzero byte 0 parses records exactly filling the prefix. Each `esize` is at least 16, a multiple of 16 and contained in the remaining prefix; `ecode` is nonnegative. Unknown extension codes are permitted as uninterpreted metadata. Bodies are discarded in bounded chunks; malformed framing is `INVALID_EXTENSION`, and declared extensions produce `EXTENSIONS_NOT_INTERPRETED`. No extension payload is semantically interpreted or preserved for conversion.
+
+| Explicit resource limit | Enforcement |
+| --- | --- |
+| Encoded bytes | Observed source size checked before open; counted consumption below detection/buffering/inflation. |
+| Decoded bytes | Header, prefix and payload lengths checked; counted consumption above inflation prevents expansion exceeding the bound. |
+| Voxel count | Checked dimension products; caller bound and `Integer.MAX_VALUE - 8` ceiling before voxel allocation. |
+| Prefix bytes | Bounds validated integral `vox_offset` and header/extension/padding consumption. |
+| Working memory | Before allocation, checked `16 * N + 1,048,576 <= maxWorkingBytes`: one working `long[]` and the accepted defensive clone, plus fixed parser/metadata allowance. |
+| Gzip header bytes | Independently bounds the fixed header and all optional fields, including FHCRC. Minimum configurable header bound is 10 bytes. |
+
+These six caller-supplied limits are independent; the contract's recommended invocation values are not hardcoded defaults. Checked multiplication/addition and offset conversion protect allocation/length boundaries. Decoding streams into one working `long[]`; byte buffers are fixed-size (at most 8192 bytes), with no retained full encoded/decompressed payload array. Defensive-copy memory is accounted before either voxel-array allocation. Resource accounting is not a guarantee of available JVM heap; `OutOfMemoryError` is not an ordinary parse result.
+
+Plain input must end exactly after its declared payload. Missing required bytes produce `TRUNCATED_INPUT`; extra bytes produce `TRAILING_DATA`. Short reads are handled; zero-progress reads have a 16-attempt bound, and bounded loops check interruption. Counters permit only bounded one-byte excess-data lookahead, never accepted as image payload.
+
+Strict gzip validates magic/method, reserved flags, fixed framing, optional FEXTRA/FNAME/FCOMMENT fields and FHCRC when present, without retaining name/comment strings. Standard-library raw `Inflater` handles DEFLATE; malformed/incomplete DEFLATE, dictionary requirements, invalid header checksum, CRC32 mismatch, ISIZE mismatch or truncated trailer fail. CRC32 covers all decoded bytes; ISIZE is checked modulo `2^32`. Success requires complete DEFLATE termination, one member only and physical EOF after the trailer. Concatenated members, empty second members, garbage and zero padding are rejected. The helper owns/releases its inflater; the adapter independently owns/closes the input stream/channel, including on early failure.
+
+### Filesystem, controlled failures and continuity limitations
+
+One existing configured root is canonicalized with `toRealPath()`; safe configured aliases may resolve to that root. `read` accepts restricted `RelativePath.Root.SOURCE` references only. The existing `RelativePath` rejects absolute/traversal/noncanonical references; logical references alone do not prove filesystem containment. Resolved paths must remain below the configured root. Root, intermediate directories and final source are observed with no-follow attributes; discovered symbolic links and nonregular final inputs are rejected, and unprovable containment fails closed. Native access opens a read-only channel with `NOFOLLOW_LINKS`; unsupported required provider behavior produces `CONTAINMENT_UNPROVEN`.
+
+The adapter compares configured-root identity with the pre-read root and observes root/parent/source continuity before reading and after cleanup, comparing available non-null provider keys, file types, sizes and last-modified times. Missing stable keys produce `WEAK_SOURCE_IDENTITY`, never fabricated strong identity. These are continuity observations, **not full filesystem snapshot isolation or cryptographic source-identity proof**. Same-size changes restored between observations can escape detection. Provider-managed access-time changes may occur; F7 performs no deliberate source-content/metadata writes, temporary-file creation or permission changes.
+
+The exact failure enum is: `INPUT_UNAVAILABLE`, `PATH_OUTSIDE_ROOT`, `SYMLINK_DISALLOWED`, `SPECIAL_FILE_UNSUPPORTED`, `CONTAINMENT_UNPROVEN`, `SOURCE_CHANGED`, `UNSUPPORTED_VARIANT`, `UNSUPPORTED_DIMENSIONALITY`, `UNSUPPORTED_DATATYPE`, `UNSUPPORTED_INTENT`, `INVALID_HEADER`, `INVALID_SCALING`, `UNSUPPORTED_SPATIAL_UNITS`, `GEOMETRY_UNAVAILABLE`, `TRANSFORM_DISAGREEMENT`, `INVALID_EXTENSION`, `TRUNCATED_INPUT`, `TRAILING_DATA`, `GZIP_INTEGRITY_FAILED`, `RESOURCE_LIMIT`, `READ_FAILED`, `INTERRUPTED`, `CLOSE_FAILED`.
+
+The finding enum is: `SFORM_SELECTED`, `QFORM_SELECTED`, `INVALID_SFORM_IGNORED`, `INVALID_QFORM_IGNORED`, `QFAC_ZERO_AS_POSITIVE`, `QUATERNION_ROUNDING_NORMALIZED`, `EXTENSIONS_NOT_INTERPRETED`, `WEAK_SOURCE_IDENTITY`.
+
+Operational failures are classified by activity: unavailable/pre-open access failure versus read failure, integrity/profile/bound failures, observed source change and cleanup failure. Invalid caller arguments use fixed non-identifying `IllegalArgumentException` text. Interrupted I/O preserves the thread interrupt; preexisting/middecode interruption is retained. Independent cleanup attempts retain `CLOSE_FAILED` alongside any primary failure. Later integrity, continuity, interruption or close failure removes any volume; no partial or validated-success volume is returned. Relevant findings survive. F7 emits no raw header/provider/exception diagnostic text.
+
+### C01-C32 / T01-T44 coverage reconciliation
+
+Frozen authority: `F7-LOCAL-CODEX-HANDOFF/F7-CONTRACT-FAITHFUL-LOCAL-CODEX-HANDOFF/contract/F7-ARCHITECTURAL-CONTRACT-AS-SUPPLIED.md`, read with its explicit implementation authorization and final independent acceptance. Its original proposal/unauthorized wording is historical, not a new unresolved approval request. Existing ADR-009/010/011/012/013 and the protected generic model were cross-checked without amendment.
+
+Detailed external mappings inspected: `F7-implementation-evidence.zip!/F7-evidence/F7-C01-C32-MATRIX.csv` (32 clauses) and `F7-T01-T44-MATRIX.csv` (44 obligations); independent `F7-MANUAL-INDEPENDENT-AUDIT/C01-C32-RECONCILIATION.csv` and `T01-T44-RECONCILIATION.csv`. Their earlier Windows NOT RUN / acceptance-pending columns and original line numbers are historical. Final corrected manifests, method names, XML and acceptance below supersede those statuses; T37 correction shifts later test lines. All 44 obligation labels occur in passing final focused XML on each platform; obligation count is not the JUnit execution count or an exhaustive proof.
+
+| Clauses | Source behavior and required assertion groups |
+| --- | --- |
+| C01-C04 | Header/profile/content detection, exact integers and voxel-centre mapping: T04-T12 as applicable; `Nifti1VolumeReaderTest` and independent geometry fixtures. |
+| C05-C07 | Units, normalized affine/spacing and positive singleton spacing: T06, T13-T14. |
+| C08-C11 | Transform codes/validity, qfac/quaternion and preference/fallback: T11-T12, T15-T18, T21-T22. |
+| C12-C14 | World agreement, shear/handedness and sform spacing: T11-T12, T18-T23. |
+| C15 | Declared/undeclared scaling with stored integers unchanged: T24, T41. |
+| C16-C17 | Offset, extender and bounded uninterpreted extension framing: T25-T27, T43. |
+| C18-C20 | Checked lengths, all six independent limits and defensive-copy allocation accounting: T01, T25, T28-T30, T35. |
+| C21-C23 | Exact plain EOF, strict complete gzip, short/zero-progress reads and interruption: T31-T36. |
+| C24-C26 | Canonical SOURCE containment, link/special refusal and continuity/weak keys: corrected T37, T38. |
+| C27-C28 | Stream/inflater release, primary+close retention, interruption and privacy: T36, T39-T40, T43. |
+| C29-C30 | No writes/hashing/persistence/orchestration; protected M7 writer integration and boundary scan: T40-T41, T44. |
+| C31-C32 | Frozen public shapes, immutable structural results, independent fixture oracles and exact scope: T01-T03, T42, T44, 15-file manifests/ADD-only patch. |
+
+| Final focused suite | Obligations | JUnit executions per platform |
+| --- | --- | ---: |
+| `NiftiReadModelTest` | T01-T03 | 3 |
+| `Nifti1VolumeReaderTest` | T04-T05, T07-T10, T24 | 22 |
+| `NiftiReadGeometryTest` | T06, T11-T23 | 22 |
+| `NiftiReadBoundsTest` | T25-T31 | 9 |
+| `NiftiReadGzipTest` | T32-T35 | 4 |
+| `NiftiReadIntegrationTest` | T36-T41, T43 | 13 |
+| `NiftiReadBoundaryTest` | T42, T44 | 2 |
+| Total | T01-T44; parameterized executions counted | 75 |
+
+T04 covers four scalar types x two byte orders x two containers. Corrected `T37_rootAndInjectedDiscoveryContinuity` and `T37_eachContinuityObservationInjected` are present and passing on both hosts. Deterministic injections prove refusal/cleanup decisions; they are not labelled native link/reparse capability qualification. T40 uses actual native ordinary-file reads, byte/mtime and directory checks, and rename after close. T41 protected writer integration is supplemented by handcrafted binary and independent analytic fixtures (T42). T43 checks privacy sentinels; T44 checks compiled dependencies/API against forbidden responsibilities.
+
+### Final post-T37 mandatory qualification evidence
+
+The following are **archived executed results independently inspected during this documentation update**, not tests rerun here. XML totals and Maven summaries agree; Linux gate exit files contain 0. Linux preflight records WSL2, native `/home` checkout and UID 1000; Windows non-elevated qualification is the accepted host classification from submitted preflight/transcript review, not a live token attestation performed here. Java 21/release-21 evidence accompanies the accepted gates.
+
+| Environment / gate | Tests | Failures | Errors | Skipped | Status |
+| --- | ---: | ---: | ---: | ---: | --- |
+| Non-root WSL2 Linux - F7 focused | 75 | 0 | 0 | 0 | PASS |
+| Non-root WSL2 Linux - affected regression (full-suite superset) | 727 | 0 | 0 | 0 | PASS |
+| Non-root WSL2 Linux - final clean regression (`mvn clean test`) | 727 | 0 | 0 | 0 | PASS |
+| Non-elevated Windows - F7 focused | 75 | 0 | 0 | 0 | PASS |
+
+Focused gates contain 7 XML suites; Linux affected/clean each contain 63. Final logs are Linux `focused.maven.log`, `affected.maven.log`, `clean.maven.log`, finishing at 11:34:23Z / 11:35:01Z / 11:35:48Z on October 16, and Windows `windows-T37-corrected-focused.log`, finishing at 17:14:36+05:30. Windows `windows-T37-corrected-clean.log` is a preparatory clean command, **not** a 727-test clean regression pass.
+
+| Additional required evidence | Result and inspection boundary |
+| --- | --- |
+| Native Linux ordinary-file read/close/rename-after-close | PASS; corrected archived T40 passes in focused/affected/clean XML. Final acceptance also cites the submitted native transcript; a separate corrected-run native transcript file is not in the corrected tarball. The original archive's `native-linux.txt` is historical supporting context only. |
+| Native Windows NTFS ordinary-file read/close/rename-after-close | PASS; nested `windows-native-final.txt` plus corrected T40 XML inspected. |
+| Exact 15-addition scope | PASS; original qualification had exactly 15 accepted untracked Java paths and empty initial tracked/index diff. Published commit `15f2ea1879ff1af902114ffed25f85f6ec175615` contains exactly those 15 ADDs, with zero predecessor/tracker changes; committed blobs match the 15-entry final manifest. Six unrelated untracked files are preserved. |
+| Final cross-platform SHA-256 source identity | PASS; local Java bytes, corrected bundle source/manifest, Linux before/after and Windows `source-T37-corrected.sha256` agree 15/15. |
+| Corrected T37 portability test | PASS on both platforms; both continuity method names present without failure/error/skip. |
+| Independent F7 technical review | ACCEPTED; final `F7-INDEPENDENT-ACCEPTANCE.md`, October 16. No new implementation/qualification cycle performed. |
+
+### Evidence locations, identities and superseded material
+
+External evidence remains outside Git. Download-root paths below mean `C:\Users\Admin\Downloads`; `archive!/entry` denotes an inspected member, not a new repository file.
+
+| Inspected artifact | Location / SHA-256 / significance |
+| --- | --- |
+| `F7-FINAL-ACCEPTANCE-BUNDLE.zip` | Download root; SHA-256 `93ffd1b2857616c27ee9a7dcbbd4e81adfd0dde544c1766f40ed135821418a56`; ZIP CRC check passed. Contains acceptance, corrected source/manifest/patch and final Linux/Windows evidence. |
+| `F7-INDEPENDENT-ACCEPTANCE.md` | Download-root standalone copy equals bundle member; SHA-256 `541a189df9021b258d1b81112559ec01680a6834880f23e457ce6c170acb967b`. Final decision supersedes earlier review-pending recommendations. |
+| `F7-LINUX-T37-CORRECTED-PASS-EVIDENCE.tar.gz` | Download-root copy and bundle `evidence/` member have identical SHA-256 `ef57218259162d0f1fefbace7a090f7f257f3145e37ccafe60eb875e343e6d6a`; members under `f7-final-evidence.FfbGFD45/` contain final three logs/XML groups, exit files and corrected before/after manifests. |
+| `F7-WINDOWS-PASS-EVIDENCE.zip` | Inspected nested bundle `evidence/` member; SHA-256 `658a72d7d2c9df28e3f91566a7656e9a5462a15de6af12200b7014a580e2b72d`; ZIP CRC check passed. Corrected `surefire-T37-corrected/` and focused log provide final mandatory Windows result. |
+| Corrected source manifests | Bundle `F7-final-corrected-source.sha256`; Windows archive `source-T37-corrected.sha256`, also accessible at `C:\Users\Admin\F7-Windows-Qualification-20261016\evidence\source-T37-corrected.sha256`. No separately named `F7-T37-corrected-source.sha256` was found in the inspected packages; equivalent corrected manifests were inspected directly. |
+| `F7-implementation-evidence.zip` | Download root; SHA-256 `41b26ebc0b4256901aece75de3ef4f0ddd10506c4e588d0a448ff04402468fe9`; original implementation, coverage matrices, public API and historical source/native/scope evidence. Its pre-correction manifest does not establish final corrected qualification. |
+| C/T independent audit and frozen contract | Download-root `F7-MANUAL-INDEPENDENT-AUDIT/` and `F7-LOCAL-CODEX-HANDOFF/` paths identified above. Matrix mappings remain useful; stale Windows NOT RUN / acceptance-pending columns are superseded by final evidence, without altering those artifacts. |
+| Supplementary Windows full regression | `C:\Users\Admin\F7-Windows-Qualification-20261016\evidence\supplementary-full-regression-failure\`; log, 63-suite XML and `ASSESSMENT.txt` available. Inspected evidence-root full-run log SHA-256 `0e8c004d6c3f2c3dd926d35b682152b85adcaa23ef111203702830e74445fa00`; separate failed result below. |
+
+The earlier manual source/evidence review withheld acceptance pending Windows; `F7-WINDOWS-FINAL-RECONCILIATION-20261016.md` then withheld final acceptance pending archived corrected Linux gates. The final acceptance record resolves those earlier missing-evidence states. The original `F7-LINUX-PASS-EVIDENCE.tar.gz` and Windows `source.sha256` are pre-T37 evidence and are not used as final corrected-source qualification. Archived logs/XML were inspected here; remote/native host execution itself was supplied by the user. No new host execution, signed token attestation or real-patient validation is claimed.
+
+### SUPPLEMENTARY WINDOWS FULL REGRESSION — FAILED / NOT AN F7 MANDATORY GATE
+
+The voluntary non-elevated Windows `mvn clean test` finished at 17:40:38+05:30 on October 16, after the mandatory focused PASS. Its retained Maven log and all 63 Surefire XML suites were inspected separately.
+
+| Metric | Observed result |
+| --- | ---: |
+| Tests | 727 |
+| Failures | 3 |
+| Errors | 11 |
+| Skipped | 0 |
+| Build result | FAILURE |
+
+- Eleven inherited tests report `FileSystemException` with the Windows symbolic-link privilege message. These are fixture privilege errors, not 11 additional passing/skipped tests and not proof that F7 needs elevation.
+- Inherited F6 T51, `VerifiedCopyProviderTest.unsupportedZipProviderIsRefusedAndCrossStoreSourceStreamsWhereNative`, fails because its required provisioned local NTFS mount under SystemDrive is unavailable. No predecessor expectation or fixture is changed here.
+- `PublicReportWriterTest.finalSubstitutionCannotBeClassifiedAsSuccessfulPublication` expected `UNKNOWN` but observed `NOT_PUBLISHED`.
+- `PublicReportWriterTest.directorySubstitutionBeforeStageFailsClosed` expected `[CONTAINMENT_UNPROVEN, RECOVERY_REQUIRED]` but observed `[RECOVERY_REQUIRED, WRITE_FAILED]`.
+
+The two public-report publication-classification discrepancies are **not conclusively explained**. They must not be attributed casually to symlink privileges, erased, or represented as a pass. This supplementary run is **failed**, distinct from the frozen mandatory F7 Windows focused/native gates and accepted primary Linux full regression. It neither establishes 727 passing Windows tests nor reopens/extends predecessor qualification. No security policy, privilege, predecessor code or test expectation was changed to reconcile it.
+
+### Accepted limitations, F8 handoff and verified publication boundary
+
+- Support is restricted to the exact 3D scalar integer single-file NIfTI-1 profile above; no general NIfTI-2/paired-file/4D/float or extension-semantic support is claimed.
+- Extension payloads are structurally checked and discarded, not interpreted or preserved for conversion. A nonzero extension flag with `vox_offset == 352` currently reports `EXTENSIONS_NOT_INTERPRETED` while accepting an empty extension chain. Final review accepts this as a documented **non-blocking interpretation edge**, not universal format certification; no behavior is changed here.
+- Filesystem continuity observations are not snapshot isolation, hostile-writer immunity or cryptographic source identity. Null-key findings explicitly weaken identity; provider-managed atime changes may occur. Ordinary-file qualification and injected refusal decisions do not certify all native symlink/reparse providers or power-loss behavior.
+- Explicit memory/resource accounting does not guarantee free JVM heap. Synthetic and analytic tests do not establish validated real-patient MRI conversion or clinical/quantitative acceptance. Broader providers and end-to-end application readiness are not implied.
+- F7 performs no input-data hashing, output publication, provenance-journal mutation, dataset conversion orchestration, F0 assessment promotion, F8 verification, GUI wiring or M8 work. Existing F0-F6 and M5/M6/M7 owners remain unchanged.
+- F8 depends on F1/F7/M7 and must separately own reopen/compare/persist conversion evidence: dimensions/type, complete stored voxels, spacing/world mapping and intensity interpretation, plus truthful persistence/failure handling. F7 supplies reading evidence only; it does not itself declare conversion readiness or validated publication. This is a handoff boundary, not F8 implementation authorization.
+- Implementation publication is complete: `15f2ea1879ff1af902114ffed25f85f6ec175615`, direct parent `35550c75d9f13ccd1b0cba8f19fa9c1230c66529`, exactly 15 accepted Java ADDs; Codex performed the ordinary push under explicit user authorization and independently verified the live remote SHA. The authoritative Windows `source-T37-corrected.sha256` manifest has file SHA-256 `b545ba8d13aed39b0073e65fc199c1bfa28625cc39019199febaa7e43da7565d`; all 15 entries match index blobs, implementation-commit blobs and working files. The separately published tracker-only commit must directly follow this implementation; its actual identity and final live-remote verification belong to Git history and the final release report. No F7 tag is created or claimed.
+- The original documentation-only reconciliation changed only this canonical tracker and performed no staging/commit/push. The subsequent authorized release cycle publishes exactly two units: 15 accepted Java additions, then this single Markdown modification. No source/qualification cycle is rerun, no unrelated untracked file is staged, and no additional Git unit is authorized. Final clean tracked state, empty index, six preserved unrelated untracked files and the two-commit ancestry are verified in the release report. F8-F11, GUI, M8 and global Pre-M8 acceptance remain gated.
+
+**F7 ACCEPTED / CLOSED — IMPLEMENTATION PUBLISHED / REMOTE VERIFIED; TRACKER CHECKPOINT IDENTITY IN GIT HISTORY**
