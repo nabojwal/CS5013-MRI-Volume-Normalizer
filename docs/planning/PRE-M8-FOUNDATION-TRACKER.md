@@ -4,7 +4,7 @@
 
 ## Program control
 
-- Date: 2026-10-16 (Asia/Kolkata; F7 technically ACCEPTED / CLOSED; implementation PUBLISHED / LIVE-REMOTE VERIFIED; separate tracker-only publication record).
+- Date: 2026-10-23 (Asia/Kolkata; F8 implementation published and cross-platform qualified; formal acceptance pending).
 - Branch: feature/pre-m8-foundation.
 - Canonical baseline: 0b91666c03d6247a6882c164aa6b033d9b761101.
 - M6 protected checkpoint: cb7769e; protected tag: pre-demo-m6-2026-10-02.
@@ -15,7 +15,7 @@
 - Historical accepted F2 parent: 0794d9d9ada1ea7f486a4fe87811ded24bfc48fd (final F1 closure bookkeeping; F1 accepted / closed).
 - F2 accepted implementation checkpoint: `7a1f8c13ccb6c8722b040159400e7c5e2729b0b8`.
 - Accepted S6 parent: f1257441793f73d951ff1b8659f78b30bfffe4f5 (final F1-S5B acceptance).
-- Current authorization: F0-F6 remain ACCEPTED / CLOSED within recorded limitations. F7 is technically ACCEPTED / CLOSED on the final corrected 15-file identity; implementation publication is COMPLETE / REMOTE VERIFIED at `15f2ea1879ff1af902114ffed25f85f6ec175615`. The new explicit F7 release authorization permits Codex to stage, commit and push exactly the implementation and separate canonical tracker reconciliation; it supersedes the earlier user-only push restriction for these two commits only. F8-F11, GUI and M8 remain NOT AUTHORIZED / BLOCKED; global Pre-M8 acceptance remains incomplete. Historical predecessor records are retained without reopening qualification.
+- Current authorization: F0-F7 remain ACCEPTED / CLOSED within their recorded limitations. F8 implementation was authorized, completed and published at `f31821e0482f8553297b33a37f776af2cbc40e55`; cross-platform regression qualification passed, but independent contractual acceptance remains pending. F9-F11, GUI and M8 remain blocked by applicable dependency and authorization gates. Global Pre-M8 acceptance is incomplete. Historical predecessor records remain authoritative.
 - F0: S1 ACCEPTED at 76b676d; S2 ACCEPTED — ea40616 using user-supplied Java 21/Maven results. S2 was committed and pushed; the accepted remote checkpoint is ea4061672a293745ac5f5fc1b0d8d240d217e64e. S3 ACCEPTED — 8b6e714; F0 IMPLEMENTATION COMPLETE; F0 CLOSURE EVIDENCE PASSED; F0 ACCEPTED / CLOSED.
 - F1: S0 ACCEPTED; S1A ACCEPTED — b7a327d55ac26265474378fec00ae9a03ba7784e; S1B ACCEPTED — 8b57b48e2a677a08a1d2f11f9eb760b0d3b8f00c; S2A ACCEPTED — 99dcd08d3c1e4d8653be1ef89b521422294be274; S2B ACCEPTED — 935fc29ad9a40a53b497a5fe008db5d6d7d485ac; S3 ACCEPTED — 03d598a1606121ecc7918279ec9a5f20f622ee93; S4 ACCEPTED — 233c334023f035eba4c6122a262f9961e08e9b07; S5A ACCEPTED — 26f41054449335fba6d05e5e4e77bad51c3ea641; S5B ACCEPTED — final reconciliation f1257441793f73d951ff1b8659f78b30bfffe4f5, following tested implementation ca25625264ebe96c0d777c3da833e03efc03e7aa and evidence reconciliation fc4de75b18783df45d5757c11c51f1924ea9d535. S6 ACCEPTED — e99d5da170552b55f7d74340b59fabb35615055a. F1 IMPLEMENTATION COMPLETE; F1 CLOSURE EVIDENCE PASSED; F1 ACCEPTED / CLOSED.
 - F1-S6 ACCEPTED — e99d5da170552b55f7d74340b59fabb35615055a
@@ -26,6 +26,7 @@
 - F5: ACCEPTED / CLOSED — implementation `73a19835ff1057c84a8e4cd726038a591d54fdc7` (direct parent `5ee3e5d985ab7e9a58a9e2a2a26031e6eacf7f35`); independent source, contract, scope and remote checkpoint review passed; Linux and Windows Java 21/Maven regression evidence passed. Separate tracker-only closure recorded below.
 - F6: **ACCEPTED / CLOSED within recorded limitations, per the 2026-10-16 authorization**. Published implementation `6a5f04aa9bd3757a8a93938325e744132a689f25`, parent `8df70af472b7018072a2a4c9a733f68959bfab81`; published tracker parent for F7 `35550c75d9f13ccd1b0cba8f19fa9c1230c66529`. Earlier closure-pending records remain historical; this update does not independently reconstruct a separate F6 closure decision or extend ordinary-user Windows F6 qualification.
 - F7: **F7 ACCEPTED / CLOSED - October 16, 2026** (final corrected implementation, frozen supported profile); **IMPLEMENTATION PUBLISHED / LIVE-REMOTE VERIFIED** at `15f2ea1879ff1af902114ffed25f85f6ec175615`, direct parent `35550c75d9f13ccd1b0cba8f19fa9c1230c66529`. Codex performed the ordinary push under the new explicit two-commit release authorization. This separate tracker-only publication record retains all post-T37 evidence and limitations; its containing commit identity belongs to Git history and the final release report.
+- F8: **IMPLEMENTED / PUBLISHED / CROSS-PLATFORM QUALIFIED — FORMAL ACCEPTANCE PENDING**. Implementation `f31821e0482f8553297b33a37f776af2cbc40e55`, direct parent `4d556e55a16fec4caebeb1ce725195f0a9643472`; 16 ADD + 13 MODIFY. Windows and native Linux full clean regressions: 795/795 PASS each; cross-platform source identity: 29/29 PASS. Independent acceptance audit: 18/42 demonstrated, 24/42 partially demonstrated. No unconditional F8 closure is claimed.
 - M8: BLOCKED until full Pre-M8 foundation acceptance.
 - GUI: BLOCKED; interface remains frozen and no GUI implementation is authorized.
 
@@ -56,12 +57,12 @@ Historical assistant runtime check: OpenJDK 17.0.20; mvn is unavailable. The pro
 | F1 amendment | COPY completion and controlled failure compatibility | Frozen F6 design `ad503a6ef7545e186a9156581ed368b986583042`; separately approved predecessor amendment | **IMPLEMENTED / VERIFIED / ACCEPTED / PUBLISHED**; original F1 remains ACCEPTED / CLOSED | `e8a1c9aea04ea0b78b64a5a09363f714138ac979`; direct parent `ad503a6ef7545e186a9156581ed368b986583042`; 13 MODIFY paths; Linux and Windows Java 21 clean regression 549/549 each; evidence entry below |
 | F6 | Verified collision-safe COPY execution | F0-F5 plus accepted F1 compatibility amendment (SATISFIED) | **ACCEPTED / CLOSED within recorded limitations**, per 2026-10-16 authorization; historical qualification/review record retained | Implementation `6a5f04aa9bd3757a8a93938325e744132a689f25` (parent `8df70af472b7018072a2a4c9a733f68959bfab81`); 15 ADD paths; elevated Windows and non-root WSL2 Linux focused 103, affected 652, clean 652 each with zero failures/errors/skips; review and remaining limits below |
 | F7 | Supported Project-Owned NIfTI-1 Reading | F0 and protected generic volume; accepted F0-F6 parent | **ACCEPTED / CLOSED - October 16, 2026 (technical); IMPLEMENTATION PUBLISHED / REMOTE VERIFIED**; separate tracker-only reconciliation | Implementation `15f2ea1879ff1af902114ffed25f85f6ec175615`; direct parent `35550c75d9f13ccd1b0cba8f19fa9c1230c66529`; exactly 15 ADDs (8 production, 7 test), all committed blobs match accepted corrected SHA-256. Live GitHub branch verified at implementation after push. Linux focused 75, affected 727, clean 727; Windows focused 75; mandatory gates zero failures/errors/skips. Tracker checkpoint identity: containing Git commit / release report; failed supplementary Windows regression retained below |
-| F8 | Reopen, compare and persist conversion evidence | F1/F7/M7 | **NOT STARTED / BLOCKED by applicable sequential dependencies** | None |
+| F8 | Reopen, compare and persist conversion evidence | F1/F7/M7 | **IMPLEMENTED / PUBLISHED / CROSS-PLATFORM QUALIFIED; FORMAL ACCEPTANCE PENDING** | Implementation `f31821e0482f8553297b33a37f776af2cbc40e55`; parent `4d556e55a16fec4caebeb1ce725195f0a9643472`; 16 ADD + 13 MODIFY (including six predecessor-test compatibility modifications); Windows elevated full clean 795/795 PASS; native Ubuntu WSL2 non-root full clean 795/795 PASS; Windows corrected focused 65/65 PASS; LF-normalized source identity 29/29 PASS; independent audit 18/42 demonstrated and 24/42 partially demonstrated; formal acceptance NOT GRANTED |
 | F9 | Headless orchestration through existing M6/M7 | F2-F8 | **NOT STARTED / BLOCKED by applicable sequential dependencies** | None |
 | F10 | Minimal boundary reconciliation | Working F9 | **NOT STARTED / BLOCKED by applicable sequential dependencies** | None |
 | F11 | Synthetic then stakeholder acceptance | F0-F10 | **NOT STARTED / BLOCKED by applicable sequential dependencies** | None |
 
-The matrix records architectural dependencies and the current sequential authorization state. It does not authorize parallel implementation or bypass predecessor acceptance gates. **F0-F6 remain ACCEPTED / CLOSED within recorded limitations. F7 is technically ACCEPTED / CLOSED; its exact accepted implementation is published and live-remote verified at `15f2ea1879ff1af902114ffed25f85f6ec175615`. This is the separate tracker-only reconciliation record; its own commit identity is recorded by Git history and the final release report. F8-F11, GUI and M8 remain gated; every Pre-M8 program-wide acceptance checkbox remains unchecked.** Earlier statements in dated predecessor sections are historical; the October 16 lifecycle record distinguishes technical acceptance and publication.
+The matrix records architectural dependencies and sequential authorization state. F0-F7 remain ACCEPTED / CLOSED within recorded limitations. F8 is implemented, cross-platform qualified and remotely published at `f31821e0482f8553297b33a37f776af2cbc40e55`, but independent contractual acceptance is pending. F9-F11, GUI and M8 remain blocked by applicable gates. All program-wide Pre-M8 acceptance checkboxes remain unchecked. Historical predecessor records are retained.
 
 ## Global invariants
 
@@ -3511,3 +3512,21 @@ The two public-report publication-classification discrepancies are **not conclus
 - The original documentation-only reconciliation changed only this canonical tracker and performed no staging/commit/push. The subsequent authorized release cycle publishes exactly two units: 15 accepted Java additions, then this single Markdown modification. No source/qualification cycle is rerun, no unrelated untracked file is staged, and no additional Git unit is authorized. Final clean tracked state, empty index, six preserved unrelated untracked files and the two-commit ancestry are verified in the release report. F8-F11, GUI, M8 and global Pre-M8 acceptance remain gated.
 
 **F7 ACCEPTED / CLOSED — IMPLEMENTATION PUBLISHED / REMOTE VERIFIED; TRACKER CHECKPOINT IDENTITY IN GIT HISTORY**
+
+## F8 IMPLEMENTATION PUBLICATION AND QUALIFICATION RECONCILIATION — 2026-10-23
+
+**Disposition: IMPLEMENTED / PUBLISHED / CROSS-PLATFORM QUALIFIED — FORMAL ACCEPTANCE PENDING.**
+
+- Branch: `feature/pre-m8-foundation`.
+- Published implementation commit: `f31821e0482f8553297b33a37f776af2cbc40e55`.
+- Verified direct parent: `4d556e55a16fec4caebeb1ce725195f0a9643472`.
+- Exact implementation commit scope: 16 ADD + 13 MODIFY = 29 paths, including six separately authorized predecessor-test compatibility modifications. No F0-F7 production modification is claimed.
+- Windows elevated NTFS full clean regression: 795 tests; zero failures, errors or skips.
+- Ubuntu WSL2 non-root native `/home` full clean regression: 795 tests; zero failures, errors or skips.
+- Windows corrected F8 focused verification: 65/65 PASS.
+- Final cross-platform LF-normalized source equivalence: 29/29 PASS.
+- Final independent evidence audit reconciled 42 mandatory F8 acceptance obligations: 18 demonstrated; 24 partially demonstrated.
+- Outstanding requirements concern selected negative-path, numerical and transaction-safety evidence. Passing regression counts do not discharge missing contractual assertions.
+- Formal F8 ACCEPTED / CLOSED status is NOT GRANTED. The F9 dependency gate is not satisfied by implementation publication alone.
+- No F9-F11, GUI or M8 implementation is authorized by this reconciliation.
+- This documentation-only reconciliation records the implementation checkpoint and evidence limits. The tracker-only Git commit identity and remote verification must be established separately after publication.
