@@ -50,9 +50,11 @@ class ManifestPlanTest {
         reject("Manifest components must be non-null", () -> new ProvenanceManifest(1, JOB, null, List.of(), List.of()));
         reject("Manifest components must be non-null", () -> new ProvenanceManifest(1, JOB, TIME, null, List.of()));
         reject("Manifest components must be non-null", () -> new ProvenanceManifest(1, JOB, TIME, List.of(), null));
-        for (int version : new int[] {Integer.MIN_VALUE, 0, 2, Integer.MAX_VALUE}) {
+        for (int version : new int[] {Integer.MIN_VALUE, 0, 3, Integer.MAX_VALUE}) {
             reject("Manifest schema version is unsupported", () -> new ProvenanceManifest(version, JOB, TIME, List.of(), List.of()));
         }
+        assertEquals(1, new ProvenanceManifest(1, JOB, TIME, List.of(), List.of()).schemaVersion());
+        assertEquals(2, new ProvenanceManifest(2, JOB, TIME, List.of(), List.of()).schemaVersion());
     }
 
     @Test

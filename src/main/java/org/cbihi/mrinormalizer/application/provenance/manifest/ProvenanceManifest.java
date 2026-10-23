@@ -18,7 +18,7 @@ public record ProvenanceManifest(
         if (jobId == null || createdAt == null || sources == null || operations == null) {
             throw new IllegalArgumentException("Manifest components must be non-null");
         }
-        if (schemaVersion != 1) {
+        if (schemaVersion != 1 && schemaVersion != 2) {
             throw new IllegalArgumentException("Manifest schema version is unsupported");
         }
         if (sources.size() > 100000 || operations.size() > 100000) {

@@ -35,7 +35,13 @@ public record PublicJobReport(
         if (schemaVersion != 1 || state == null || sourceCount < 0 || sourceCount > 100000
                 || operationCounts == null || failureCounts == null) throw invalid();
         var kinds = ManifestOperation.Kind.values();
-        var states = CheckpointRecord.State.values();
+        var states = new CheckpointRecord.State[] {
+                CheckpointRecord.State.NOT_STARTED, CheckpointRecord.State.IN_PROGRESS,
+                CheckpointRecord.State.COMPLETED, CheckpointRecord.State.IDENTICAL_EXISTING,
+                CheckpointRecord.State.WRITTEN_UNVERIFIED, CheckpointRecord.State.SKIPPED_POLICY,
+                CheckpointRecord.State.BLOCKED, CheckpointRecord.State.FAILED,
+                CheckpointRecord.State.RECOVERY_REQUIRED
+        };
         if (operationCounts.size() != kinds.length * states.length) throw invalid();
         long operations = 0;
         int index = 0;

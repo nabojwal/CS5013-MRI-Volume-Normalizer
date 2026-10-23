@@ -167,6 +167,11 @@ class ManifestProjectionTest {
         assertFalse(error.getMessage().contains("Patient Alice")); assertNull(error.getCause());
     }
 
+    // Preserve the nine accepted schema-v1 states and its exact 18 public bins.
+    private static final List<State> V1_STATES = List.of(State.NOT_STARTED, State.IN_PROGRESS, State.COMPLETED,
+            State.IDENTICAL_EXISTING, State.WRITTEN_UNVERIFIED, State.SKIPPED_POLICY,
+            State.BLOCKED, State.FAILED, State.RECOVERY_REQUIRED);
+
     // P02: restricted evidence stays exact; aggregate public values omit it.
     @Test void restrictedPathsRemainSensitivePublicFieldsDoNot() {
         String sourceText = "Patient Alice/PID-123/1.2.840.77/Écho MiXeD 𐀀.dcm";
@@ -275,7 +280,7 @@ class ManifestProjectionTest {
     }
 
     @Test void allEighteenOperationBinsIncludeZerosAndCountOnlyCurrentStates() {
-        for (var kind : ManifestOperation.Kind.values()) for (var state : State.values()) {
+        for (var kind : ManifestOperation.Kind.values()) for (var state : V1_STATES) {
             // Verified COPY outcomes and unverified conversion outcomes retain their owning kinds.
             if (kind == ManifestOperation.Kind.COPY && state == State.WRITTEN_UNVERIFIED
                     || kind == ManifestOperation.Kind.CONVERT_DICOM_TO_NIFTI && (state == State.COMPLETED || state == State.IDENTICAL_EXISTING)) continue;
@@ -289,7 +294,7 @@ class ManifestProjectionTest {
             int expectedCount = state == State.IN_PROGRESS ? 1 : 2;
             assertEquals(18, report.operationCounts().size()); assertEquals(expectedCount, count(report, kind, state));
             int index = 0;
-            for (var expectedKind : ManifestOperation.Kind.values()) for (var expectedState : State.values()) {
+            for (var expectedKind : ManifestOperation.Kind.values()) for (var expectedState : V1_STATES) {
                 long expected = expectedKind == kind && expectedState == state ? expectedCount
                         : expectedKind == kind && state == State.IN_PROGRESS && expectedState == State.NOT_STARTED ? 1 : 0;
                 assertEquals(new OperationCount(expectedKind, expectedState, expected), report.operationCounts().get(index++));
@@ -299,6 +304,16 @@ class ManifestProjectionTest {
         var report = ManifestProjection.publicReport(new ManifestReplay(empty, HASH).current());
         assertEquals(0, report.sourceCount()); assertEquals(18, report.operationCounts().size());
         assertTrue(report.operationCounts().stream().allMatch(c -> c.count() == 0)); assertTrue(report.failureCounts().isEmpty());
+    }
+
+    @Test void schemaV1PublicProjectionRejectsVersionTwoPlanRatherThanExpandingEighteenBins() {
+        var source = source("source", DetectionDiagnostic.NONE, List.of());
+        var plan = new ProvenanceManifest(2, JOB, CREATED, List.of(source),
+                List.of(operation(1, ManifestOperation.Kind.CONVERT_DICOM_TO_NIFTI, source.source(), "output")));
+        var state = new ManifestReplay(plan, HASH).current();
+        rejectProjection(() -> ManifestProjection.publicReport(state));
+        assertEquals(18, zeroBins().size());
+        assertEquals(9, V1_STATES.size());
     }
 
     @Test void distinctEqualDigestSourcesAndRepeatedReferencesCountBySourceKey() {
@@ -514,18 +529,19 @@ class ManifestProjectionTest {
             case BLOCKED -> new Observation(state, Optional.empty(), Optional.of(FINISH), Optional.empty(), 0, Optional.of(Disposition.VALIDATION_REQUIRED), evidence);
             case FAILED -> new Observation(state, Optional.of(START), Optional.of(FINISH), Optional.empty(), 0, Optional.empty(), evidence);
             case RECOVERY_REQUIRED -> new Observation(state, Optional.of(START), Optional.empty(), Optional.empty(), 1, Optional.of(Disposition.RECOVERY_RECONCILIATION_REQUIRED), evidence);
+            case STAGED_VERIFIED, VERIFIED_PUBLISHED -> throw new IllegalArgumentException("V2-only state cannot enter a v1 public report fixture");
         };
     }
     private static ArrayList<OperationCount> zeroBins() {
         var bins = new ArrayList<OperationCount>();
-        for (var kind : ManifestOperation.Kind.values()) for (var state : State.values()) bins.add(new OperationCount(kind, state, 0));
+        for (var kind : ManifestOperation.Kind.values()) for (var state : V1_STATES) bins.add(new OperationCount(kind, state, 0));
         return bins;
     }
     private static PublicJobReport publicValue(List<OperationCount> bins, List<FailureCount> failures) {
         return new PublicJobReport(1, JobState.RUNNING, 0, bins, failures);
     }
     private static long count(PublicJobReport report, ManifestOperation.Kind kind, State state) {
-        return report.operationCounts().get(kind.ordinal() * State.values().length + state.ordinal()).count();
+        return report.operationCounts().get(kind.ordinal() * V1_STATES.size() + V1_STATES.indexOf(state)).count();
     }
     private static long failures(PublicJobReport report, FailureNamespace namespace, String code) {
         return report.failureCounts().stream().filter(f -> f.namespace() == namespace && f.code().equals(code)).mapToLong(FailureCount::count).sum();

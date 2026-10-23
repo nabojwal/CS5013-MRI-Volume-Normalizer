@@ -129,9 +129,10 @@ public final class ManifestReplay {
             replacement = new OperationState(previous.operationId(), record.observation().orElseThrow(), record.failures());
             var before = previous.observation().state();
             var after = replacement.observation().state();
-            nextActive += flag(after == State.IN_PROGRESS) - flag(before == State.IN_PROGRESS);
+            nextActive += flag(active(after)) - flag(active(before));
             nextSuccessful += flag(copySuccess(after)) - flag(copySuccess(before));
-            nextEligible += flag(completionEligible(after)) - flag(completionEligible(before));
+            nextEligible += flag(completionEligible(plan.operations().get(index).kind(), after))
+                    - flag(completionEligible(plan.operations().get(index).kind(), before));
             nextFailures += flag(hasFailures(replacement)) - flag(hasFailures(previous));
             nextUncertain += flag(after == State.RECOVERY_REQUIRED) - flag(before == State.RECOVERY_REQUIRED);
         } else {
@@ -172,7 +173,20 @@ public final class ManifestReplay {
         require(jobState == JobState.RUNNING || jobState == JobState.RECOVERY_REQUIRED && recovering,
                 "Replay operation requires an eligible running job");
         require(uncertaintyCount == 0 || recovering, "Replay uncertainty prevents normal operation observations");
-        boolean transition = recovering ? before.state() != State.NOT_STARTED
+        boolean v2 = plan.schemaVersion() == 2;
+        require(v2 || (after.state() != State.STAGED_VERIFIED && after.state() != State.VERIFIED_PUBLISHED),
+                "V2 state requires a v2 plan");
+        boolean transition = v2 ? (recovering ? before.state() != State.NOT_STARTED
+                : before.state() == State.NOT_STARTED
+                    ? after.state() == State.IN_PROGRESS || after.state() == State.BLOCKED || after.state() == State.SKIPPED_POLICY
+                    : switch (before.state()) {
+                        case IN_PROGRESS -> operation.kind() == ManifestOperation.Kind.COPY
+                                ? after.state() == State.COMPLETED || after.state() == State.IDENTICAL_EXISTING || after.state() == State.FAILED
+                                : after.state() == State.WRITTEN_UNVERIFIED || after.state() == State.FAILED;
+                        case WRITTEN_UNVERIFIED -> after.state() == State.STAGED_VERIFIED || after.state() == State.FAILED;
+                        case STAGED_VERIFIED -> after.state() == State.VERIFIED_PUBLISHED || after.state() == State.FAILED;
+                        default -> false;
+                    }) : recovering ? before.state() != State.NOT_STARTED
                 : before.state() == State.NOT_STARTED
                     ? after.state() == State.IN_PROGRESS || after.state() == State.BLOCKED || after.state() == State.SKIPPED_POLICY
                     : before.state() == State.IN_PROGRESS
@@ -180,12 +194,15 @@ public final class ManifestReplay {
                             || after.state() == State.WRITTEN_UNVERIFIED || after.state() == State.FAILED);
         require(transition, "Replay operation transition is invalid");
         if (operation.kind() == ManifestOperation.Kind.COPY) {
-            require(after.processingEvidence().isEmpty() && after.state() != State.WRITTEN_UNVERIFIED,
+            require(after.processingEvidence().isEmpty() && after.postWriteVerification().isEmpty()
+                    && after.postWriteFaults().isEmpty() && after.state() != State.WRITTEN_UNVERIFIED
+                    && after.state() != State.STAGED_VERIFIED && after.state() != State.VERIFIED_PUBLISHED,
                     "Replay COPY cannot carry conversion evidence");
         } else {
             require(!copySuccess(after.state()), "Replay conversion cannot claim verified COPY completion");
         }
-        if (after.state() == State.IN_PROGRESS || copySuccess(after.state()) || after.state() == State.WRITTEN_UNVERIFIED) {
+        if (after.state() == State.IN_PROGRESS || copySuccess(after.state()) || after.state() == State.WRITTEN_UNVERIFIED
+                || after.state() == State.STAGED_VERIFIED || after.state() == State.VERIFIED_PUBLISHED) {
             require(digestEligible[index] && after.matchedExpectedSourceCount() == operation.sources().size(),
                     "Replay requires all planned digest matches");
         }
@@ -194,6 +211,26 @@ public final class ManifestReplay {
         }
         if (copySuccess(after.state())) {
             require(after.outputDigest().orElseThrow().equals(copyDigests[index]), "Replay COPY output digest does not match plan");
+        }
+        if (v2 && operation.kind() == ManifestOperation.Kind.CONVERT_DICOM_TO_NIFTI) {
+            if (after.state() == State.STAGED_VERIFIED || after.state() == State.VERIFIED_PUBLISHED) {
+                var proof = after.postWriteVerification().orElseThrow();
+                var facts = after.processingEvidence().flatMap(ProcessingEvidence::conversionFacts).orElseThrow();
+                require(proof.comparedVoxelCount() == facts.voxelCount(), "Verified voxel count differs");
+            }
+            if (before.state() == State.WRITTEN_UNVERIFIED || before.state() == State.STAGED_VERIFIED) {
+                require(before.startedAt().equals(after.startedAt())
+                        && before.finishedAt().equals(after.finishedAt())
+                        && before.outputDigest().equals(after.outputDigest())
+                        && before.processingEvidence().equals(after.processingEvidence())
+                        && before.matchedExpectedSourceCount() == after.matchedExpectedSourceCount()
+                && retains(before.postWriteVerification(), after.postWriteVerification())
+                && after.postWriteFaults().containsAll(before.postWriteFaults()),
+                        "V2 conversion cannot rewrite stored facts");
+            }
+            if (before.state() == State.STAGED_VERIFIED)
+                require(before.postWriteVerification().equals(after.postWriteVerification()),
+                        "V2 verification identity cannot be replaced");
         }
         if (after.state() == State.BLOCKED) {
             require(blockingEvidence[index] || !record.failures().isEmpty() || hasProcessingErrors(after),
@@ -220,9 +257,9 @@ public final class ManifestReplay {
             case RUNNING -> require(operations.length > 0 && !sourceUncertainty,
                     "Replay requires nonempty certain plan before work");
             case COMPLETED -> require(operations.length > 0 && completionEligibleCount == operations.length
-                    && successfulCopies > 0 && activeCount == 0 && uncertaintyCount == 0
+                    && (plan.schemaVersion() == 2 || successfulCopies > 0) && activeCount == 0 && uncertaintyCount == 0
                     && !sourceFailures && operationFailureCount == 0 && jobFailures.isEmpty() && record.failures().isEmpty(),
-                    "Replay job completion requires successful failure-free COPY evidence");
+                    "Replay job completion requires acknowledged verified operations");
             case FAILED -> require(activeCount == 0 && uncertaintyCount == 0 && !sourceUncertainty
                     && (sourceFailures || operationFailureCount > 0 || !jobFailures.isEmpty() || !record.failures().isEmpty()),
                     "Replay job failure requires certain failure evidence and no active operation");
@@ -264,8 +301,14 @@ public final class ManifestReplay {
         return state == State.COMPLETED || state == State.IDENTICAL_EXISTING;
     }
 
-    private static boolean completionEligible(State state) {
-        return copySuccess(state) || state == State.SKIPPED_POLICY;
+    private boolean completionEligible(ManifestOperation.Kind kind, State state) {
+        if (plan.schemaVersion() == 1) return copySuccess(state) || state == State.SKIPPED_POLICY;
+        return kind == ManifestOperation.Kind.COPY ? copySuccess(state) : state == State.VERIFIED_PUBLISHED;
+    }
+
+    private boolean active(State state) {
+        return state == State.IN_PROGRESS || plan.schemaVersion() == 2
+                && (state == State.WRITTEN_UNVERIFIED || state == State.STAGED_VERIFIED);
     }
 
     private static int flag(boolean value) { return value ? 1 : 0; }

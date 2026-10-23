@@ -44,7 +44,7 @@ class ProvenanceContractBoundaryTest {
     private static final List<Class<?>> RECORDS = List.of(RelativePath.class, ContentDigest.class, SourceFileRecord.class,
             ManifestFailure.class, ProcessingEvidence.class, ProcessingEvidence.SourceSummary.class,
             ProcessingEvidence.ConversionFacts.class, ManifestOperation.class, ProvenanceManifest.class,
-            CheckpointRecord.class, CheckpointRecord.Observation.class, ManifestReceipt.class, ManifestState.class,
+            CheckpointRecord.class, CheckpointRecord.Observation.class, CheckpointRecord.ConversionVerification.class, ManifestReceipt.class, ManifestState.class,
             ManifestState.OperationState.class, PublicJobReport.class, PublicJobReport.OperationCount.class,
             PublicJobReport.FailureCount.class);
     private static final Map<Class<?>, List<String>> ENUMS = Map.ofEntries(
@@ -59,7 +59,17 @@ class ProvenanceContractBoundaryTest {
             Map.entry(ManifestOperation.Kind.class, List.of("COPY", "CONVERT_DICOM_TO_NIFTI")),
             Map.entry(CheckpointRecord.Kind.class, List.of("OPERATION_OBSERVED", "JOB_OBSERVED")),
             Map.entry(CheckpointRecord.State.class, List.of("NOT_STARTED", "IN_PROGRESS", "COMPLETED", "IDENTICAL_EXISTING",
-                    "WRITTEN_UNVERIFIED", "SKIPPED_POLICY", "BLOCKED", "FAILED", "RECOVERY_REQUIRED")),
+                    "WRITTEN_UNVERIFIED", "SKIPPED_POLICY", "BLOCKED", "FAILED", "RECOVERY_REQUIRED", "STAGED_VERIFIED", "VERIFIED_PUBLISHED")),
+            Map.entry(CheckpointRecord.ConversionFault.class, List.of("PLAN_MISMATCH", "SOURCE_BINDING_UNPROVEN", "SOURCE_DIGEST_UNPROVEN",
+                    "INTENT_NOT_ACKNOWLEDGED", "M6_FAILED", "M6_CAPTURE_INVALID", "M7_FAILED",
+                    "STAGE_CREATE_FAILED", "STAGE_CLOSE_FAILED", "STAGE_DIGEST_FAILED",
+                    "REOPEN_FAILED", "WEAK_IDENTITY_UNQUALIFIED", "REPORT_INCONSISTENT",
+                    "DIMENSIONS_DIFFER", "SCALAR_TYPE_DIFFERS", "VOXELS_DIFFER",
+                    "RAS_AFFINE_DIFFERS", "SPACING_DIFFERS", "HANDEDNESS_DIFFERS",
+                    "SCALING_DIFFERS", "INVALID_EXPECTED_FLOAT32", "RESOURCE_LIMIT",
+                    "INTERRUPTED", "STAGE_CHANGED", "STAGED_ACK_FAILED", "OUTPUT_CONFLICT",
+                    "PUBLICATION_UNAVAILABLE", "PUBLICATION_UNKNOWN", "FINAL_DIGEST_MISMATCH",
+                    "FINAL_ACK_FAILED", "CLEANUP_FAILED", "RELEASE_FAILED")),
             Map.entry(CheckpointRecord.Disposition.class, List.of("NOT_REQUESTED_BY_POLICY", "VALIDATION_REQUIRED",
                     "UNSUPPORTED_INPUT", "INPUT_UNAVAILABLE", "RECOVERY_RECONCILIATION_REQUIRED")),
             Map.entry(ManifestState.JobState.class, List.of("PLANNED", "RUNNING", "COMPLETED", "FAILED", "RECOVERY_REQUIRED")),
@@ -254,7 +264,12 @@ class ProvenanceContractBoundaryTest {
                 c("jobState", optional(ManifestState.JobState.class)), c("failures", list(ManifestFailure.class)));
         freezeRecord(CheckpointRecord.Observation.class, c("state", CheckpointRecord.State.class), c("startedAt", optional(Instant.class)),
                 c("finishedAt", optional(Instant.class)), c("outputDigest", optional(ContentDigest.class)), c("matchedExpectedSourceCount", int.class),
-                c("disposition", optional(CheckpointRecord.Disposition.class)), c("processingEvidence", optional(ProcessingEvidence.class)));
+                c("disposition", optional(CheckpointRecord.Disposition.class)), c("processingEvidence", optional(ProcessingEvidence.class)),
+                c("postWriteVerification", optional(CheckpointRecord.ConversionVerification.class)),
+                c("postWriteFaults", list(CheckpointRecord.ConversionFault.class)));
+        freezeRecord(CheckpointRecord.ConversionVerification.class, c("sessionId", UUID.class), c("stagedDigest", ContentDigest.class),
+                c("comparedVoxelCount", long.class), c("comparedCornerCount", int.class), c("maxWorldDeviationMm", double.class),
+                c("weakSourceIdentityObserved", boolean.class), c("policyId", String.class));
     }
 
     private static void freezePublicRecords() throws Exception {
@@ -329,7 +344,18 @@ class ProvenanceContractBoundaryTest {
         assertEquals(boolean.class, type.getDeclaredMethod("equals", Object.class).getReturnType());
         assertEquals(int.class, type.getDeclaredMethod("hashCode").getReturnType());
         assertEquals(String.class, type.getDeclaredMethod("toString").getReturnType());
-        freezeConstructor(type, Arrays.stream(expected).map(Component::shape).toArray(Shape[]::new));
+        if (type == CheckpointRecord.Observation.class) {
+            // Two and only two public constructors: the new canonical record plus its 7-field v1 compatibility form.
+            var canonicalTypes = Arrays.stream(expected).map(c -> c.shape.raw).toArray(Class<?>[]::new);
+            var canonical = type.getConstructor(canonicalTypes);
+            var legacy = type.getConstructor(CheckpointRecord.State.class, Optional.class, Optional.class,
+                    Optional.class, int.class, Optional.class, Optional.class);
+            assertEquals(Set.of(canonical, legacy), Set.copyOf(Arrays.asList(type.getConstructors())));
+            for (var constructor : List.of(canonical, legacy)) {
+                assertEquals(Modifier.PUBLIC, constructor.getModifiers());
+                assertFalse(constructor.isVarArgs()); assertEquals(0, constructor.getExceptionTypes().length);
+            }
+        } else freezeConstructor(type, Arrays.stream(expected).map(Component::shape).toArray(Shape[]::new));
         assertEquals(0, type.getFields().length);
         for (var field : type.getDeclaredFields()) if (!Modifier.isStatic(field.getModifiers()))
             assertEquals(Modifier.PRIVATE | Modifier.FINAL, field.getModifiers());

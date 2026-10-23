@@ -144,7 +144,7 @@ class JsonManifestCodecTest {
 
     @Test
     void schemasVersionsEnumsAndRequiredLiteralsAreClosed() {
-        for (var candidate : List.of(EMPTY_PLAN.replace("schemaVersion\":1", "schemaVersion\":2"), EMPTY_PLAN.replace("provenance-plan", "other"),
+        for (var candidate : List.of(EMPTY_PLAN.replace("schemaVersion\":1", "schemaVersion\":3"), EMPTY_PLAN.replace("provenance-plan", "other"),
                 EMPTY_PLAN.replace("[\"SOURCE\",\"OUTPUT\"]", "[\"OUTPUT\",\"SOURCE\"]"))) reject(() -> codec.decodePlan(utf8(candidate)));
         String checkpoint = text(codec.encode(operation(State.WRITTEN_UNVERIFIED)));
         for (var candidate : List.of(checkpoint.replace("schemaVersion\":1", "schemaVersion\":2"), checkpoint.replace("WRITTEN_UNVERIFIED", "VERIFIED"),
@@ -152,6 +152,17 @@ class JsonManifestCodecTest {
                 checkpoint.replace("INT16", "FLOAT32"))) reject(() -> codec.decodeCheckpoint(utf8(candidate)));
         reject(() -> codec.decodeCheckpoint(utf8(EMPTY_PLAN)));
         reject(() -> codec.decodePlan(utf8(RUNNING)));
+    }
+
+    @Test
+    void versionTwoPlanUsesItsOwnCanonicalVersionWithoutChangingLegacyGolden() {
+        var v1 = emptyPlan();
+        assertEquals(EMPTY_PLAN, text(codec.encode(v1)));
+        var v2 = new ProvenanceManifest(2, JOB, TIME, List.of(), List.of());
+        var encoded = codec.encode(v2);
+        assertTrue(text(encoded).contains("\"schemaVersion\":2"));
+        assertEquals(v2, codec.decodePlan(encoded));
+        reject(() -> codec.decodePlan(utf8(EMPTY_PLAN.replace("schemaVersion\":1", "schemaVersion\":3"))));
     }
 
     @Test
@@ -331,6 +342,10 @@ class JsonManifestCodecTest {
         assertNull(failure.getCause());
     }
 
+    private static final List<State> V1_STATES = List.of(State.NOT_STARTED, State.IN_PROGRESS, State.COMPLETED,
+            State.IDENTICAL_EXISTING, State.WRITTEN_UNVERIFIED, State.SKIPPED_POLICY,
+            State.BLOCKED, State.FAILED, State.RECOVERY_REQUIRED);
+
     // J04
     @Test
     void roundTripsEverySupportedInternalRecord() {
@@ -338,7 +353,7 @@ class JsonManifestCodecTest {
         roundTrip(unicodePlan());
         var noDigest = new SourceFileRecord(new RelativePath(RelativePath.Root.SOURCE, "pending"), Optional.empty(), assessment(), List.of());
         roundTrip(new ProvenanceManifest(1, JOB, TIME, List.of(noDigest), List.of()));
-        for (var state : State.values()) if (state != State.NOT_STARTED) roundTrip(operation(state));
+        for (var state : V1_STATES) if (state != State.NOT_STARTED) roundTrip(operation(state));
         for (var state : JobState.values()) if (state != JobState.PLANNED) roundTrip(job(state));
     }
 
@@ -515,6 +530,7 @@ class JsonManifestCodecTest {
             case BLOCKED -> new Observation(state, Optional.empty(), Optional.of(TIME), Optional.empty(), 0, Optional.of(Disposition.INPUT_UNAVAILABLE), Optional.empty());
             case FAILED -> new Observation(state, Optional.of(TIME), Optional.of(TIME), Optional.empty(), 0, Optional.empty(), Optional.empty());
             case RECOVERY_REQUIRED -> new Observation(state, Optional.of(TIME), Optional.empty(), digest, 1, Optional.of(Disposition.RECOVERY_RECONCILIATION_REQUIRED), Optional.empty());
+            case STAGED_VERIFIED, VERIFIED_PUBLISHED -> throw new IllegalArgumentException("Schema-v2 states cannot appear in v1 golden fixtures");
         };
         return new CheckpointRecord(1, JOB, 1, HASH, TIME, Kind.OPERATION_OBSERVED, Optional.of(ID), Optional.of(observed), Optional.empty(),
                 state == State.FAILED ? List.of(failure()) : state == State.RECOVERY_REQUIRED ? List.of(recovery()) : List.of());
@@ -617,7 +633,7 @@ class JsonManifestCodecTest {
 
     private static PublicJobReport publicReport(JobState state, List<PublicJobReport.FailureCount> failures) {
         var bins = new ArrayList<PublicJobReport.OperationCount>(); int count = 0;
-        for (var kind : ManifestOperation.Kind.values()) for (var observation : State.values())
+        for (var kind : ManifestOperation.Kind.values()) for (var observation : V1_STATES)
             bins.add(new PublicJobReport.OperationCount(kind, observation, count++));
         return new PublicJobReport(1, state, 100000, bins, failures);
     }

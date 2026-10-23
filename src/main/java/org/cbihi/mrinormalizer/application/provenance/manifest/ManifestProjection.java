@@ -50,9 +50,15 @@ public final class ManifestProjection {
     }
 
     public static PublicJobReport publicReport(ManifestState current) {
-        if (current == null) throw invalid();
+        if (current == null || current.plan().schemaVersion() != 1) throw invalid();
         var kinds = ManifestOperation.Kind.values();
-        var states = CheckpointRecord.State.values();
+        var states = new CheckpointRecord.State[] {
+                CheckpointRecord.State.NOT_STARTED, CheckpointRecord.State.IN_PROGRESS,
+                CheckpointRecord.State.COMPLETED, CheckpointRecord.State.IDENTICAL_EXISTING,
+                CheckpointRecord.State.WRITTEN_UNVERIFIED, CheckpointRecord.State.SKIPPED_POLICY,
+                CheckpointRecord.State.BLOCKED, CheckpointRecord.State.FAILED,
+                CheckpointRecord.State.RECOVERY_REQUIRED
+        };
         long[][] operations = new long[kinds.length][states.length];
         long[] detection = new long[DetectionDiagnostic.values().length];
         long[] reconstruction = new long[DicomProcessingError.values().length];

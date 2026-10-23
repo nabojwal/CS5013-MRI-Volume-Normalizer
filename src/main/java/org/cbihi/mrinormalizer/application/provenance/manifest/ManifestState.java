@@ -58,9 +58,10 @@ public record ManifestState(
             }
             failures = orderedFailures(failures);
             boolean coherent = switch (observation.state()) {
-                case NOT_STARTED, IN_PROGRESS, COMPLETED, IDENTICAL_EXISTING, WRITTEN_UNVERIFIED, SKIPPED_POLICY -> failures.isEmpty();
+                case NOT_STARTED, IN_PROGRESS, COMPLETED, IDENTICAL_EXISTING, WRITTEN_UNVERIFIED, SKIPPED_POLICY,
+                        STAGED_VERIFIED, VERIFIED_PUBLISHED -> failures.isEmpty() && observation.postWriteFaults().isEmpty();
                 case BLOCKED -> true;
-                case FAILED -> !failures.isEmpty() || observation.processingEvidence()
+                case FAILED -> !failures.isEmpty() || !observation.postWriteFaults().isEmpty() || observation.processingEvidence()
                         .map(e -> !e.reconstructionErrors().isEmpty() || !e.conversionErrors().isEmpty()).orElse(false);
                 case RECOVERY_REQUIRED -> failures.stream().anyMatch(f -> f.code() == ManifestFailure.Code.RECOVERY_REQUIRED);
             };

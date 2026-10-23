@@ -64,6 +64,10 @@ class PersistenceContractTest {
     private static final ManifestFailure FAILURE = new ManifestFailure(Phase.HASHING, Code.HASH_FAILED);
     private static final ManifestFailure RECOVERY = new ManifestFailure(Phase.EXECUTION, Code.RECOVERY_REQUIRED);
 
+    private static final List<State> V1_STATES = List.of(State.NOT_STARTED, State.IN_PROGRESS, State.COMPLETED,
+            State.IDENTICAL_EXISTING, State.WRITTEN_UNVERIFIED, State.SKIPPED_POLICY,
+            State.BLOCKED, State.FAILED, State.RECOVERY_REQUIRED);
+
     // C01
     @Test
     void recordKindAndObservationMatrixIsExhaustive() {
@@ -72,7 +76,7 @@ class PersistenceContractTest {
         for (var d : Disposition.values()) dispositions.add(Optional.of(d));
         var evidence = Arrays.asList(null, phase(Scope.RECONSTRUCTION, true),
                 phase(Scope.RECONSTRUCTION, false), phase(Scope.CONVERSION, true), phase(Scope.CONVERSION, false));
-        for (var state : State.values()) {
+        for (var state : V1_STATES) {
             for (int flags = 0; flags < 8; flags++) {
                 boolean start = (flags & 1) != 0;
                 boolean finish = (flags & 2) != 0;
@@ -98,12 +102,31 @@ class PersistenceContractTest {
                                 case FAILED -> finish && !digest && count == 0 && disposition.isEmpty();
                                 case RECOVERY_REQUIRED -> disposition.equals(
                                         Optional.of(Disposition.RECOVERY_RECONCILIATION_REQUIRED));
+                                case STAGED_VERIFIED, VERIFIED_PUBLISHED -> false;
                             };
                             Executable construct = () -> new Observation(state, start ? Optional.of(START) : Optional.empty(),
                                     finish ? Optional.of(FINISH) : Optional.empty(), digest ? Optional.of(DIGEST) : Optional.empty(),
                                     count, disposition, Optional.ofNullable(supplied));
                             if (expected) assertDoesNotThrow(construct);
-                            else reject("Observation facts do not match state", construct);
+                            else if (state == State.FAILED) {
+                                // F8 permits a wider v2 FAILED shape locally; a v1 checkpoint
+                                // must still enforce every original v1 failed-state restriction.
+                                Observation suppliedObservation;
+                                try {
+                                    suppliedObservation = new Observation(state,
+                                            start ? Optional.of(START) : Optional.empty(),
+                                            finish ? Optional.of(FINISH) : Optional.empty(),
+                                            digest ? Optional.of(DIGEST) : Optional.empty(),
+                                            count, disposition, Optional.ofNullable(supplied));
+                                } catch (IllegalArgumentException invalidObservation) {
+                                    assertEquals("Observation facts do not match state", invalidObservation.getMessage());
+                                    assertNull(invalidObservation.getCause());
+                                    continue;
+                                }
+                                var v2Compatible = suppliedObservation;
+                                reject("Legacy failed-state shape changed", () -> operationRecord(
+                                        1, PLAN_HASH, RECORDED, v2Compatible, List.of(FAILURE)));
+                            } else reject("Observation facts do not match state", construct);
                         }
                     }
                 }
@@ -142,7 +165,9 @@ class PersistenceContractTest {
                     Kind.JOB_OBSERVED, index == 0 ? null : Optional.empty(), index == 1 ? null : Optional.empty(),
                     index == 2 ? null : Optional.of(JobState.RUNNING), index == 3 ? null : List.of()));
         }
-        for (int version : new int[] {Integer.MIN_VALUE, 0, 2, Integer.MAX_VALUE}) {
+        assertDoesNotThrow(() -> new CheckpointRecord(2, JOB, 1, PLAN_HASH, RECORDED,
+                Kind.JOB_OBSERVED, Optional.empty(), Optional.empty(), Optional.of(JobState.RUNNING), List.of()));
+        for (int version : new int[] {Integer.MIN_VALUE, 0, 3, Integer.MAX_VALUE}) {
             reject("Unsupported checkpoint schema version", () -> new CheckpointRecord(version, JOB, 1, PLAN_HASH,
                     RECORDED, Kind.JOB_OBSERVED, Optional.empty(), Optional.empty(), Optional.of(JobState.RUNNING), List.of()));
         }
@@ -182,7 +207,7 @@ class PersistenceContractTest {
 
     @Test
     void checkpointFailureApplicabilityIsExhaustive() {
-        for (var state : State.values()) {
+        for (var state : V1_STATES) {
             if (state == State.NOT_STARTED) continue;
             for (var failures : List.of(List.<ManifestFailure>of(), List.of(FAILURE), List.of(RECOVERY))) {
                 boolean valid = switch (state) {
@@ -237,7 +262,28 @@ class PersistenceContractTest {
         assertEquals(State.WRITTEN_UNVERIFIED, record.observation().orElseThrow().state());
         assertTrue(record.observation().orElseThrow().processingEvidence().orElseThrow().conversionFacts().isPresent());
         assertTrue(record.failures().isEmpty());
-        assertFalse(Arrays.stream(State.values()).anyMatch(s -> s.name().contains("VERIFIED") && s != State.WRITTEN_UNVERIFIED));
+        assertEquals(9, V1_STATES.size());
+        assertFalse(V1_STATES.stream().anyMatch(s -> s.name().contains("VERIFIED") && s != State.WRITTEN_UNVERIFIED));
+        assertEquals(List.of(State.STAGED_VERIFIED, State.VERIFIED_PUBLISHED),
+                Arrays.stream(State.values()).filter(s -> !V1_STATES.contains(s)).toList());
+    }
+
+    @Test
+    void versionOneCheckpointRefusesBothNewStatesAndVerificationData() {
+        var conversion = phase(Scope.CONVERSION, true);
+        var verification = new CheckpointRecord.ConversionVerification(JOB, DIGEST, 1, 8, 0.0,
+                false, "F8-NIFTI1-F32-1");
+        for (var state : List.of(State.STAGED_VERIFIED, State.VERIFIED_PUBLISHED)) {
+            var extended = new Observation(state, Optional.of(START), Optional.of(FINISH),
+                    Optional.of(DIGEST), 1, Optional.empty(), Optional.of(conversion),
+                    Optional.of(verification), List.of());
+            reject("V2 observation not permitted in v1", () -> operationRecord(1, PLAN_HASH, RECORDED, extended, List.of()));
+        }
+        var legacy = observation(State.FAILED);
+        var extended = new Observation(legacy.state(), legacy.startedAt(), legacy.finishedAt(), legacy.outputDigest(),
+                legacy.matchedExpectedSourceCount(), legacy.disposition(), legacy.processingEvidence(),
+                Optional.empty(), List.of(CheckpointRecord.ConversionFault.STAGE_CHANGED));
+        reject("V2 observation not permitted in v1", () -> operationRecord(1, PLAN_HASH, RECORDED, extended, List.of()));
     }
 
     @Test
@@ -512,13 +558,14 @@ class PersistenceContractTest {
         reject("State failure limit exceeded", () -> new OperationState(id(1), observation(State.BLOCKED), Collections.nCopies(65, FAILURE)));
         reject("State failures must be non-null and unique", () -> new OperationState(id(1), observation(State.BLOCKED), Arrays.asList((ManifestFailure) null)));
         reject("State failures must be non-null and unique", () -> new OperationState(id(1), observation(State.BLOCKED), List.of(FAILURE, FAILURE)));
-        for (var observed : State.values()) {
+        for (var observed : V1_STATES) {
             for (var failures : List.of(List.<ManifestFailure>of(), List.of(FAILURE), List.of(RECOVERY))) {
                 boolean valid = switch (observed) {
                     case NOT_STARTED, IN_PROGRESS, COMPLETED, IDENTICAL_EXISTING, WRITTEN_UNVERIFIED, SKIPPED_POLICY -> failures.isEmpty();
                     case BLOCKED -> true;
                     case FAILED -> !failures.isEmpty();
                     case RECOVERY_REQUIRED -> failures.contains(RECOVERY);
+                    case STAGED_VERIFIED, VERIFIED_PUBLISHED -> false;
                 };
                 Executable construct = () -> new OperationState(id(1), observation(observed), failures);
                 if (valid) assertDoesNotThrow(construct);
@@ -557,9 +604,9 @@ class PersistenceContractTest {
         assertArrayEquals(new Class<?>[] {int.class, UUID.class, long.class, String.class, Instant.class, Kind.class,
                 Optional.class, Optional.class, Optional.class, List.class}, types(CheckpointRecord.class));
         assertArrayEquals(new String[] {"state", "startedAt", "finishedAt", "outputDigest", "matchedExpectedSourceCount",
-                "disposition", "processingEvidence"}, names(Observation.class));
+                "disposition", "processingEvidence", "postWriteVerification", "postWriteFaults"}, names(Observation.class));
         assertArrayEquals(new Class<?>[] {State.class, Optional.class, Optional.class, Optional.class, int.class,
-                Optional.class, Optional.class}, types(Observation.class));
+                Optional.class, Optional.class, Optional.class, List.class}, types(Observation.class));
         assertArrayEquals(new String[] {"plan", "receipt", "state", "recordedAt", "operations", "jobFailures"}, names(ManifestState.class));
         assertArrayEquals(new Class<?>[] {ProvenanceManifest.class, ManifestReceipt.class, JobState.class, Instant.class,
                 List.class, List.class}, types(ManifestState.class));
@@ -567,7 +614,7 @@ class PersistenceContractTest {
         assertArrayEquals(new Class<?>[] {String.class, Observation.class, List.class}, types(OperationState.class));
         assertArrayEquals(new String[] {"OPERATION_OBSERVED", "JOB_OBSERVED"}, Arrays.stream(Kind.values()).map(Enum::name).toArray(String[]::new));
         assertArrayEquals(new String[] {"NOT_STARTED", "IN_PROGRESS", "COMPLETED", "IDENTICAL_EXISTING", "WRITTEN_UNVERIFIED",
-                "SKIPPED_POLICY", "BLOCKED", "FAILED", "RECOVERY_REQUIRED"}, Arrays.stream(State.values()).map(Enum::name).toArray(String[]::new));
+                "SKIPPED_POLICY", "BLOCKED", "FAILED", "RECOVERY_REQUIRED", "STAGED_VERIFIED", "VERIFIED_PUBLISHED"}, Arrays.stream(State.values()).map(Enum::name).toArray(String[]::new));
         assertArrayEquals(new String[] {"NOT_REQUESTED_BY_POLICY", "VALIDATION_REQUIRED", "UNSUPPORTED_INPUT", "INPUT_UNAVAILABLE",
                 "RECOVERY_RECONCILIATION_REQUIRED"}, Arrays.stream(Disposition.values()).map(Enum::name).toArray(String[]::new));
         assertArrayEquals(new String[] {"PLANNED", "RUNNING", "COMPLETED", "FAILED", "RECOVERY_REQUIRED"},
@@ -581,12 +628,14 @@ class PersistenceContractTest {
         generic(Observation.class, "outputDigest", Optional.class, ContentDigest.class);
         generic(Observation.class, "disposition", Optional.class, Disposition.class);
         generic(Observation.class, "processingEvidence", Optional.class, ProcessingEvidence.class);
+        generic(Observation.class, "postWriteVerification", Optional.class, CheckpointRecord.ConversionVerification.class);
+        generic(Observation.class, "postWriteFaults", List.class, CheckpointRecord.ConversionFault.class);
         generic(ManifestState.class, "operations", List.class, OperationState.class);
         generic(ManifestState.class, "jobFailures", List.class, ManifestFailure.class);
         generic(OperationState.class, "failures", List.class, ManifestFailure.class);
         for (var type : List.of(CheckpointRecord.class, Observation.class, ManifestReceipt.class, ManifestState.class, OperationState.class)) {
             assertTrue(type.isRecord());
-            assertEquals(1, type.getDeclaredConstructors().length);
+            assertEquals(type == Observation.class ? 2 : 1, type.getDeclaredConstructors().length);
             for (var method : type.getDeclaredMethods()) {
                 if (Modifier.isPublic(method.getModifiers())) {
                     assertFalse(Modifier.isStatic(method.getModifiers()));
@@ -606,7 +655,9 @@ class PersistenceContractTest {
             case SKIPPED_POLICY -> new Observation(state, Optional.empty(), Optional.of(FINISH), Optional.empty(), 0, Optional.of(Disposition.NOT_REQUESTED_BY_POLICY), Optional.empty());
             case BLOCKED -> new Observation(state, Optional.empty(), Optional.of(FINISH), Optional.empty(), 0, Optional.of(Disposition.VALIDATION_REQUIRED), Optional.empty());
             case FAILED -> new Observation(state, Optional.of(START), Optional.of(FINISH), Optional.empty(), 0, Optional.empty(), Optional.empty());
-            case RECOVERY_REQUIRED -> new Observation(state, Optional.empty(), Optional.empty(), Optional.empty(), 0, Optional.of(Disposition.RECOVERY_RECONCILIATION_REQUIRED), Optional.empty());
+            case RECOVERY_REQUIRED -> new Observation(state, Optional.of(START), Optional.empty(), Optional.empty(), 1,
+                    Optional.of(Disposition.RECOVERY_RECONCILIATION_REQUIRED), Optional.empty());
+            case STAGED_VERIFIED, VERIFIED_PUBLISHED -> throw new IllegalArgumentException("Version-2 state requires new verification evidence");
         };
     }
 

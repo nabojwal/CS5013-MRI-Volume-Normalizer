@@ -219,7 +219,19 @@ final class JsonManifestCodec {
             append("]");
         }
 
+        private void verification(CheckpointRecord.ConversionVerification value) {
+            append("{\"sessionId\":"); quoted(value.sessionId().toString());
+            append(",\"stagedDigest\":"); digest(Optional.of(value.stagedDigest()));
+            append(",\"comparedVoxelCount\":"); number(value.comparedVoxelCount());
+            append(",\"comparedCornerCount\":"); number(value.comparedCornerCount());
+            append(",\"maxWorldDeviationMm\":"); number(value.maxWorldDeviationMm());
+            append(",\"weakSourceIdentityObserved\":"); bool(value.weakSourceIdentityObserved());
+            append(",\"policyId\":"); quoted(value.policyId()); append("}");
+        }
+
+        private int checkpointVersion;
         private void checkpoint(CheckpointRecord value) {
+            checkpointVersion = value.schemaVersion();
             append(CHECKPOINT_START); number(value.schemaVersion()); append(",\"jobId\":"); quoted(value.jobId().toString());
             append(",\"sequence\":"); number(value.sequence()); append(",\"previousRecordSha256\":"); quoted(value.previousRecordSha256());
             append(",\"recordedAt\":"); quoted(value.recordedAt().toString()); append(",\"kind\":"); quoted(value.kind().name());
@@ -235,6 +247,16 @@ final class JsonManifestCodec {
             append(",\"matchedExpectedSourceCount\":"); number(value.matchedExpectedSourceCount()); append(",\"disposition\":");
             if (value.disposition().isPresent()) quoted(value.disposition().orElseThrow().name()); else append("null");
             append(",\"processingEvidence\":"); if (value.processingEvidence().isPresent()) processing(value.processingEvidence().orElseThrow()); else append("null");
+            if (checkpointVersion == 2) {
+                append(",\"postWriteVerification\":");
+                if (value.postWriteVerification().isPresent()) verification(value.postWriteVerification().orElseThrow()); else append("null");
+                append(",\"postWriteFaults\":[");
+                boolean first = true;
+                for (var fault : value.postWriteFaults()) {
+                    if (!first) append(","); first = false; quoted(fault.name());
+                }
+                append("]");
+            }
             append("}");
         }
 
@@ -367,11 +389,11 @@ final class JsonManifestCodec {
         private Optional<Instant> optionalInstant() { return nil() ? Optional.empty() : Optional.of(instant()); }
         private UUID jobId() { var token = string(36); var value = UUID.fromString(token); require(value.toString().equals(token)); return value; }
         private void capacity(int size, int limit) { require(size < limit); }
-        private void version() { require(smallInteger() == 1); }
+        private int version() { int v = smallInteger(); require(v == 1 || v == 2); return v; }
         private void finish() { expect("\n"); require(position == text.length()); }
 
         private ProvenanceManifest plan() {
-            expect(PLAN_START); version(); expect(",\"jobId\":"); var job = jobId(); expect(",\"createdAt\":"); var time = instant();
+            expect(PLAN_START); int version = version(); expect(",\"jobId\":"); var job = jobId(); expect(",\"createdAt\":"); var time = instant();
             expect(",\"roots\":[\"SOURCE\",\"OUTPUT\"],\"sources\":[");
             var sources = new ArrayList<SourceFileRecord>();
             if (!take(']')) {
@@ -383,7 +405,7 @@ final class JsonManifestCodec {
                 do { capacity(operations.size(), 100000); operations.add(operation()); } while (take(','));
                 expect("]");
             }
-            expect("}"); return new ProvenanceManifest(1, job, time, sources, operations);
+            expect("}"); return new ProvenanceManifest(version, job, time, sources, operations);
         }
 
         private RelativePath path() {
@@ -440,22 +462,44 @@ final class JsonManifestCodec {
         }
 
         private CheckpointRecord checkpoint() {
-            expect(CHECKPOINT_START); version(); expect(",\"jobId\":"); var job = jobId(); expect(",\"sequence\":"); long sequence = integer();
+            expect(CHECKPOINT_START); int version = version(); expect(",\"jobId\":"); var job = jobId(); expect(",\"sequence\":"); long sequence = integer();
             expect(",\"previousRecordSha256\":"); var previous = string(64); expect(",\"recordedAt\":"); var time = instant();
             expect(",\"kind\":"); var kind = enumeration(CheckpointRecord.Kind.class); expect(",\"operationId\":"); var id = nil() ? Optional.<String>empty() : Optional.of(string(64));
-            expect(",\"observation\":"); var observed = nil() ? Optional.<CheckpointRecord.Observation>empty() : Optional.of(observation());
+            expect(",\"observation\":"); var observed = nil() ? Optional.<CheckpointRecord.Observation>empty() : Optional.of(observation(version));
             expect(",\"jobState\":"); var state = nil() ? Optional.<ManifestState.JobState>empty() : Optional.of(enumeration(ManifestState.JobState.class));
             expect(",\"failures\":"); var failures = failures(); expect("}");
-            return new CheckpointRecord(1, job, sequence, previous, time, kind, id, observed, state, failures);
+            return new CheckpointRecord(version, job, sequence, previous, time, kind, id, observed, state, failures);
         }
 
-        private CheckpointRecord.Observation observation() {
+        private CheckpointRecord.ConversionVerification verification() {
+            expect("{\"sessionId\":"); var session = jobId();
+            expect(",\"stagedDigest\":"); var digest = digest(); require(digest.isPresent());
+            expect(",\"comparedVoxelCount\":"); long count = integer();
+            expect(",\"comparedCornerCount\":"); int corners = smallInteger();
+            expect(",\"maxWorldDeviationMm\":"); double deviation = decimal();
+            expect(",\"weakSourceIdentityObserved\":"); boolean weak = bool();
+            expect(",\"policyId\":"); var policy = string(40); expect("}");
+            return new CheckpointRecord.ConversionVerification(session, digest.orElseThrow(), count, corners, deviation, weak, policy);
+        }
+        private CheckpointRecord.Observation observation(int version) {
             expect("{\"state\":"); var state = enumeration(CheckpointRecord.State.class); expect(",\"startedAt\":"); var start = optionalInstant();
             expect(",\"finishedAt\":"); var finish = optionalInstant(); expect(",\"outputDigest\":"); var digest = digest();
             expect(",\"matchedExpectedSourceCount\":"); int count = smallInteger(); expect(",\"disposition\":");
             var disposition = nil() ? Optional.<CheckpointRecord.Disposition>empty() : Optional.of(enumeration(CheckpointRecord.Disposition.class));
-            expect(",\"processingEvidence\":"); var evidence = nil() ? Optional.<ProcessingEvidence>empty() : Optional.of(processing()); expect("}");
-            return new CheckpointRecord.Observation(state, start, finish, digest, count, disposition, evidence);
+            expect(",\"processingEvidence\":"); var evidence = nil() ? Optional.<ProcessingEvidence>empty() : Optional.of(processing());
+            Optional<CheckpointRecord.ConversionVerification> verified = Optional.empty();
+            var faults = new ArrayList<CheckpointRecord.ConversionFault>();
+            if (version == 2) {
+                expect(",\"postWriteVerification\":");
+                verified = nil() ? Optional.empty() : Optional.of(verification());
+                expect(",\"postWriteFaults\":[");
+                if (!take(']')) {
+                    do { capacity(faults.size(), 32); faults.add(enumeration(CheckpointRecord.ConversionFault.class)); } while (take(','));
+                    expect("]");
+                }
+            }
+            expect("}");
+            return new CheckpointRecord.Observation(state, start, finish, digest, count, disposition, evidence, verified, faults);
         }
 
         private ProcessingEvidence processing() {
