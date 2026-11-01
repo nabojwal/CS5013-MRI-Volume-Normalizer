@@ -10,6 +10,10 @@ import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.AclFileAttributeView;
 import java.nio.file.attribute.AclEntryPermission;
+import java.nio.file.attribute.AclEntry;
+import java.nio.file.attribute.AclEntryFlag;
+import java.nio.file.attribute.AclEntryType;
+import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.PosixFileAttributes;
 import java.nio.file.attribute.UserPrincipal;
 import com.sun.nio.file.ExtendedOpenOption;
@@ -96,14 +100,34 @@ public final class NioM8Workspace implements M8Workspace {
             throw M8Fault.fail(M8Fault.Phase.SOURCE,M8Fault.Code.CONTAINMENT_UNPROVEN);
         return p;
     }
-    /** Verify an observed entry is the same no-follow object, never delete by name alone. */
-    private static BasicFileAttributes observe(Path p) throws IOException {
-        return Files.readAttributes(p,BasicFileAttributes.class,LinkOption.NOFOLLOW_LINKS);
+    /** Capture file identity; NTFS uses native volume serial + file index because
+     * the Windows Java 21 provider can return null for BasicFileAttributes.fileKey(). */
+    private record EntryIdentity(Object key,boolean directory,boolean regular) {}
+    private static boolean windows(){
+        return System.getProperty("os.name","").toLowerCase(java.util.Locale.ROOT).contains("win");
     }
-    private static boolean sameEntry(BasicFileAttributes first,BasicFileAttributes now){
-        return first.fileKey()!=null && first.fileKey().equals(now.fileKey())
-                && first.isDirectory()==now.isDirectory() && first.isRegularFile()==now.isRegularFile()
-                && !now.isSymbolicLink();
+    private static EntryIdentity observe(Path p) throws IOException {
+        BasicFileAttributes a=Files.readAttributes(p,BasicFileAttributes.class,LinkOption.NOFOLLOW_LINKS);
+        if(a.isSymbolicLink() || (!a.isDirectory() && !a.isRegularFile()))
+            throw new IOException("Untrusted filesystem entry type");
+        Object key=windows()?M8WindowsNtfsIdentity.read(p):a.fileKey();
+        if(key==null)throw new IOException("File identity unavailable");
+        return new EntryIdentity(key,a.isDirectory(),a.isRegularFile());
+    }
+    private static boolean sameEntry(EntryIdentity first,EntryIdentity now){
+        return first!=null && now!=null && first.key().equals(now.key())
+            &&first.directory()==now.directory() && first.regular()==now.regular();
+    }
+    /** Supply the owner-only, inheritable ACL atomically at NTFS creation; never
+     * expose a staging directory with the output parent's inherited writers. */
+    private static FileAttribute<List<AclEntry>> privateWindowsAcl(UserPrincipal owner){
+        List<AclEntry> acl=List.of(AclEntry.newBuilder().setType(AclEntryType.ALLOW)
+            .setPrincipal(owner).setPermissions(java.util.EnumSet.allOf(AclEntryPermission.class))
+            .setFlags(AclEntryFlag.FILE_INHERIT,AclEntryFlag.DIRECTORY_INHERIT).build());
+        return new FileAttribute<>(){
+            @Override public String name(){return "acl:acl";}
+            @Override public List<AclEntry> value(){return acl;}
+        };
     }
     private static void ensurePrivateDirectory(Path p) throws IOException {
         if(System.getProperty("os.name","").toLowerCase(java.util.Locale.ROOT).contains("win")){
@@ -218,9 +242,9 @@ public final class NioM8Workspace implements M8Workspace {
         private final List<Receipt> receipts=new ArrayList<>();
         private final List<ContentDigest> stages=new ArrayList<>();
         private final Set<Path> owned=new HashSet<>();
-        private final Map<Path,BasicFileAttributes> identities=new HashMap<>();
+        private final Map<Path,EntryIdentity> identities=new HashMap<>();
         private final Map<Path,FileChannel> openedStages=new HashMap<>();
-        private final BasicFileAttributes sourceRootIdentity, outputRootIdentity, sourceIdentity;
+        private final EntryIdentity sourceRootIdentity, outputRootIdentity, sourceIdentity;
         private final java.nio.file.FileStore outputStore;
         private final ContentDigest sourceDigest;
         private M8Plan plan;
@@ -238,9 +262,6 @@ public final class NioM8Workspace implements M8Workspace {
             try{
                 sourceRootIdentity=observe(srcRoot);outputRootIdentity=observe(outRoot);
                 sourceIdentity=observe(source);outputStore=Files.getFileStore(outRoot);
-                if(sourceIdentity.fileKey()==null || sourceRootIdentity.fileKey()==null
-                    ||outputRootIdentity.fileKey()==null)
-                    throw M8Fault.fail(M8Fault.Phase.REQUEST,M8Fault.Code.PROVIDER_UNSUPPORTED);
                 if(System.getProperty("os.name","").toLowerCase(java.util.Locale.ROOT).contains("win")
                         && (privateRoot.toString().length()>240 || finalRoot.toString().length()>240
                         || source.toString().length()>240))throw new IOException("Path budget");
@@ -260,9 +281,21 @@ public final class NioM8Workspace implements M8Workspace {
                 boolean win=System.getProperty("os.name","").toLowerCase(java.util.Locale.ROOT).contains("win");
                 activity="create-private";
                 inject("create-private",-1);
-                if(win)Files.createDirectory(privateRoot);
-                else Files.createDirectory(privateRoot,PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwx------")));
+                UserPrincipal privateOwner=null;
+                if(win){
+                    privateOwner=privateRoot.getFileSystem().getUserPrincipalLookupService()
+                        .lookupPrincipalByName(System.getProperty("user.name"));
+                    Files.createDirectory(privateRoot,privateWindowsAcl(privateOwner));
+                }else Files.createDirectory(privateRoot,PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwx------")));
                 own(privateRoot);
+                // An elevated Windows token can default the owner to Administrators.
+                // Bind the sole ACL grantee without following a substituted link.
+                if(win){
+                    checkOwned(privateRoot);
+                    Files.getFileAttributeView(privateRoot,AclFileAttributeView.class,
+                        LinkOption.NOFOLLOW_LINKS).setOwner(privateOwner);
+                    checkOwned(privateRoot);
+                }
                 ensurePrivateDirectory(privateRoot);
                 revalidateRoots();
                 activity="snapshot-open";
@@ -381,8 +414,7 @@ public final class NioM8Workspace implements M8Workspace {
             }
         }
         private void own(Path p)throws IOException{
-            BasicFileAttributes a=observe(p);
-            if(a.fileKey()==null||a.isSymbolicLink())throw new IOException("Identity unavailable");
+            EntryIdentity a=observe(p);
             owned.add(p);identities.put(p,a);
         }
         private void revalidateRoots()throws IOException{
