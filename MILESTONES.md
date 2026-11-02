@@ -1,5 +1,28 @@
 # Project Milestones
 
+## Current integration state — 2026-11-02
+
+**Verified integration baseline:** `b7739fd5db9a8e83e12f3a95b7f03bad31bd7a89` on `integration/post-ebo1-r2`.
+**Frozen release checkpoint:** `checkpoint/ebo-1-r2-windows-evidenced` at the
+same SHA. No merge into `main` is represented by this documentation update.
+
+| Scope | State as of 2026-11-02 | Qualification / qualification limit |
+| --- | --- | --- |
+| M6/M7 and F0-F7 | ACCEPTED / CLOSED in recorded supported profiles | Historic evidence and protected checkpoints below and in canonical tracker |
+| F8 | IMPLEMENTED; FORMAL ACCEPTANCE NOT ESTABLISHED | Tracker records cross-platform full regressions 795/795 each and independent audit 18/42 demonstrated, 24/42 partial; do not infer closure from later EBO regression |
+| F9 | WINDOWS-QUALIFIED SUBMISSION CHECKPOINT; FORMAL ACCEPTANCE PENDING | Focused 20/20, full 815/815; real-MRI 15-image slab and independent NIfTI comparison passed, incompatible 20-image selection rejected; ordinary-user Windows and native Linux not established in tracker |
+| M8 | INDEPENDENT NIfTI-1 TO DERIVED MR DICOM IMPLEMENTED | Native Windows evidence present, separate formal M8 acceptance not asserted; requires explicit MR/BIPED and sequence metadata |
+| EBO-1 R2 | ACCEPTED / CLOSED FOR NON-CLINICAL EVALUATION SCOPE | T01-T27 evidenced; five closure tests 5/5; F6 targeted 1/1; native Windows full clean regression 888/888, zero failures/errors/skips. R1 BraTS demonstration retained; R2 BraTS not rerun |
+| F10 and F11 | NOT STARTED / GATED | Independent contracts and acceptance remain necessary |
+| Desktop GUI | NOT IMPLEMENTED / NOT AUTHORIZED by existing tracker | FlatLaf dependency and reserved Swing package are not a functional UI |
+| Global Pre-M8 | NOT FORMALLY CLOSED | Canonical checklist remains unchecked; M8 implementation exception does not waive it |
+
+The original October 3 M7 results below are retained verbatim as historical
+acceptance evidence. In particular, `129 tests passed` and `M8 - NOT STARTED`
+apply only to that snapshot, not to the November 2 integration baseline.
+
+## Historical M7 status record — 2026-10-03 (preserved)
+
 Last updated: 2026-10-03
 
 ## CURRENT STATE

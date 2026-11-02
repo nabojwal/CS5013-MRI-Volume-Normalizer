@@ -9,9 +9,50 @@ selected supported conventional MR DICOM series into a format-neutral
 `ImageVolume`, and converts that volume to NIfTI-1 `.nii` or `.nii.gz` while
 preserving the supported stored voxel values and spatial semantics.
 
-Controlled NIfTI-to-DICOM reconstruction, dataset-level organization and the
-final desktop workflow remain later milestones. This is a research-use project,
-not a clinical or PACS product.
+Dataset-level organization/COPY, bounded selected-series headless conversion
+and controlled NIfTI-to-derived-DICOM reconstruction have since been implemented
+in separate, constrained workstreams. The integrated desktop GUI has not been
+implemented. This remains a research-use project, not a clinical or PACS product.
+
+### Integration status (2026-11-02; post-EBO-1 R2)
+
+The integration baseline is [`b7739fd5db9a8e83e12f3a95b7f03bad31bd7a89`](https://github.com/nabojwal/CS5013-MRI-Volume-Normalizer/commit/b7739fd5db9a8e83e12f3a95b7f03bad31bd7a89) on `integration/post-ebo1-r2`.
+The release branch `checkpoint/ebo-1-r2-windows-evidenced` is frozen at that
+same commit; `main` was not merged as part of this release.
+
+- **DICOM to NIfTI (F9):** a Windows-qualified headless conversion path for an
+  explicitly selected, supported conventional MR series, using the established
+  M6/M7/F7/F8 workflow. The F9 real-MRI submission evidence concerns one
+  selected 15-image slab, not arbitrary DICOM folders. F9 **formal acceptance
+  remains pending**; the documented ordinary-user Windows and native Linux
+  qualification is not established.
+- **NIfTI to derived MR DICOM (M8):** an implemented, bounded independent
+  NIfTI-1 conversion that requires explicit MR/BIPED and sequence metadata,
+  generates new DICOM instances and verifies staged instances before publication.
+  Native Windows evaluation evidence exists; **separate formal M8 acceptance is
+  not declared here**.
+- **Evaluation-only batch (EBO-1 R2):** `EboCommand` accepts one `.nii`/`.nii.gz`
+  or a top-level directory, runs supported M8 conversions sequentially and
+  publishes a summary. Its `evaluation` profile deliberately supplies the
+  non-clinical `SE`/`NONE` metadata template; these are **not recovered original
+  acquisition facts**. T01-T27 are accepted within that bounded scope. The
+  native Windows full clean regression passed **888/888**, and the five closure
+  cases passed **5/5**. The original BraTS demonstration used R1; there is
+  **no claimed R2 BraTS rerun**.
+- **Foundation and desktop:** F0-F7 remain accepted within their documented
+  limits; F8 formal acceptance remains pending in the canonical tracker. F10,
+  F11 and the Swing/FlatLaf desktop workflow are not implemented or accepted.
+  The global Pre-M8 gate remains unchecked notwithstanding the M8/EBO
+  submission exception.
+
+The M7-era milestone table under §3 is a **historical 2026-10-03 snapshot**;
+its M8 `NOT STARTED` entry and `129`-test count must not be interpreted as
+current project status. See
+[`MILESTONES.md`](MILESTONES.md), the
+[canonical tracker](docs/planning/PRE-M8-FOUNDATION-TRACKER.md) and the
+[EBO-1 evaluation contract](docs/planning/EBO-1-EVALUATION-CONTRACT.md)
+for scope-specific evidence. This project does not establish general
+bidirectional round-trip fidelity, unsupported NIfTI profiles, or clinical use.
 
 ## 2. Core Principles
 

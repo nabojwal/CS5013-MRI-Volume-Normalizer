@@ -2,6 +2,63 @@
 
 > **A workstream is not complete because its classes exist. It is complete only when its behavioral contracts are implemented, negative cases are tested, integration evidence passes, and the tracker records the verified checkpoint.**
 
+## Post-EBO integration reconciliation — 2026-11-02 (additive; latest)
+
+**Current GitHub integration baseline:** `integration/post-ebo1-r2` at
+`b7739fd5db9a8e83e12f3a95b7f03bad31bd7a89`. **Frozen non-merge release baseline:**
+`checkpoint/ebo-1-r2-windows-evidenced` at the same SHA. This is an additive
+readiness record; it **does not supersede or erase historical milestone
+acceptance evidence, frozen F8/F9 qualification limits or the global gate**.
+The dated `Program control` and historical workstream ledger below remain
+source records of earlier reviews, not up-to-date assertions that implemented
+M8/EBO code is absent.
+
+- **F0-F7:** ACCEPTED / CLOSED within their recorded limitations; source/test
+  histories and prior checkpoints remain frozen.
+- **F8:** existing verified conversion/reopen/provenance code is present.
+  The tracker records Windows and Linux clean regression 795/795 each and an
+  independent 18/42 demonstrated + 24/42 partially evidenced acceptance audit.
+  No later blanket F8 formal acceptance is inferred; reconcile its exact
+  obligations and any later evidence before changing this state.
+- **F9:** headless selected-series DICOM-to-NIfTI code is present and its
+  elevated-Windows submission checkpoint is published (focused 20/20; full
+  815/815; independent 15-image MRI comparison PASS; incompatible 20-image
+  selection rejected). Formal F9 acceptance remains pending; the earlier
+  ordinary-user Windows and native Linux qualification limitations remain.
+- **M8:** the source tree now contains `M8Command`, `M8ConversionService`, the
+  native workspace, and staged DICOM writer/verifier. An independent bounded
+  NIfTI-1-to-derived-MR-DICOM implementation and Windows evaluation exists,
+  notwithstanding the **historical** October 28 pre-implementation M8 records
+  below. M8's **separate formal acceptance is not claimed**; the G1/G2/G3
+  implementation-start exception does not close the global Pre-M8 gate.
+- **EBO-1 R2:** **ACCEPTED / CLOSED within PAI-EBO-1-CONTRACT-1.0's non-clinical
+  evaluation scope**, frozen commit `b7739fd5db9a8e83e12f3a95b7f03bad31bd7a89`. The bounded T06 preflight
+  correction rejects unsupported Windows UNC roots; all 27 obligations have
+  reconciliation evidence. Native Windows closure tests 5/5, targeted F6 1/1,
+  and full clean regression **888/888 PASS** with zero failures/errors/skips.
+  The earlier R1 BraTS single/4-volume demonstration is retained separately;
+  **no R2 BraTS conversion rerun or new pixel-level comparison is claimed**.
+  The manifest and sanitized evidence remain in the user's local release
+  record outside Git. `evaluation` metadata (`SE`, `NONE`, MR/BIPED confirmation)
+  is a declared non-clinical template, never recovered acquisition truth.
+- **F10 and F11:** NOT STARTED; sequential dependencies and their separate
+  contractual evidence/authorization remain binding.
+- **GUI:** Swing presentation remains a reserved package only. GUI implementation
+  is not authorized under the pre-existing tracker; a bounded, independently
+  approved GUI integration contract is required. No general bidirectional
+  round-trip, clinical interoperability, or original-acquisition recovery is
+  claimed.
+- **Global Pre-M8 acceptance gate:** remains **UNCHECKED / NOT FORMALLY CLOSED**.
+  None of the checked-off EBO tasks constitutes acceptance of F8, F9, M8,
+  F10, F11, GUI or the global gate by implication.
+
+**Change discipline for this reconciliation:** four Markdown-only changes
+(`README.md`, `MILESTONES.md`, this tracker and
+`docs/planning/EBO-1-EVALUATION-CONTRACT.md`) on the integration baseline.
+EBO production and test bytes, release checkpoint, and existing history must
+remain unchanged. This prepared documentation does not itself authorize a
+Git commit, remote push, merge, test requalification or imaging conversion.
+
 ## Program control
 
 - Date: 2026-10-23 (Asia/Kolkata; F8 implementation published and cross-platform qualified; formal acceptance pending).

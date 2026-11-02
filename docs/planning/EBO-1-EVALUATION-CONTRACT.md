@@ -2,7 +2,39 @@
 
 **Contract:** PAI-EBO-1-CONTRACT-1.0. **Expected exact parent:** `9da0f11c6799cb1be080594cd7c7221ae9f83cd2` (`checkpoint/m8-i1-windows-native-pass`).
 
-**Status:** Uncommitted candidate. M8-I1 formal acceptance is separate. No changes to existing M8 classes, CLI, metadata validator, Windows NTFS behavior, Maven configuration or other legacy code are authorized.
+**Status (2026-11-02): EBO-1 R2 PUBLISHED / ACCEPTED / CLOSED for the bounded non-clinical evaluation profile**, at Git commit `b7739fd5db9a8e83e12f3a95b7f03bad31bd7a89` on `checkpoint/ebo-1-r2-windows-evidenced`. The integration branch `integration/post-ebo1-r2` starts at that same SHA; `main` has not been merged. **M8-I1 formal acceptance remains a separate decision**. Existing M8 classes, CLI, metadata validator, NTFS workspace behavior, Maven configuration and other predecessor code were not modified in the bounded EBO R2 commit.
+
+### R2 acceptance and historical qualification interpretation (2026-11-02)
+
+The original 11-file EBO R1 implementation was qualified on native Windows
+(Java 21) with **883/883** full regression tests and a non-clinical BraTS
+single-volume/four-volume evaluation demonstration. Independent R1 acceptance
+review found 22/27 obligations demonstrated and five needing further evidence
+(T03, T06, T12, T18, T26). Those five were added as executable JUnit cases
+in `EboAcceptanceClosureTest.java`. Native Windows execution confirmed a real
+T06 unsupported-UNC-root preflight defect; **only**
+`EboFileDiscovery.java` was corrected to reject such roots before any M8 job
+or report I/O. No legacy M8 or predecessor behavior was changed.
+
+After correction, native Windows **five focused tests passed 5/5**, the
+inherited F6 mapped-drive targeted test passed **1/1**, and the clean full
+regression passed **888/888** (zero failures, errors or skips). The remote
+release commit contains exactly the original 11 EBO additions (with the T06
+correction) plus the one closure JUnit class; source blob integrity was
+verified. This evidence supports **T01-T27 acceptance within this contract's
+non-clinical evaluation profile only**. The earlier R1 BraTS demonstration
+remains frozen and **was not rerun using R2**; a new R2 BraTS pixel-comparison
+claim would be false. The R2 corrected source manifest and sanitized Windows
+qualification evidence were preserved outside Git at
+`D:\PAI-Validation\EBO-1-R2-RELEASE-RECORD` (private local storage; do not
+commit medical datasets or private operational evidence).
+
+The original R1 acceptance matrix and its proposed native Windows execution
+script further below are **retained as the original historical contract and
+pre-execution instructions**. Phrases such as "not yet observed" and "not
+executed here" in that preserved R1 procedure do **not** override the later
+R1/R2 results above. Separate F8/F9/M8 formal acceptance and the global
+Pre-M8 gate are not conferred by EBO closure.
 
 ## User-facing CLI
 
