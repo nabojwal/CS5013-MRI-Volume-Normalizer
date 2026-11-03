@@ -57,7 +57,7 @@ public final class F9HeadlessConversionService implements AutoCloseable {
         boolean published = false;
         try {
             var inventory = scanner.scan();
-            if (inventory == null || !inventory.failures().isEmpty() || inventory.entries().size() > 128)
+            if (inventory == null || !inventory.failures().isEmpty())
                 return F9HeadlessResult.failed(Reason.INVENTORY_INCOMPLETE);
             var entries = new LinkedHashMap<RelativePath, InventoryEntry>();
             for (var entry : inventory.entries()) entries.put(entry.source(), entry);

@@ -19,6 +19,21 @@ import org.cbihi.mrinormalizer.domain.model.GeometryValidationPolicy;
 /** Explicit composition of accepted adapters; adds no alternative writer or verifier. */
 public final class F9WindowsComposition {
     private F9WindowsComposition() {}
+    /** Derive F2 inventory cardinality from the actual source folder, without slice-count constants. */
+    private static int inventoryCount(Path source) throws java.io.IOException {
+        long count = 0;
+        try (DirectoryStream<Path> children = Files.newDirectoryStream(source)) {
+            for (Path child : children) {
+                if (Thread.currentThread().isInterrupted())
+                    throw new java.io.IOException("Inventory interrupted");
+                count++;
+                if (count > Integer.MAX_VALUE)
+                    throw new java.io.IOException("Inventory cannot be represented safely");
+            }
+        }
+        if (count == 0) throw new java.io.IOException("Empty DICOM source directory");
+        return Math.toIntExact(count);
+    }
     public static F9HeadlessConversionService open(Path sourceRoot, Path outputRoot, UUID jobId) {
         Objects.requireNonNull(sourceRoot);
         Objects.requireNonNull(outputRoot);
@@ -39,7 +54,7 @@ public final class F9WindowsComposition {
             var store = new JsonManifestStore(source, output, output.resolve(".pai-f9-manifest"), jobId);
             try {
                 var probe = new FormatDetectionService(List.of(new DicomFormatProbe(),new NiftiFormatProbe()));
-                var scanner = new NioDatasetScanner(source, output, new InventoryLimits(256, 3, 32), probe);
+                var scanner = new NioDatasetScanner(source, output, new InventoryLimits(inventoryCount(source), 3, 32), probe);
                 var metadata = new Dcm4cheMetadataReader(source,new DicomMetadataLimits(1048576, 16));
                 var reader = new Nifti1VolumeReader(output,
                         new NiftiReadLimits(512L<<20,512L<<20,75_000_000L,65536,1024L<<20,16384));

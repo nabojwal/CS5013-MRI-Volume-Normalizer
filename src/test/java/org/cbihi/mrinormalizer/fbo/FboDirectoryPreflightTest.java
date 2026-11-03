@@ -64,7 +64,10 @@ class FboDirectoryPreflightTest {
         Path empty=Files.createDirectory(r[0].resolve("empty"));
         assertThrows(IOException.class,()->p.inspectAll(make(r[0],r[1],"empty")));
         for(int i=2;i<=129;i++)Files.writeString(dir.resolve("image"+i+".dcm"),"x");
-        assertThrows(IOException.class,()->p.inspectAll(make(r[0],r[1],"s")));
+        var prepared129 = p.inspectAll(make(r[0],r[1],"s"));
+        assertEquals(1, prepared129.series().size());
+        assertEquals(129, prepared129.series().getFirst().members().size());
+        p.assertUnchanged(prepared129.series().getFirst());
     }
     @Test void t07_t08_exactOrderedInventoryAndDrift() throws Exception {
         Path[] r=roots();series(r[0],"chosen",2);series(r[0],"unselected",1);

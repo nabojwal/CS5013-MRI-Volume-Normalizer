@@ -108,7 +108,6 @@ public final class FboDirectoryPreflight implements Preflight {
         List<Path> files = new ArrayList<>();
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(source)) {
             for (Path p : stream) {
-                if (files.size() == 128) throw new IOException("Series member limit exceeded");
                 if (!attrs(p).isRegularFile() || Files.isSymbolicLink(p) || !p.toRealPath().equals(p))
                     throw new IOException("Untrusted series member");
                 new RelativePath(RelativePath.Root.SOURCE, p.getFileName().toString());

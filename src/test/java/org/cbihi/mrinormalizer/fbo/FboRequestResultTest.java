@@ -2,6 +2,9 @@ package org.cbihi.mrinormalizer.fbo;
 
 import static org.junit.jupiter.api.Assertions.*;
 import java.nio.file.Path;
+import java.nio.file.attribute.FileTime;
+import org.cbihi.mrinormalizer.application.request.F9HeadlessRequest;
+import org.cbihi.mrinormalizer.application.provenance.manifest.RelativePath;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -15,6 +18,25 @@ class FboRequestResultTest {
     }
     private static FboRequest request(List<FboRequest.SeriesSelection> selections) {
         return new FboRequest(Path.of("source"), Path.of("output"), selections);
+    }
+    @Test void selectedSeriesOf155And256MembersIsRepresentableWithoutTruncation() {
+        for (int count : List.of(155, 256)) {
+            List<RelativePath> members = new ArrayList<>();
+            List<FboBatchController.PreparedFile> prepared = new ArrayList<>();
+            for (int i = 0; i < count; i++) {
+                String name = "instance-" + i + ".dcm";
+                members.add(new RelativePath(RelativePath.Root.SOURCE, name));
+                prepared.add(new FboBatchController.PreparedFile(name, 1024L, FileTime.fromMillis(0),
+                        FileTime.fromMillis(0), null, "a".repeat(64)));
+            }
+            var request = new F9HeadlessRequest(UUID.randomUUID(), "1.2.3", members,
+                    new RelativePath(RelativePath.Root.OUTPUT, "selected.nii"));
+            assertEquals(count, request.selectedMembers().size());
+            var series = new FboBatchController.PreparedSeries(1, Path.of("source"), "1.2.3",
+                    new FboBatchController.DirectoryObservation(null, FileTime.fromMillis(0),
+                            FileTime.fromMillis(0)), prepared);
+            assertEquals(count, series.members().size());
+        }
     }
     @Test void t01_exactBoundsAndImmutableSelection() {
         assertThrows(IllegalArgumentException.class, () -> request(List.of()));

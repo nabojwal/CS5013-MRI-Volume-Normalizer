@@ -34,7 +34,7 @@ public final class FboBatchController {
                                  List<PreparedFile> members) {
         public PreparedSeries {
             if (ordinal < 1 || canonicalSourceDirectory == null || selectedSeriesInstanceUid == null
-                    || directory == null || members == null || members.isEmpty() || members.size() > 128)
+                    || directory == null || members == null || members.isEmpty())
                 throw new IllegalArgumentException("Invalid prepared series");
             members = List.copyOf(members);
         }

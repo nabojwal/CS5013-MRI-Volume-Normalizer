@@ -12,7 +12,7 @@ public record F9HeadlessRequest(UUID jobId, String selectedSeriesInstanceUid,
         if (jobId == null || selectedSeriesInstanceUid == null || selectedSeriesInstanceUid.isBlank()
                 || !selectedSeriesInstanceUid.matches("[0-9]+(?:\\.[0-9]+)*")
                 || selectedSeriesInstanceUid.length() > 64 || selectedMembers == null
-                || selectedMembers.isEmpty() || selectedMembers.size() > 128
+                || selectedMembers.isEmpty()
                 || selectedMembers.stream().anyMatch(p -> p == null || p.root() != RelativePath.Root.SOURCE)
                 || new HashSet<>(selectedMembers).size() != selectedMembers.size()
                 || destination == null || destination.root() != RelativePath.Root.OUTPUT
