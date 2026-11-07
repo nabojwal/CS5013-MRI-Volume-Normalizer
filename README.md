@@ -154,30 +154,7 @@ the application is running.
 
 Use a distinct input and output location. Prefer a **local NTFS directory**
 for the Windows evaluation workflow; do not assume arbitrary network, cloud,
-USB or unsupported filesystem destinations will work. The application
-uses no-overwrite and evidence-preservation rules: do **not** delete
-`.pai-internal` or reuse an uncertain destination without reviewing its
-state. For detailed supported-format and acceptance limits, see
-[Supported DICOM Profile](#4-supported-dicom-profile) and
-[Outstanding Qualification](#12-outstanding-qualification-and-acceptance-evidence).
-
-### Troubleshooting
-
-- **PowerShell shows `>>`:** press **Ctrl+C** to cancel the unfinished
-  command, then paste the single-line Java launch command again.
-- **Maven says `Unknown lifecycle phase ".outputFile=cp.txt"`:**
-  rerun the classpath command above with the entire `-D` argument quoted.
-- **`cp.txt` is missing:** the Maven dependency command did not finish
-  successfully. Rerun it and resolve its error before trying to launch.
-- **`java` or `mvn.cmd` is not recognized:** check the JDK/Maven
-  installation and `PATH`. Confirm Maven uses Java 21 with
-  `mvn.cmd -version`.
-- **The GUI still fails to open:** execute the launch command in PowerShell
-  without hiding terminal output, and inspect the error. A graphical desktop,
-  compiled classes and the runtime classpath are all required.
-
-`cp.txt`, local build outputs, temporary conversion data and private
-medical imaging files are local artifacts; **do not commit them to Git**.
+USB or unsupported filesystem destinations will work. 
 
 ## 2. Core Principles
 
