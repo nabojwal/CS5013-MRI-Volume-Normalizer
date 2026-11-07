@@ -1,0 +1,25 @@
+# Permit only the source, POM and Docker submission files into the build context.
+# Prevent accidental transfer of patient images, local validation logs and secrets.
+**
+!Dockerfile
+!.dockerignore
+!pom.xml
+!src/
+!src/**
+!docker/
+!docker/**
+# Even under permitted directories, exclude generated or private artifacts.
+**/__pycache__/
+**/target/
+**/.git/
+**/*.dcm
+**/*.nii
+**/*.nii.gz
+**/*.pdf
+**/*.log
+**/*.tar
+**/*.tar.gz
+**/*.env
+**/*secret*
+**/*credential*
+**/docker-evidence/
