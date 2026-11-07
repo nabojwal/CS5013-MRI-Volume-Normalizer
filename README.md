@@ -74,6 +74,12 @@ state. See [milestones](MILESTONES.md),
 [foundation tracker](docs/planning/PRE-M8-FOUNDATION-TRACKER.md), and
 [test results](docs/testing/TEST-RESULTS.md).
 
+## Desktop GUI
+
+![MRI Volume Normalizer desktop GUI showing the DICOM-to-NIfTI tab, input and output browsing, series selection, and conversion activity](assets/mri-volume-normalizer-gui.png)
+
+*Desktop interface with independent DICOM → NIfTI and NIfTI → DICOM workflows.*
+
 ## How to Use the Application (Windows PowerShell)
 
 These instructions launch the **Swing/FlatLaf desktop GUI from a fresh Git clone**.
