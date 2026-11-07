@@ -74,6 +74,111 @@ state. See [milestones](MILESTONES.md),
 [foundation tracker](docs/planning/PRE-M8-FOUNDATION-TRACKER.md), and
 [test results](docs/testing/TEST-RESULTS.md).
 
+## How to Use the Application (Windows PowerShell)
+
+These instructions launch the **Swing/FlatLaf desktop GUI from a fresh Git clone**.
+They are written for a Windows workstation with a graphical desktop; the
+project's documented filesystem qualification is primarily **local NTFS**.
+This is a bounded, non-clinical research prototype, not a universal medical
+image converter.
+
+### 1. Prerequisites
+
+Install [Git](https://git-scm.com/), a **Java 21 JDK**, and
+[Apache Maven](https://maven.apache.org/). Open **Windows PowerShell** and
+check that Java and Maven are accessible:
+
+```powershell
+java -version
+mvn.cmd -version
+```
+
+The Java version must be **21**. Maven must also use a Java 21 JDK.
+The first build needs access to Maven Central and the configured dcm4che
+artifact repository to resolve dependencies.
+
+### 2. Clone and open the project
+
+```powershell
+git clone https://github.com/nabojwal/CS5013-MRI-Volume-Normalizer.git
+cd CS5013-MRI-Volume-Normalizer
+```
+
+If you have already cloned the project, open a PowerShell terminal in its
+root directory (the folder containing `pom.xml`) instead.
+
+### 3. Build and create the runtime classpath
+
+Run each command **separately**, from the project root:
+
+```powershell
+mvn.cmd -q -DskipTests package
+mvn.cmd -q dependency:build-classpath "-Dmdep.outputFile=cp.txt"
+$cp = (Get-Content -Raw .\cp.txt).Trim()
+```
+
+The quoted `"-Dmdep.outputFile=cp.txt"` is intentional: unquoted Maven
+properties can be misparsed by some PowerShell/Maven command-line setups.
+On success, the Maven dependency goal writes `cp.txt` in the project root.
+`-DskipTests` skips running tests; it is **not** evidence of a passing
+regression suite. To run the tests separately, use `mvn.cmd clean test`
+with the environment prerequisites described in [Verification](#8-verification).
+
+### 4. Launch the desktop GUI
+
+Enter this as **one complete PowerShell line**:
+
+```powershell
+java -cp "target/classes;$cp" org.cbihi.mrinormalizer.presentation.gui.GuiI1App
+```
+
+Do not append a backtick, curly quote or unmatched quotation mark. A window
+titled **MRI Volume Normalizer** should appear with
+**DICOM → NIfTI** and **NIfTI → DICOM** tabs. Keep the terminal open while
+the application is running.
+
+### 5. Convert an MRI dataset
+
+1. Choose **DICOM → NIfTI** to inspect a folder containing conventional MR
+   DICOM instances. Review detected series, select eligible inputs (up to
+   **16** for a batch), and choose an **existing, separate output directory**.
+2. Or choose **NIfTI → DICOM** and browse to one supported `.nii`/`.nii.gz`
+   file or a folder of such files. Select the input(s), choose an existing
+   output directory, and explicitly acknowledge the **non-clinical evaluation
+   metadata assumptions** before conversion. The generated DICOM metadata
+   does **not** recover unknown original scanner/acquisition details.
+3. Click **Convert**, monitor the activity/status area, and inspect the
+   resulting files and reports. Only a backend-confirmed **VERIFIED**
+   outcome means verified completion; **PARTIAL**, **REJECTED**, **FAILED**,
+   **INTERRUPTED** or **RECOVERY_REQUIRED** must not be presented as success.
+
+Use a distinct input and output location. Prefer a **local NTFS directory**
+for the Windows evaluation workflow; do not assume arbitrary network, cloud,
+USB or unsupported filesystem destinations will work. The application
+uses no-overwrite and evidence-preservation rules: do **not** delete
+`.pai-internal` or reuse an uncertain destination without reviewing its
+state. For detailed supported-format and acceptance limits, see
+[Supported DICOM Profile](#4-supported-dicom-profile) and
+[Outstanding Qualification](#12-outstanding-qualification-and-acceptance-evidence).
+
+### Troubleshooting
+
+- **PowerShell shows `>>`:** press **Ctrl+C** to cancel the unfinished
+  command, then paste the single-line Java launch command again.
+- **Maven says `Unknown lifecycle phase ".outputFile=cp.txt"`:**
+  rerun the classpath command above with the entire `-D` argument quoted.
+- **`cp.txt` is missing:** the Maven dependency command did not finish
+  successfully. Rerun it and resolve its error before trying to launch.
+- **`java` or `mvn.cmd` is not recognized:** check the JDK/Maven
+  installation and `PATH`. Confirm Maven uses Java 21 with
+  `mvn.cmd -version`.
+- **The GUI still fails to open:** execute the launch command in PowerShell
+  without hiding terminal output, and inspect the error. A graphical desktop,
+  compiled classes and the runtime classpath are all required.
+
+`cp.txt`, local build outputs, temporary conversion data and private
+medical imaging files are local artifacts; **do not commit them to Git**.
+
 ## 2. Core Principles
 
 - detect formats from content rather than trusting extensions;
