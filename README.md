@@ -131,12 +131,6 @@ Enter this as **one complete PowerShell line**:
 ```powershell
 java -cp "target/classes;$cp" org.cbihi.mrinormalizer.presentation.gui.GuiI1App
 ```
-
-Do not append a backtick, curly quote or unmatched quotation mark. A window
-titled **MRI Volume Normalizer** should appear with
-**DICOM → NIfTI** and **NIfTI → DICOM** tabs. Keep the terminal open while
-the application is running.
-
 ### 5. Convert an MRI dataset
 
 1. Choose **DICOM → NIfTI** to inspect a folder containing conventional MR
