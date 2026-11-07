@@ -78,8 +78,6 @@ state. See [milestones](MILESTONES.md),
 
 ![MRI Volume Normalizer desktop GUI showing the DICOM-to-NIfTI tab, input and output browsing, series selection, and conversion activity](assets/mri-volume-normalizer-gui.png)
 
-*Desktop interface with independent DICOM → NIfTI and NIfTI → DICOM workflows.*
-
 ## How to Use the Application (Windows PowerShell)
 
 These instructions launch the **Swing/FlatLaf desktop GUI from a fresh Git clone**.
