@@ -385,13 +385,6 @@ GUI development again.
   work independently under bounded profiles. Comprehensive bidirectional
   round-trip equivalence and broader real-MRI interoperability require
   their own documented acceptance evidence before such claims are made.
-- **Stakeholder sign-off:** The working desktop prototype is integrated;
-  a separately recorded F11 stakeholder acceptance or final submission
-  approval is not established by the repository evidence examined here.
-
-This distinction does not diminish completed engineering work and does
-not claim support for original acquisition-metadata recovery, universal
-DICOM/NIfTI interoperability or clinical applications.
-
+  
 No patient datasets, DICOM studies, generated imaging outputs, secrets or
 runtime logs belong in Git. Tests construct synthetic temporary fixtures.
