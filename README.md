@@ -142,9 +142,7 @@ java -cp "target/classes;$cp" org.cbihi.mrinormalizer.presentation.gui.GuiI1App
    metadata assumptions** before conversion. The generated DICOM metadata
    does **not** recover unknown original scanner/acquisition details.
 3. Click **Convert**, monitor the activity/status area, and inspect the
-   resulting files and reports. Only a backend-confirmed **VERIFIED**
-   outcome means verified completion; **PARTIAL**, **REJECTED**, **FAILED**,
-   **INTERRUPTED** or **RECOVERY_REQUIRED** must not be presented as success.
+   resulting files and reports. 
 
 Use a distinct input and output location. Prefer a **local NTFS directory**
 for the Windows evaluation workflow; do not assume arbitrary network, cloud,
