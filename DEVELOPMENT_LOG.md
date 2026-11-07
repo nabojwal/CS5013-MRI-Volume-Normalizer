@@ -1115,3 +1115,132 @@ GUI integration was not required for M7 completion.
 Next planned milestone:
 
 M8 - Controlled NIfTI-to-DICOM.
+
+---
+
+## 2026-10-04–2026-10-16 — Pre-M8 foundation F0–F7 (later recorded checkpoints)
+
+**Evidence class:** retrospective checkpoint index, transcribed from the
+[canonical foundation tracker](docs/planning/PRE-M8-FOUNDATION-TRACKER.md),
+not a reconstructed daily work diary or newly executed verification.
+The earlier M7 entries above remain the historical execution record.
+
+- **F0–F1:** architectural baseline/contracts and versioned JSON
+  provenance/checkpoint persistence were accepted within their frozen
+  scopes. F0 closure evidence: `a2554ab93a7ff2fe5c4e547a7fb3119b57ac367c`;
+  F1 accepted S6: `e99d5da170552b55f7d74340b59fabb35615055a`.
+- **F2–F4:** deterministic recursive inventory, metadata-only DICOM
+  inspection and conservative Study+Series candidate discovery were
+  accepted/closed. Implementation checkpoints: F2
+  `7a1f8c13ccb6c8722b040159400e7c5e2729b0b8`, F3
+  `8f31fddfcd13613b657a753cc571acbb66bca327`, F4
+  `c32534e96cfcbb510e40982314df9dc69fd2034f`.
+- **F5–F6:** immutable organization plans and verified collision-safe
+  COPY were accepted/closed within recorded platform and failure-mode
+  limits. F5 implementation `73a19835ff1057c84a8e4cd726038a591d54fdc7`;
+  F6 implementation `6a5f04aa9bd3757a8a93938325e744132a689f25`.
+- **F7:** bounded project-owned NIfTI-1 reading accepted/closed on
+  2026-10-16; published implementation
+  `15f2ea1879ff1af902114ffed25f85f6ec175615`.
+  Recorded F7 full clean Linux regression: **727/727**. Its supported
+  integer/3D profile and the original qualification limitations remain
+  authoritative.
+
+These entries **do not** assert that all source work or test runs
+occurred on one date. Consult the tracker for per-slice ancestry,
+environment, tests and reviewer decisions.
+
+## 2026-10-23–2026-10-28 — F8 verification and F9 Windows-first submission path
+
+- **F8:** reopened NIfTI comparison, controlled verification evidence and
+  publication support implemented at
+  `f31821e0482f8553297b33a37f776af2cbc40e55`.
+  The historical Windows and Linux full clean runs each report
+  **795/795 PASS**; source equivalence reported **29/29 PASS**.
+  Independent acceptance audit: **18/42 demonstrated, 24/42 partially
+  evidenced**. **F8 formal acceptance remains pending**.
+- **F9:** limited implementation-start authorization recorded at
+  `cc23764fd10c52065381d1d5ec241cd4e48047bf`;
+  published R1 service implementation at
+  `70f90ea51b674e53177d9e9ffcc3b0622227bee6`.
+  The recorded elevated-Windows focused **20/20** and clean full
+  **815/815** regressions passed; an independent comparison of the
+  selected **15-image** real-MRI volume passed, and an incompatible
+  **20-image** selection was rejected. These results qualify a bounded
+  Windows submission path, **not formal F9 acceptance**, ordinary-user
+  Windows or native Linux F9 qualification.
+- **M8 governance (2026-10-28):** bounded independent NIfTI-to-derived
+  MR DICOM design and the G1/G2/G3 implementation-start governance
+  exception were recorded separately. Their preparation-stage notes
+  are **historical** and must not be mistaken for later M8 implementation
+  acceptance or a global gate waiver.
+
+Source: [foundation tracker](docs/planning/PRE-M8-FOUNDATION-TRACKER.md);
+the [F9 submission exception](docs/planning/F9-SUBMISSION-SCOPE-AUTHORIZATION-20261023.md)
+and [M8 contract](docs/planning/M8-IMPLEMENTATION-CONTRACT-1.0.md)
+retain their original bounded authority.
+
+## 2026-11-02 — Integrated M8 reverse conversion and EBO-1 R2 evaluation release
+
+**Recorded integration/frozen release checkpoint:**
+`b7739fd5db9a8e83e12f3a95b7f03bad31bd7a89`
+(`integration/post-ebo1-r2` and the documented
+`checkpoint/ebo-1-r2-windows-evidenced` release ref).
+
+- **M8 implementation present:** independent restricted 3D integer
+  NIfTI-1 → newly derived MR DICOM workflow, using an M8-specific
+  workspace/journal and writer/verifier. Original scanner/acquisition
+  metadata are not recovered; evaluation metadata are explicitly
+  declared. **Separate formal M8 acceptance is not established**.
+- **EBO-1 R2:** accepted/closed for the explicitly bounded
+  **27-obligation non-clinical evaluation contract**. Its recorded
+  native-Windows clean regression was **888/888 PASS** (zero
+  failures/errors/skips); five closure assertions passed **5/5**.
+  Historical R1 BraTS demonstrations do not constitute an R2 BraTS
+  rerun or universal interoperability qualification.
+- **FBO:** forward sequential batch orchestration is implemented in the
+  later integrated source; no standalone blanket F8/F9 formal acceptance
+  is inferred from its existence or tests.
+
+Source: [foundation tracker](docs/planning/PRE-M8-FOUNDATION-TRACKER.md)
+and [EBO-1 evaluation contract](docs/planning/EBO-1-EVALUATION-CONTRACT.md).
+This entry does not reconstruct missing original execution transcripts.
+
+## 2026-11-07 — Windows GUI-I1 integration into main (PR #1)
+
+**Merged PR:** [#1](https://github.com/nabojwal/CS5013-MRI-Volume-Normalizer/pull/1).
+**Tested feature checkpoint:** `454f8b58275583b0137d03a88d025c13523013eb`.
+**Merged `main`:** `b032a51cd369b428f201c6b0dd8d23a49f195eec`.
+Both have the same Git source tree
+`223a9c140de14870e8defffbd242a4771bf55df8`.
+
+- Working **M10 Swing/FlatLaf GUI** integrates selected conventional
+  DICOM-series → NIfTI through F9 or FBO and bounded NIfTI file/directory
+  → derived DICOM through EBO/M8. Metadata preview does not replace
+  backend eligibility and verification. FBO/EBO batching and
+  failure/recovery reporting are integrated.
+- **User-provided elevated native Windows workstation regression:**
+  **961/961 passing**, zero failures/errors/skips; a separate targeted
+  mixed-series GUI test passed. The run required prepared filesystem
+  fixtures, `java.io.tmpdir=C:\PT` and `d1.test.destination=C:\PD`.
+  The complete private test transcript was **not** rerun or independently
+  authenticated for this retrospective documentation entry; the report
+  is **not GitHub CI evidence**.
+- **Scope/acceptance distinction:** M10 GUI implementation is not the
+  **F10 foundation boundary-reconciliation** workstream. F0–F7 retain
+  their accepted scope; F8/F9 and separate M8 formal acceptance remain
+  pending; F10/F11 and the global Pre-M8 gate have no formal closure
+  on record. GUI direct parsing/composition presents an unresolved
+  discrepancy against approved AR-05, documented in
+  [unresolved decisions](docs/architecture/unresolved-decisions.md).
+  The supported conversion paths are **not** a general voxel/metadata
+  round-trip, 4D/floating-point NIfTI, universal DICOM, arbitrary
+  filesystem or clinical qualification.
+
+**Evidence boundary:** This later-period index is not an AI prompt
+transcript, a new build, or a formal acceptance vote. Exact test
+checkpoints and limitations are recorded in
+[TEST-RESULTS.md](docs/testing/TEST-RESULTS.md),
+[the tracker](docs/planning/PRE-M8-FOUNDATION-TRACKER.md) and
+[the project milestones](MILESTONES.md). Historical M7 observations
+above remain unchanged.

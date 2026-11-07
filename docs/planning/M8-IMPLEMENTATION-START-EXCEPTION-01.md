@@ -69,3 +69,24 @@ No Java, tests, dependencies, README, milestone, accepted predecessor or unrelat
 - **Round-trip:** Not part of current independent M8 acceptance and not reported as completed; any pre-existing higher-level round-trip plan remains deferred.
 
 **STOP:** This governance document grants no implementation, repository write, Git staging, local commit, remote push or publication permission. M8-I1 requires a later explicit authorization after the governance checkpoint is published.
+
+---
+
+## Later implementation reference — 2026-11-07 (non-authorizing postscript)
+
+The preparation-stage statements above, including **M8-I1 NOT AUTHORIZED**
+and **GUI BLOCKED**, describe this exception's original 2026-10-28
+authorization boundary. They are preserved **as historical governance**.
+The merged [PR #1](https://github.com/nabojwal/CS5013-MRI-Volume-Normalizer/pull/1)
+now contains a bounded independent 3D integer NIfTI-1-to-derived-MR-DICOM
+implementation and the M10 Swing/FlatLaf GUI, at `main`
+`b032a51cd369b428f201c6b0dd8d23a49f195eec` (2026-11-07).
+Implementation/integration is **not** evidence that this original
+pre-implementation document itself authorized source changes, nor that
+the original global Pre-M8 gate or separate formal M8 acceptance has
+closed. M10 GUI implementation is distinct from the unclosed F10
+foundation boundary reconciliation. For later implementation status,
+review the [canonical tracker](PRE-M8-FOUNDATION-TRACKER.md) and
+[test results](../testing/TEST-RESULTS.md). This postscript changes
+no G1/G2/G3 decision, predecessor freeze, technical obligation or
+historical approval condition.

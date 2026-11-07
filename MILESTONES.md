@@ -1,6 +1,50 @@
 # Project Milestones
 
-## Current integration state — 2026-11-02
+## Current integrated submission state — 2026-11-07
+
+**GitHub main:** `b032a51cd369b428f201c6b0dd8d23a49f195eec`
+(PR [#1](https://github.com/nabojwal/CS5013-MRI-Volume-Normalizer/pull/1),
+merge commit). **Integrated/tested feature source:**
+`454f8b58275583b0137d03a88d025c13523013eb`.
+Their Git trees are identical:
+`223a9c140de14870e8defffbd242a4771bf55df8`.
+The merge incorporates 65 feature commits; it is a source-integration
+checkpoint, not blanket formal acceptance of all preceding contracts.
+
+| Scope | Implementation state at PR #1 | Evidence / retained limitation |
+| --- | --- | --- |
+| M6/M7 and F0–F7 | Accepted/closed within recorded supported profiles | Historical protected evidence remains authoritative within each profile |
+| F8 | Implemented and cross-platform-tested in predecessor work; formal acceptance **pending** | Previously recorded 18/42 demonstrated, 24/42 partial acceptance audit; do not infer closure |
+| F9 | Implemented, Windows-qualified selected-series submission path; formal acceptance **pending** | Prior bounded 15-slice real-MRI demonstration; not universal DICOM series or ordinary-user/native-Linux qualification |
+| M8 | Independent supported NIfTI-1 → derived MR DICOM path **implemented** | Bounded 3D integer profile and declared metadata; separate formal acceptance not established |
+| EBO-1 R2 | **Accepted/closed for the contracted non-clinical evaluation scope** | Original 888/888 R2 run and 5/5 closure evidence remain dated, distinct results |
+| FBO | Sequential DICOM-series batch orchestration **integrated** | Fail-closed, bounded eligible-series/backend profile; no blanket F9 acceptance |
+| GUI-I1 | Working Swing/FlatLaf submission GUI **integrated into main** | Direction tabs, browsing/inspection, verified-backend dispatch, output statuses; no claim of separate F10/F11 formal acceptance |
+| F10/F11 and broader round-trip | Separate formal milestones **not closed** by this PR | No universal bidirectional round-trip fidelity or clinical claims |
+| Global Pre-M8 gate | **Not formally closed** | Earlier governance exceptions and GUI integration do not waive the checklist |
+
+**Integrated validation evidence:** PR #1 documents a **user-provided native
+Windows clean regression of 961 tests, 0 failures, 0 errors, 0 skips**, and a
+passing targeted mixed-series GUI conversion test. The run required elevated
+Windows permissions, provisioned filesystem fixtures, `java.io.tmpdir=C:\PT`
+and `d1.test.destination=C:\PD`. These were local workstation results, **not
+GitHub CI** or ordinary-user/native Linux qualification. The verified merge
+preserved the tested source tree; no new tests were run as part of this
+documentation update.
+
+**Destination and supported-profile boundaries:** No unconditional support is
+claimed for arbitrary network/OneDrive/cloud roots, USB/exFAT/FAT32, all long
+paths, unsupported DICOM classes or transfer syntaxes, 4D/float NIfTI or
+recovered clinical acquisition metadata. Later experimental D1 changes outside
+the merged source must not be reported as incorporated.
+
+**Historical record notice:** Every section below beginning with the
+2026-11-02 reconciliation and the 2026-10-03 M7 record describes the
+state *at that date*. Its `NOT STARTED`, `current`, and `latest`
+wording must not override this 2026-11-07 integration reconciliation.
+No historical acceptance evidence has been removed.
+
+## Historical post-EBO integration state — 2026-11-02
 
 **Verified integration baseline:** `b7739fd5db9a8e83e12f3a95b7f03bad31bd7a89` on `integration/post-ebo1-r2`.
 **Frozen release checkpoint:** `checkpoint/ebo-1-r2-windows-evidenced` at the

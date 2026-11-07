@@ -7,7 +7,109 @@ cannot establish success. Record the exact baseline, command, counts and scope;
 working-tree verification is not a new Git checkpoint. Keep generated reports
 out of Git. Historical log evidence is explicitly distinguished below.
 
-## Verified Checkpoints
+## Current integrated verification status — 2026-11-07
+
+**Current source checkpoint:** merged `main` at
+[`b032a51cd369b428f201c6b0dd8d23a49f195eec`](https://github.com/nabojwal/CS5013-MRI-Volume-Normalizer/commit/b032a51cd369b428f201c6b0dd8d23a49f195eec)
+(PR [#1](https://github.com/nabojwal/CS5013-MRI-Volume-Normalizer/pull/1)).
+The reported tested source `454f8b58275583b0137d03a88d025c13523013eb`
+and merged commit have identical source trees. The project now implements
+**both DICOM → NIfTI and independent NIfTI → derived DICOM conversion**,
+sequential batch workflows, and the **M10 desktop GUI**. Earlier M6/M7
+`IN PROGRESS` and `no NIfTI conversion` notes below describe historical
+checkpoints; they are **not** current implementation findings.
+
+| Implemented workstream | Tests and recorded verification | Qualification / acceptance interpretation |
+| --- | --- | --- |
+| M6/M7 — conventional MR reconstruction and forward NIfTI conversion | `DicomSeriesServiceTest`, `DicomToNiftiServiceTest`, `Nifti1VolumeWriterTest`; historic NiBabel interoperability and 15-image selected real-MRI evidence | **IMPLEMENTED; earlier bounded M6/M7 acceptance retained** |
+| F1–F7 foundation | Versioned manifest, inventory, discovery, organization, verified COPY and NIfTI reading suites; protected historical regressions | **ACCEPTED / CLOSED within their documented profiles** |
+| F8 — reopen, compare and persist verification | `VerifiedConversionEvidenceServiceTest`, `NiftiOutputComparatorTest`, `NioVerifiedNiftiOutputAccessTest`; historic Windows and Linux **795/795** runs | **IMPLEMENTED / CROSS-PLATFORM QUALIFIED** in recorded scope; formal F8 acceptance **PENDING** |
+| F9 — headless forward conversion | `F9HeadlessConversionServiceTest`, `F9HeadlessIntegrationTest`, `F9HeadlessBoundaryTest`; historic Windows **815/815** and independently evaluated 15-image MRI conversion | **IMPLEMENTED / WINDOWS-QUALIFIED SUBMISSION PATH**; formal F9 acceptance **PENDING** |
+| **M8 — NIfTI → derived MR DICOM** | `M8ConversionIntegrationTest`, `M8DicomEncodingTest`, `M8GeometryTest`, `M8RecoveryTest`, `M8CommandTest`; documented Windows evaluation | **IMPLEMENTED / TESTED** for bounded 3D integer NIfTI-1; separate formal M8 acceptance **not established** |
+| FBO — forward sequential batch | `FboCommandIntegrationTest`, `FboBatchControllerTest`, `FboDirectoryPreflightTest` | **IMPLEMENTED / INTEGRATED**; publication and supported-profile constraints remain authoritative |
+| EBO-1 R2 — reverse evaluation batch | `EboCommandTest`, `EboBatchControllerTest`, `EboAcceptanceClosureTest`; earlier Windows **888/888** regression | **IMPLEMENTED; ACCEPTED / CLOSED** in the bounded EBO-1 R2 evaluation contract |
+| **M10 — desktop GUI integration** | `GuiI1ScannerTest`, `GuiI1ExecutionTest`, `GuiI1AutomaticDiscoveryTest`, `GuiI1DicomPart10IntegrationTest`, `GuiI1WorkflowE1Test` and mixed-series integration evidence | **IMPLEMENTED / INTEGRATED** on `main`; **M10 GUI is not F10** foundation boundary reconciliation |
+| F10/F11 foundation and global Pre-M8 gate | No separate formal closure established by the integration run | **Acceptance remains distinct** from the completed M10 GUI implementation |
+
+**Latest recorded full integrated regression:** **961/961 tests passed**
+(zero failures, zero errors, zero skips) on a user-executed **elevated
+native Windows** Java 21/Maven workstation, with provisioned filesystem
+fixtures, `java.io.tmpdir=C:\PT` and `d1.test.destination=C:\PD`.
+PR #1 also reports a targeted mixed-series GUI conversion test **PASS**.
+The full execution transcript is retained privately outside Git. This
+document is a **source/evidence reconciliation**, **not** a fresh test
+run or independent reproduction, and the reported pass is **not** GitHub
+Actions CI or general ordinary-user/Linux GUI qualification.
+
+**Separate historical results:** M7 **129/129** (2026-10-03),
+F8 **795/795** (Windows and Linux at its earlier checkpoint), F9
+**815/815** (elevated Windows), and EBO-1 R2 **888/888** describe
+different commits and must not be added together or substituted for
+the integrated **961/961** record. The current implementation and
+formal-acceptance distinction matches the
+[README](../../README.md),
+[test strategy](TEST-STRATEGY.md) and
+[Pre-M8 foundation tracker](../planning/PRE-M8-FOUNDATION-TRACKER.md).
+
+**Evidence boundaries:** Supported independent conversion directions
+do not constitute a complete DICOM → NIfTI → DICOM voxel/affine/metadata
+round-trip acceptance test. The evaluation output does not recover
+original scanner acquisition metadata and does not establish clinical
+use, unrestricted DICOM SOP/transfer syntax or 4D/floating-point NIfTI
+support. Destination tests exercise qualified local filesystem and
+negative cases, not unconditional USB/exFAT/FAT32, network/cloud,
+every long path or ordinary-user Windows compatibility.
+
+**Reading historical evidence:** All dated checkpoint tables, detailed
+Surefire inventories, pre-fix regressions and original M7 acceptance
+records below are preserved as evidence **of their own execution dates**.
+Any earlier headings using `current`, `IN PROGRESS` or
+`not implemented` apply to their stated baseline and **must not**
+override this integrated status. No historical acceptance checkbox
+is changed by this documentation-only correction.
+
+## PR #1 Windows integrated regression — source and environment detail (2026-11-07)
+
+**Evidence source:** the merged PR
+[#1](https://github.com/nabojwal/CS5013-MRI-Volume-Normalizer/pull/1)
+and its user-provided workstation validation statement.
+**Tested source:** `feature/gui-i1-windows` at
+`454f8b58275583b0137d03a88d025c13523013eb`.
+**Merged main:** `b032a51cd369b428f201c6b0dd8d23a49f195eec`.
+Both commits have the same Git tree
+`223a9c140de14870e8defffbd242a4771bf55df8`.
+
+| Evidence | Reported result | Scope and limitations |
+| --- | --- | --- |
+| Native Windows Java 21 clean Maven regression | **961 tests, 0 failures, 0 errors, 0 skips** | User-executed elevated Windows workstation; not rerun by this documentation change |
+| Targeted mixed-series GUI conversion test | **PASS** (count not specified here) | User-provided targeted execution evidence; not a real-MRI universal acceptance result |
+| Tested-head versus merge-commit source-tree equality | **MATCH** | Git tree identity only; not an additional executable test |
+| GitHub-hosted CI for this qualification | **NOT CLAIMED** | No CI run is represented by the PR statement |
+
+The reported full run used provisioned filesystem fixtures,
+`java.io.tmpdir=C:\PT` and `d1.test.destination=C:\PD`.
+Local detailed execution evidence is retained outside Git, at the workstation
+location recorded in PR #1. Earlier failing runs were retained, and the final
+success followed privilege/short-path fixture configuration changes
+without changes to the tested candidate source. These constraints matter:
+the result does **not** prove ordinary-user full-suite success, native Linux
+GUI support, unrestricted network/cloud/removable-media destinations,
+every possible long path, unsupported imaging profiles or clinical use.
+
+**Interpretation:** F0–F7 retain their recorded acceptance limits;
+F8/F9 formal acceptance, separate M8 acceptance, F10/F11 and the
+global Pre-M8 gate are **not closed by this 961-test run**. The historical
+F9 15-image selected-slab MRI comparison, M8 evaluation, EBO-1 R2 888/888
+and M7 129/129 runs belong to different baselines and must not be
+conflated with the integrated GUI regression.
+
+**Documentation-only activity:** this record transcribes the reported
+evidence and verifies source identities; it does not run Java/Maven, create
+new Surefire evidence or independently reproduce the workstation transcript.
+The actual execution date and full command line beyond the stated fixture
+parameters are not independently established here.
+
+## Historical M6 verified checkpoints (2026-10-01)
 
 All dates below are 2026-10-01 (Asia/Calcutta). Fresh runs used Java 21.0.12.1
 (Eclipse Adoptium), Maven 3.9.16 on Windows 11. Versions were checked with
@@ -41,7 +143,7 @@ Those earlier skipped counts are unavailable; those checkpoints were not rerun
 in this audit. The log at `fc1ad46` records 48 tests with zero failures/errors/skips.
 These historical records are supporting evidence, not fresh runs in the table.
 
-## Regression Evidence
+## Historical M6 Regression Evidence — October 2026
 
 The following pre-fix runs are preserved in the development log committed with
 each fix; this audit did not recreate their failing trees.
@@ -58,9 +160,16 @@ Geometry pre-fix command: `mvn -Dtest=DicomSeriesServiceTest clean test`,
 Post-fix focused commands used `test` without `clean`, followed by `mvn clean test`.
 No historical red-run claim is made for the initial baseline or M5/M5.1.
 
-## Outstanding Test and Acceptance Gaps
+## Historical M6 Audit Gaps — 2026-10-01 (not current project status)
 
-| Area | Current evidence | Remaining work / scope |
+The following inventory is the original M6-stage gap assessment. Its
+claims about absent format-neutral volumes, NIfTI conversion and
+unimplemented later tests **predate the accepted M7 and merged M8/M10
+source**. This table is retained for traceability, not as the current
+open-defect or implementation backlog. For present results use the
+**Current integrated verification status** table above.
+
+| Area | Evidence recorded at historical M6 review | Gaps identified **at that checkpoint** |
 |---|---|---|
 | Format-neutral volume | `NativeVolume`, `VoxelData.encoding()` expose DICOM-shaped metadata | M6 section 24 item 19 unmet; AR-1 generic ImageVolume/scalar model and updated tests pending |
 | Architecture boundaries | Reflection checks selected types; ports still in `domain.port`; monolithic service remains | AR-1 package responsibilities and broader boundary coverage pending |
@@ -72,13 +181,17 @@ No historical red-run claim is made for the initial baseline or M5/M5.1.
 | Geometry adversarial coverage | Ordering, duplicates, drift, noisy control tested | Dedicated nonfinite/unit/orthogonality, in-plane displacement and conflicting InstanceNumber fixtures missing |
 | Encoding/object rejection coverage | Signed 12-bit, unsigned 16-bit, supported syntaxes, RGB and deflated rejection tested | Dedicated 8-bit bounds, missing Pixel Data, bad HighBit/payload length, multiframe, partial/mismatched rescale and file-meta mismatch fixtures missing |
 | Voxel allocation | Checked multiplication and nine tests at `fc1ad46` | Scoped wraparound defect resolved; no heap-capacity guarantee or stress-test claim |
-| NIfTI conversion / round trip | No reader/writer/conversion implementation | Planned M7/M8 affine, voxel fidelity and interoperability tests; not current functionality |
+| NIfTI conversion / round trip | **At the M6 review:** NIfTI reader/writer/conversion were not yet implemented | M7/M8 affine, voxel fidelity and interoperability tests were planned then; **M7 and M8 are now implemented** (see current summary). Broader round-trip acceptance remains separate |
 
-**M6 IN PROGRESS.** The format-neutral volume requirement alone prevents completion.
-Other documented gaps distinguish missing tests from absent implementation and
-later-stage policy decisions; not every future test is an immediate M6 blocker.
+**Historical M6 status on 2026-10-01: IN PROGRESS.** At that
+checkpoint, the format-neutral volume requirement prevented closure.
+The later `ImageVolume`, M7 conversion, F0–F7 foundation acceptance,
+M8 reverse conversion and GUI integration supersede that *implementation*
+snapshot. Other original gaps distinguish missing tests from absent
+implementation and later policy decisions; the current completeness of
+each case must be judged against later tests and acceptance evidence.
 
-## JavaDoc / Comments Review
+## Historical M6 JavaDoc / Comments Review — 2026-10-01
 
 Production review was read-only. `VoxelData.rawValueAt` and `ImmutableVoxelData`
 would benefit from documenting x=column, y=row, z=slice, x-fastest indexing,
@@ -96,11 +209,13 @@ and draft-era status prose remain as editorial/history issues. Version 1.0.0 and
 APPROVED/authoritative metadata are present; no broken explicit internal Markdown
 links were found. This audit does not reinterpret its technical contracts.
 
-## Current Working-Tree Verification and Inventory
+## Historical M6 Working-Tree Verification and Inventory — 2026-10-01
 
-Fresh current execution and its Surefire-derived class/method inventory are recorded below.
+Fresh execution **at the 2026-10-01 M6 checkpoint**, with its
+Surefire-derived class/method inventory, is recorded below. This is
+not the current integrated `main` test inventory or latest test count.
 
-Fresh current run on 2026-10-01: `mvn clean test`, **BUILD SUCCESS**,
+Historical 2026-10-01 run: `mvn clean test`, **BUILD SUCCESS**,
 48 tests, 0 failures, 0 errors, 0 skipped. Baseline `fc1ad46` plus this documentation
 task; production and test files match HEAD. No new commit was created.
 
