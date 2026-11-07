@@ -9,50 +9,70 @@ selected supported conventional MR DICOM series into a format-neutral
 `ImageVolume`, and converts that volume to NIfTI-1 `.nii` or `.nii.gz` while
 preserving the supported stored voxel values and spatial semantics.
 
-Dataset-level organization/COPY, bounded selected-series headless conversion
-and controlled NIfTI-to-derived-DICOM reconstruction have since been implemented
-in separate, constrained workstreams. The integrated desktop GUI has not been
-implemented. This remains a research-use project, not a clinical or PACS product.
+Dataset discovery/organization, headless selected-series conversion, bounded
+NIfTI-to-derived-DICOM reconstruction and sequential batch orchestration are
+implemented in separate, constrained workstreams. A Swing/FlatLaf desktop GUI
+now integrates the supported forward and reverse workflows. This is a
+non-clinical research and course-submission prototype, not a clinical or PACS product.
 
-### Integration status (2026-11-02; post-EBO-1 R2)
+### Current integrated submission checkpoint — 2026-11-07
 
-The integration baseline is [`b7739fd5db9a8e83e12f3a95b7f03bad31bd7a89`](https://github.com/nabojwal/CS5013-MRI-Volume-Normalizer/commit/b7739fd5db9a8e83e12f3a95b7f03bad31bd7a89) on `integration/post-ebo1-r2`.
-The release branch `checkpoint/ebo-1-r2-windows-evidenced` is frozen at that
-same commit; `main` was not merged as part of this release.
+Pull request [#1](https://github.com/nabojwal/CS5013-MRI-Volume-Normalizer/pull/1)
+merged `feature/gui-i1-windows` at tested source commit
+[`454f8b58275583b0137d03a88d025c13523013eb`](https://github.com/nabojwal/CS5013-MRI-Volume-Normalizer/commit/454f8b58275583b0137d03a88d025c13523013eb)
+into `main` as merge commit
+[`b032a51cd369b428f201c6b0dd8d23a49f195eec`](https://github.com/nabojwal/CS5013-MRI-Volume-Normalizer/commit/b032a51cd369b428f201c6b0dd8d23a49f195eec).
+Both commits have Git tree `223a9c140de14870e8defffbd242a4771bf55df8`:
+the merged source files match the tested feature checkpoint. The integration
+includes the preceding 65 commits, not only the final GUI correction.
 
-- **DICOM to NIfTI (F9):** a Windows-qualified headless conversion path for an
-  explicitly selected, supported conventional MR series, using the established
-  M6/M7/F7/F8 workflow. The F9 real-MRI submission evidence concerns one
-  selected 15-image slab, not arbitrary DICOM folders. F9 **formal acceptance
-  remains pending**; the documented ordinary-user Windows and native Linux
-  qualification is not established.
-- **NIfTI to derived MR DICOM (M8):** an implemented, bounded independent
-  NIfTI-1 conversion that requires explicit MR/BIPED and sequence metadata,
-  generates new DICOM instances and verifies staged instances before publication.
-  Native Windows evaluation evidence exists; **separate formal M8 acceptance is
-  not declared here**.
-- **Evaluation-only batch (EBO-1 R2):** `EboCommand` accepts one `.nii`/`.nii.gz`
-  or a top-level directory, runs supported M8 conversions sequentially and
-  publishes a summary. Its `evaluation` profile deliberately supplies the
-  non-clinical `SE`/`NONE` metadata template; these are **not recovered original
-  acquisition facts**. T01-T27 are accepted within that bounded scope. The
-  native Windows full clean regression passed **888/888**, and the five closure
-  cases passed **5/5**. The original BraTS demonstration used R1; there is
-  **no claimed R2 BraTS rerun**.
-- **Foundation and desktop:** F0-F7 remain accepted within their documented
-  limits; F8 formal acceptance remains pending in the canonical tracker. F10,
-  F11 and the Swing/FlatLaf desktop workflow are not implemented or accepted.
-  The global Pre-M8 gate remains unchecked notwithstanding the M8/EBO
-  submission exception.
+Implemented, bounded capabilities:
 
-The M7-era milestone table under §3 is a **historical 2026-10-03 snapshot**;
-its M8 `NOT STARTED` entry and `129`-test count must not be interpreted as
-current project status. See
-[`MILESTONES.md`](MILESTONES.md), the
-[canonical tracker](docs/planning/PRE-M8-FOUNDATION-TRACKER.md) and the
-[EBO-1 evaluation contract](docs/planning/EBO-1-EVALUATION-CONTRACT.md)
-for scope-specific evidence. This project does not establish general
-bidirectional round-trip fidelity, unsupported NIfTI profiles, or clinical use.
+- **DICOM → NIfTI:** explicit selection of supported conventional single-frame
+  MR DICOM series. One series uses F9; multiple eligible prepared series use
+  sequential FBO orchestration. Backend compatibility and final verification
+  remain authoritative; GUI discovery is a metadata-only preview.
+- **NIfTI → derived MR DICOM:** independent M8 conversion for the supported
+  3D integer NIfTI-1 profile (`INT8`, `UINT8`, `INT16`, `UINT16`) and
+  supported geometry/units. EBO handles one input or a bounded top-level folder
+  sequentially. The GUI requires acknowledgment of non-clinical evaluation
+  metadata assumptions (`MR/BIPED`, `SE`, `NONE`); these values are **not**
+  recovered acquisition facts.
+- **Desktop GUI:** `GuiI1App` and `GuiI1Window` implement source/output
+  browsing, candidate inspection, direction selection, conversion dispatch and
+  final outcome display. `GuiI1Execution` delegates conversion authority
+  to F9, FBO and EBO; a GUI `VERIFIED` result depends on a verified backend
+  outcome and completion-record acknowledgment.
+
+**Recorded verification (not executed by this documentation change):**
+PR #1 records a **user-provided native Windows clean regression of 961 tests,
+0 failures, 0 errors and 0 skips**, plus a passing targeted mixed-series GUI
+conversion test. The full run used an **elevated** Windows session, provisioned
+filesystem fixtures, `java.io.tmpdir=C:\PT`, and
+`d1.test.destination=C:\PD`. Local evidence was retained outside Git.
+This is workstation evidence, **not a GitHub-hosted CI run** and not ordinary-user
+or cross-platform full-suite qualification.
+
+**Scope and qualification limits:** DICOM support is not universal across SOP
+Classes/transfer syntaxes; generalized 4D/floating-point NIfTI, round-trip
+fidelity, clinical interoperability and recovery of original acquisition
+metadata are not claimed. Windows destination admission is conditional on
+filesystem identity, local NTFS qualification, path capability and backend
+private-creation/publication checks; arbitrary external media, network/cloud
+folders and long paths are not universally qualified. The documented D1
+destination-reliability investigation after PR #1 is **not** part of this merged
+source checkpoint.
+
+**Acceptance distinction:** F0–F7 retain their recorded bounded acceptance.
+F8 and F9 formal acceptance remain pending; M8 has an implemented, separately
+qualified Windows evaluation path without blanket formal acceptance. EBO-1 R2
+is accepted for its bounded evaluation contract. The GUI is an integrated
+submission prototype **without inferring F10/F11 or global Pre-M8 closure**.
+The earlier 2026-11-02 EBO checkpoint (`b7739fd`, 888/888) and the 2026-10-03
+M7 checkpoint (129 tests) remain historical evidence, not the latest integrated
+state. See [milestones](MILESTONES.md),
+[foundation tracker](docs/planning/PRE-M8-FOUNDATION-TRACKER.md), and
+[test results](docs/testing/TEST-RESULTS.md).
 
 ## 2. Core Principles
 
@@ -69,9 +89,11 @@ bidirectional round-trip fidelity, unsupported NIfTI profiles, or clinical use.
 Intensity normalization is optional and is not part of the required conversion
 MVP.
 
-## 3. Current Development Status
+## 3. Historical M7 Development Status (2026-10-03)
 
-Reviewed 2026-10-03 on `feature/m7-dicom-to-nifti`.
+This table preserves the M7-era snapshot reviewed on `feature/m7-dicom-to-nifti`.
+The M8/GUI `NOT STARTED` entries below describe that **date only**; consult
+§1 and [MILESTONES.md](MILESTONES.md) for the current integrated state.
 
 | Milestone | Description | Status / checkpoint |
 |---|---|---|
@@ -94,8 +116,8 @@ Reviewed 2026-10-03 on `feature/m7-dicom-to-nifti`.
 | M8 | Controlled NIfTI-to-DICOM | NOT STARTED |
 | M10 | GUI integration | NOT STARTED |
 
-The latest Java regression baseline contains 129 passing tests with zero
-failures, errors or skips.
+At this historical M7 checkpoint, the Java regression baseline contained
+129 passing tests with zero failures, errors or skips.
 
 ## 4. Supported DICOM Profile
 
@@ -173,7 +195,10 @@ The writer uses no third-party NIfTI runtime dependency.
 
 ## 7. DICOM-to-NIfTI Workflow
 
-The implemented application path is:
+The following is the original **M7 application-level path**, not the complete
+subsequent F9/FBO/GUI publication pipeline:
+
+The implemented M7 application path is:
 
 ```text
 explicit DICOM inputs
@@ -212,6 +237,30 @@ completes successfully. It records factual conversion invariants and does not
 claim that the written output was reopened, reparsed or independently validated
 at runtime.
 
+### 7.1 Integrated GUI and authoritative backend workflows
+
+The desktop entry point is
+`org.cbihi.mrinormalizer.presentation.gui.GuiI1App` (Java 21 with the
+project runtime dependencies). The two tabs are **DICOM → NIfTI** and
+**NIfTI → DICOM**. The GUI scans candidate inputs, allows the supported
+selection, validates a selected existing output directory, and calls
+`GuiI1Execution`.
+
+`GuiI1Execution` routes one DICOM series through `F9WindowsComposition`,
+a multi-series DICOM batch through `FboCommand`, and supported NIfTI
+single-file/directory input through `EboCommand`. The underlying F9/FBO/EBO
+services decide conversion validity and publication; metadata-only preview is
+not a proof of executability. Results distinguish `VERIFIED`, `PARTIAL`,
+`REJECTED`, `FAILED`, `RECOVERY_REQUIRED` and `INTERRUPTED`.
+`RECOVERY_REQUIRED` must not be described as successful output.
+
+For the qualified F9 path, verified publication is coupled to the backend
+reopen/compare/provenance workflow, which is distinct from the earlier M7
+writer-return `ConversionValidationReport`. A separate GUI completion ledger
+prevents identical input/destination replay after acknowledgment. Do not
+delete internal evidence, assume a directory is safely reusable, or treat
+successful byte writing alone as a verified conversion.
+
 ## 8. Verification
 
 Primary verification:
@@ -220,15 +269,21 @@ Primary verification:
 mvn clean test
 ```
 
-Latest verified Java result:
+Latest **reported integrated-source** Windows regression (PR #1,
+`454f8b5`; workstation evidence, with the elevated/short-path qualifications
+listed in §1):
 
 ```text
-129 tests passed
+961 tests passed
 0 failures
 0 errors
 0 skipped
 BUILD SUCCESS
 ```
+
+The previous M7-specific regression was **129/129** at the 2026-10-03
+historical checkpoint. This documentation update does **not** rerun Maven
+or establish GitHub CI success.
 
 Useful focused commands:
 
@@ -280,9 +335,13 @@ lossless-path conversion invariants.
 For the supported M7 path, stored voxel values are preserved, resampling and
 interpolation are false, and voxel ordering is unchanged.
 
-M7 does not persist an additional provenance/validation sidecar. ADR-014 records
-UTF-8 JSON as the canonical serialization format for future persisted
-provenance/validation manifests.
+M7 does not persist an additional provenance/validation sidecar. ADR-014
+records the M7-era design decision. Later F1 persistence implements versioned
+canonical JSON plan/checkpoint schemas, and F9 uses restricted persisted
+provenance and reopened-output verification before verified publication.
+M8 uses its separately scoped output journal and completion predicate.
+These later mechanisms do not retroactively change M7's standalone report
+semantics.
 
 ## 10. Architecture
 
@@ -306,16 +365,19 @@ Current implementation decisions are recorded in:
 
 ## 12. Remaining Work
 
-Immediate next milestone:
+- Reconcile the outstanding F8/F9/M8 formal acceptance obligations and
+  the global Pre-M8 gate from the canonical tracker; **do not infer closure**
+  from the GUI integration or the 961-test regression.
+- Extend and independently qualify destination reliability, path lengths,
+  external/removable media, ordinary-user Windows execution and other
+  operating systems before expanding support claims.
+- Add separate, evidence-backed round-trip and scientific-interoperability
+  evaluations where required; the two implemented directions are independent.
+- Complete stakeholder demonstration and submission documentation without
+  claiming normalization, universal format support, original acquisition
+  metadata recovery or clinical validation.
 
-- controlled NIfTI-to-DICOM reconstruction (M8).
 
-Later:
-
-- dataset discovery and organization workflow;
-- broader round-trip validation;
-- Swing/FlatLaf user workflow;
-- stakeholder demo hardening.
 
 No patient datasets, DICOM studies, generated imaging outputs, secrets or
 runtime logs belong in Git. Tests construct synthetic temporary fixtures.

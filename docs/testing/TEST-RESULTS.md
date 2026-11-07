@@ -7,7 +7,48 @@ cannot establish success. Record the exact baseline, command, counts and scope;
 working-tree verification is not a new Git checkpoint. Keep generated reports
 out of Git. Historical log evidence is explicitly distinguished below.
 
-## Verified Checkpoints
+## Integrated GUI submission checkpoint — recorded 2026-11-07
+
+**Evidence source:** the merged PR
+[#1](https://github.com/nabojwal/CS5013-MRI-Volume-Normalizer/pull/1)
+and its user-provided workstation validation statement.
+**Tested source:** `feature/gui-i1-windows` at
+`454f8b58275583b0137d03a88d025c13523013eb`.
+**Merged main:** `b032a51cd369b428f201c6b0dd8d23a49f195eec`.
+Both commits have the same Git tree
+`223a9c140de14870e8defffbd242a4771bf55df8`.
+
+| Evidence | Reported result | Scope and limitations |
+| --- | --- | --- |
+| Native Windows Java 21 clean Maven regression | **961 tests, 0 failures, 0 errors, 0 skips** | User-executed elevated Windows workstation; not rerun by this documentation change |
+| Targeted mixed-series GUI conversion test | **PASS** (count not specified here) | User-provided targeted execution evidence; not a real-MRI universal acceptance result |
+| Tested-head versus merge-commit source-tree equality | **MATCH** | Git tree identity only; not an additional executable test |
+| GitHub-hosted CI for this qualification | **NOT CLAIMED** | No CI run is represented by the PR statement |
+
+The reported full run used provisioned filesystem fixtures,
+`java.io.tmpdir=C:\PT` and `d1.test.destination=C:\PD`.
+Local detailed execution evidence is retained outside Git, at the workstation
+location recorded in PR #1. Earlier failing runs were retained, and the final
+success followed privilege/short-path fixture configuration changes
+without changes to the tested candidate source. These constraints matter:
+the result does **not** prove ordinary-user full-suite success, native Linux
+GUI support, unrestricted network/cloud/removable-media destinations,
+every possible long path, unsupported imaging profiles or clinical use.
+
+**Interpretation:** F0–F7 retain their recorded acceptance limits;
+F8/F9 formal acceptance, separate M8 acceptance, F10/F11 and the
+global Pre-M8 gate are **not closed by this 961-test run**. The historical
+F9 15-image selected-slab MRI comparison, M8 evaluation, EBO-1 R2 888/888
+and M7 129/129 runs belong to different baselines and must not be
+conflated with the integrated GUI regression.
+
+**Documentation-only activity:** this record transcribes the reported
+evidence and verifies source identities; it does not run Java/Maven, create
+new Surefire evidence or independently reproduce the workstation transcript.
+The actual execution date and full command line beyond the stated fixture
+parameters are not independently established here.
+
+## Historical M6 verified checkpoints (2026-10-01)
 
 All dates below are 2026-10-01 (Asia/Calcutta). Fresh runs used Java 21.0.12.1
 (Eclipse Adoptium), Maven 3.9.16 on Windows 11. Versions were checked with

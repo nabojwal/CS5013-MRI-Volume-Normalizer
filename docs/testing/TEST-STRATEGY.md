@@ -6,6 +6,10 @@ Correctness means reconstructing the selected supported MR series without silent
 changes to stored pixels or physical geometry, with stable failures for inconsistent
 input. [Architecture 1.0](../architecture/ARCHITECTURE-REVISION-1.0.md) governs acceptance.
 Executable JUnit tests are evidence of covered behavior, not proof of all requirements.
+This file originated as an M6-focused test strategy. Sections 4–6 preserve
+the M6-era fixture inventory and historically identified gaps; they are not
+a fresh exhaustive coverage audit of the 2026-11-07 integrated `main` tree.
+The newer F1–F9, M8, EBO/FBO and GUI suites require their own bounded mapping.
 
 ## 2. Testing Principles
 
@@ -39,7 +43,11 @@ exercises the detection service with real probes.
 Service suites create synthetic DICOM/NIfTI bytes to exercise parsing, endian
 handling and gzip integrity. There is no separate `Dcm4cheInstanceReaderTest`.
 `Dcm4cheSmokeTest` only proves Attributes API use; `FlatLafSmokeTest` proves
-look-and-feel installation, not a working GUI.
+look-and-feel installation by itself, not a working GUI. The later
+`GuiI1ScannerTest`, `GuiI1ExecutionTest`,
+`GuiI1AutomaticDiscoveryTest`, `GuiI1DicomPart10IntegrationTest`,
+`GuiI1DicomPreparationTest` and `GuiI1WorkflowE1Test` exercise
+separate implemented GUI workflows.
 
 ### Architecture / boundary tests
 
@@ -106,7 +114,57 @@ No real patient data or external imaging installation is required. Ordinary fixt
 UIDs may use clock/random generation; assertions do not depend on those exact values.
 Geometry-reference regressions fix relevant UIDs. Never commit studies or generated data.
 
-## 8. Commands
+## 8. Integrated prototype test design (2026-11-07)
+
+The merged feature checkpoint `454f8b58275583b0137d03a88d025c13523013eb`
+and `main` merge commit `b032a51cd369b428f201c6b0dd8d23a49f195eec`
+have identical source trees. Test obligations must be traced to the actual
+implemented routes, not inferred from the presence of a Swing class or a
+single successful imaging conversion:
+
+- **F1/F8/F9:** restricted plan/checkpoint serialization, private storage
+  qualification, safe no-replace publication, reopened NIfTI voxel/type/geometry/
+  scaling comparison, acknowledgment and fail-closed uncertain outcomes.
+  Representative suites include `JsonManifestCodecTest`,
+  `F9HeadlessConversionServiceTest`, `F9HeadlessIntegrationTest` and
+  `F9HeadlessBoundaryTest`.
+- **Forward batch (FBO):** qualified prepared-series roots, bounded sequential
+  dispatch, failure aggregation and report/publication behavior.
+  `FboDirectoryPreflightTest`, `FboCommandIntegrationTest`,
+  `FboBatchControllerTest` and `FboReportWriterTest` provide separate
+  executable coverage.
+- **Reverse conversion (M8/EBO):** restricted 3D integer NIfTI-1 inputs,
+  geometry and intensity semantics, derived DICOM verification, journal/
+  completion inventory, nonclinical evaluation metadata and sequential
+  batching. Relevant suites include `M8ConversionIntegrationTest`,
+  `M8RecoveryTest`, `M8JournalTest`, `EboCommandTest` and
+  `EboAcceptanceClosureTest`.
+- **GUI-I1:** discovery and inspection separated from authoritative backend
+  qualification, single-versus-batch route selection, destination admission,
+  re-run ledger protection, nonverified recovery states and proper user
+  acknowledgment for reverse evaluation. Use the `GuiI1*Test` suites;
+  a FlatLaf smoke test alone is not a GUI acceptance test.
+- **Real MRI and independent interchange:** maintain separately documented
+  source identity, selected-series completeness, voxel-level comparisons,
+  spatial transforms and profiles of the external parser. Historical
+  15-slice M6/M7/F7 evidence must not be presented as a general 155-slice
+  or arbitrary DICOM-series acceptance claim.
+
+**Environment and negative cases:** Native Windows regression qualification
+may require appropriately provisioned NTFS fixtures, user privileges and
+sufficiently short staging paths. PR #1's 961/961 local run used an **elevated**
+session, `java.io.tmpdir=C:\PT`, `d1.test.destination=C:\PD`.
+Keep unsupported network/cloud, long-path, symlink/reparse, privilege/ACL,
+removable-media and uncertain-publication cases separate from successful
+destination demonstrations. A valid `RECOVERY_REQUIRED` result is not success,
+and deleting private evidence to make tests pass is prohibited.
+
+**Evidence boundary:** PR #1 records user-provided workstation results and
+a passing targeted mixed-series GUI test; there was **no GitHub CI run** in
+that record. The date of this document update is not a new Maven execution
+date. Respect the unchanged formal F8/F9/M8 and global Pre-M8 gates.
+
+## 9. Commands
 
 ```shell
 mvn --version
@@ -115,6 +173,9 @@ mvn "-Dtest=DicomSeriesServiceTest" test
 mvn "-Dtest=ImmutableVoxelDataTest" test
 mvn "-Dtest=FormatDetectionServiceTest" test
 mvn "-Dtest=M6BoundaryTest" test
+mvn "-Dtest=F9HeadlessIntegrationTest,FboCommandIntegrationTest" test
+mvn "-Dtest=M8ConversionIntegrationTest,EboCommandTest" test
+mvn "-Dtest=GuiI1ExecutionTest,GuiI1ScannerTest,GuiI1DicomPart10IntegrationTest" test
 git diff --check
 ```
 
@@ -122,12 +183,22 @@ For historical reproduction, use `git archive` in a temporary directory and
 `mvn clean test -f <export>/pom.xml`; do not reset the user's tree. Read Surefire XML
 for counts/names only after fresh execution. Stale reports do not prove success.
 
-## 9. Acceptance Discipline
+## 10. Acceptance Discipline
 
-M6 is IN PROGRESS until architecture section 24 is satisfied. `NativeVolume` and
-`VoxelData.encoding()` do not satisfy the format-neutral ImageVolume requirement.
-AR-1, single-slice policy before output and later conversion tests remain separate
-work. Future affine/conversion/dataset modules have no tests because they are not
-implemented. Record baseline, prompt ID, affected tests, command/results, reviewed
-diff and checkpoint; do not manufacture history. This documentation task explicitly
+M6 and M7, and the F0–F7 foundation workstreams, have recorded bounded
+acceptance evidence; the older M6 `IN PROGRESS` statement is a historical
+snapshot, **not** today's status. The format-neutral `ImageVolume`, DICOM
+LPS-to-NIfTI-RAS affine, forward conversion, later dataset services, M8/EBO,
+FBO and GUI all have implemented source and corresponding tests. The existence
+of these components does not establish full profile coverage or every contract.
+
+Retain frozen test data, tolerances, requirement-to-assertion mapping and
+historical run records. Before changing an acceptance state, identify its
+exact contract, source commit, executed command, environment, test count,
+negative cases, and independent review/owner approval where required.
+**Do not** promote pending F8/F9/M8 obligations, F10/F11 or the global
+Pre-M8 gate based solely on the 961-test GUI integration run. Documentation
+updates do not constitute an executable regression or acceptance decision.
+Record changes in the development log only after the relevant activity
+has actually occurred. This documentation task explicitly
 forbids staging and committing.
