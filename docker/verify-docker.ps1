@@ -86,7 +86,7 @@ try {
     }
     $when = (Get-Date).ToUniversalTime().ToString('yyyy-MM-ddTHH:mm:ssZ')
     $record = @"
-# Project PAI — Docker demo evidence (local, user-executed)
+# Project PAI - Docker demo evidence (local, user-executed)
 
 - UTC execution time: $when
 - Source commit: $sha
