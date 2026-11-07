@@ -13,6 +13,34 @@ They do not rename the original `M6-DICOM-PROCESSING` or `QWEN-ONBOARDING` IDs.
 Dates for summaries are checkpoint dates, not invented prompt issuance dates.
 Unknown original prompts/models/commands are labeled unavailable.
 
+## Post-M7 traceability boundary — reconciliation 2026-11-07
+
+The M7 entries below record their own prompt/task summaries and evidence
+within the limits stated for each entry. **No verbatim F0–F9, M8, FBO,
+EBO or GUI-I1 prompt transcripts are present in the repository's
+immutable `ai/` prompt registry as reviewed at the merged PR #1
+source baseline.** Consequently, this document does **not** assign
+retrospective prompt IDs, fabricate role/model information, or label
+workstream contracts and Git commits as original prompts.
+
+| Later workstream | Genuine available trace | Prompt-archive status |
+| --- | --- | --- |
+| F0–F7 foundation | [Pre-M8 foundation tracker](docs/planning/PRE-M8-FOUNDATION-TRACKER.md) (per-slice contracts, checkpoint and review records) | No corresponding post-M7 immutable verbatim prompt archive identified; **prompt text unverified** |
+| F8 reopened-output evidence | [Tracker](docs/planning/PRE-M8-FOUNDATION-TRACKER.md) and [test evidence](docs/testing/TEST-RESULTS.md) | Source and test evidence available; **do not infer a verbatim prompt** |
+| F9 Windows submission path | [F9 implementation-start authorization](docs/planning/F9-SUBMISSION-SCOPE-AUTHORIZATION-20261023.md) and [tracker](docs/planning/PRE-M8-FOUNDATION-TRACKER.md) | Governance contract/authorization are **not prompt transcripts** |
+| M8 independent reverse conversion | [M8 implementation contract](docs/planning/M8-IMPLEMENTATION-CONTRACT-1.0.md) and [M8 exception](docs/planning/M8-IMPLEMENTATION-START-EXCEPTION-01.md) | Contract and implementation evidence only; **original prompt issuance/model not attested** |
+| EBO-1 R2 and FBO batches | [EBO evaluation contract](docs/planning/EBO-1-EVALUATION-CONTRACT.md) and [tracker](docs/planning/PRE-M8-FOUNDATION-TRACKER.md) | Contract/source/checkpoint traceability, **not original prompt text** |
+| GUI-I1/M10 integration | [Merged PR #1](https://github.com/nabojwal/CS5013-MRI-Volume-Normalizer/pull/1), [test results](docs/testing/TEST-RESULTS.md) | Source, review and reported workstation execution available; **verbatim prompt records not established** |
+
+**To extend this as a prompt log**, first locate an actual dated prompt
+artifact or user-supplied transcript with attributable task text,
+baseline and provenance. Reference that source without editing its
+original text. Until then, the table is an **evidence navigation index**,
+not retrospective prompt reconstruction. The original AI prompt
+registry remains
+[ai/PROMPT_REGISTRY.md](ai/PROMPT_REGISTRY.md);
+historical stage entries below remain unchanged.
+
 ## Traceability
 
 | Stage | Requirement / task | Prompt ID | Tests / evidence | Implementation or artifact | Commit | Status |
