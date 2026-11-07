@@ -2,7 +2,56 @@
 
 > **A workstream is not complete because its classes exist. It is complete only when its behavioral contracts are implemented, negative cases are tested, integration evidence passes, and the tracker records the verified checkpoint.**
 
-## Post-PR #1 integrated GUI/source reconciliation — 2026-11-07 (additive; latest)
+## Current development and acceptance status — 2026-11-07
+
+**Current implementation checkpoint:** GitHub `main` at
+[`b032a51cd369b428f201c6b0dd8d23a49f195eec`](https://github.com/nabojwal/CS5013-MRI-Volume-Normalizer/commit/b032a51cd369b428f201c6b0dd8d23a49f195eec),
+merged from tested source `454f8b58275583b0137d03a88d025c13523013eb`
+through PR [#1](https://github.com/nabojwal/CS5013-MRI-Volume-Normalizer/pull/1).
+The source Git trees match. This table states what is **implemented** and
+separately what is **qualified or formally accepted**. It is not an
+acceptance amendment.
+
+| Workstream | Present implementation | Evidence / acceptance boundary |
+| --- | --- | --- |
+| M6/M7 — DICOM reconstruction and forward conversion | **COMPLETE** for supported conventional MR profiles | Original M6/M7 acceptance and independent interoperability records |
+| **M8 — NIfTI → derived MR DICOM** | **IMPLEMENTED**: independent `M8ConversionService`, DICOM writer/verifier, workspace and CLI | Bounded 3D integer NIfTI-1 conversion with native Windows evidence; separate formal M8 acceptance **not established** |
+| **M10 — Desktop GUI integration** | **IMPLEMENTED / INTEGRATED**: Swing/FlatLaf GUI for both conversion directions | `GuiI1App`, `GuiI1Window`, `GuiI1Execution` and GUI test suites are in merged `main` |
+| F0–F7 foundation | **ACCEPTED / CLOSED** within frozen profiles | Historical source, test, and approval checkpoints retained |
+| F8 — Reopen, compare and persist evidence | **IMPLEMENTED / PUBLISHED / CROSS-PLATFORM QUALIFIED** within recorded limits | Formal acceptance **PENDING**; earlier audit reported 18/42 demonstrated, 24/42 partially evidenced |
+| F9 — Headless forward orchestration | **IMPLEMENTED / WINDOWS-QUALIFIED SUBMISSION PATH** | Formal F9 acceptance **PENDING**, notwithstanding tested GUI integration |
+| FBO — Forward sequential DICOM batch | **IMPLEMENTED / INTEGRATED** with the F9 authority | Backend-qualified eligible series; no blanket acceptance of F8/F9 inferred |
+| EBO-1 R2 — Reverse evaluation batch | **IMPLEMENTED; ACCEPTED / CLOSED** for contracted non-clinical evaluation | Previous R2 27-obligation evidence and 888/888 regression remain historical |
+| **F10 — Minimal boundary reconciliation** | Separate *foundation* workstream; **formal closure not recorded** | **F10 is not M10 GUI integration**; implemented GUI alone does not satisfy this gate |
+| **F11 — Synthetic/stakeholder acceptance** | Separate formal milestone; **acceptance not recorded** | Synthetic integration tests do not establish stakeholder sign-off |
+| Global Pre-M8 gate | **NOT FORMALLY CLOSED** | Historical gate checklist remains unchecked |
+
+**Latest integrated verification evidence:** PR #1 reports **961/961
+native Windows tests passing**, zero failures/errors/skips, plus a passing
+targeted mixed-series GUI test. This is **user-provided elevated Windows
+workstation evidence** with prepared filesystem fixtures,
+`java.io.tmpdir=C:\PT` and `d1.test.destination=C:\PD`; it is not a
+GitHub-hosted CI run, independently rerun Maven verification, or general
+ordinary-user/cross-platform GUI qualification. Historical M7 **129/129**,
+F8 **795/795** and EBO-1 R2 **888/888** belong to distinct checkpoints.
+
+**Scope:** Both supported conversion directions are implemented, but general
+DICOM/NIfTI round-trip equivalence, unsupported 4D/floating-point reverse
+conversion, recovery of original acquisition metadata and clinical use are
+not established. The merged destination code qualifies local Windows NTFS
+fixed/removable drives subject to provider, identity, permissions, path and
+publication probes; it does not establish arbitrary USB/exFAT/FAT32,
+network/cloud or all-long-path compatibility.
+
+**Historical interpretation:** The October/November records below retain their
+original statuses, including historical `GUI blocked`, `M8 not authorized`
+and `F10/F11 NOT STARTED` statements. Those records describe earlier
+checkpoints, not the present M8 and M10 implementation. **M10** is the
+original GUI milestone; **F10** is the separate foundation boundary
+reconciliation. No old approval or unchecked acceptance gate is modified.
+See the updated [README](../../README.md) for submission-facing status.
+
+## Post-PR #1 integration evidence — 2026-11-07 (supporting detail)
 
 **Integration authority:** GitHub PR
 [#1](https://github.com/nabojwal/CS5013-MRI-Volume-Normalizer/pull/1)
@@ -49,9 +98,10 @@ EBO-1 R2 and other frozen tests refer to distinct prior source checkpoints.
 - M8's independent bounded 3D integer NIfTI-1-to-derived-MR-DICOM implementation
   is present; its separate formal acceptance is not inferred.
 - EBO-1 R2's bounded 27-obligation evaluation acceptance is preserved.
-- GUI-I1 is **implemented/integrated as a working submission prototype**,
-  superseding older 'GUI not implemented' snapshots; this does **not**
-  certify F10 or F11 as formally accepted or close the unchecked global gate.
+- M10 GUI integration (GUI-I1) is **implemented/integrated as a working
+  submission prototype**, superseding older 'GUI not implemented' snapshots.
+  M10 differs from foundation F10; neither F10/F11 acceptance nor the
+  global gate is automatically closed.
 - General DICOM profile support, all 4D/float NIfTI inputs, full round-trip
   fidelity, clinical use, original acquisition-metadata recovery, arbitrary
   network/cloud/removable-media destination support, long paths and
@@ -123,7 +173,7 @@ EBO production and test bytes, release checkpoint, and existing history must
 remain unchanged. This prepared documentation does not itself authorize a
 Git commit, remote push, merge, test requalification or imaging conversion.
 
-## Program control
+## Historical program control — 2026-10-23 (preserved checkpoint)
 
 - Date: 2026-10-23 (Asia/Kolkata; F8 implementation published and cross-platform qualified; formal acceptance pending).
 - Branch: feature/pre-m8-foundation.
@@ -174,7 +224,11 @@ Historical evidence only: docs/testing/TEST-RESULTS.md records 129 tests, zero f
 
 Historical assistant runtime check: OpenJDK 17.0.20; mvn is unavailable. The project requires Java 21. The attempted mvn clean test command failed before execution because Maven was not found. Those attempts generated no test-pass evidence. This historical pre-execution limitation is superseded by the user-reported S1/S2/S3 verification and passed full F0 closure regression in the established Java 21/Maven environment, recorded below.
 
-## Workstream ledger
+## Historical foundation workstream ledger — pre-PR #1 checkpoints
+
+The following rows retain their originally recorded statuses. Older F10/F11
+`NOT STARTED` entries are not statements about current **M8 reverse
+conversion** or **M10 GUI integration**. See the current status table above.
 
 | ID | Contract/outcome | Dependency | Status | Verified checkpoint |
 | --- | --- | --- | --- | --- |
