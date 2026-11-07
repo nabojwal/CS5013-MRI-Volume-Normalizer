@@ -233,3 +233,21 @@ Write-Host 'EBO-1 SINGLE AND BATCH NATIVE WINDOWS COUNTS AND SOURCE HASHES VERIF
 ```
 
 A separate DICOM parser must independently inspect output pixel data and geometry if independent scientific equivalence is required. This script verifies EBO execution, M8-reported completion, file inventory, input-to-output mapping and input immutability, not independently the entire voxel array.
+
+---
+
+## Later integration reference — 2026-11-07 (non-contractual postscript)
+
+The statement above that `main` had not been merged was **accurate at the
+2026-11-02 EBO-1 R2 checkpoint**. Subsequently, [PR #1](https://github.com/nabojwal/CS5013-MRI-Volume-Normalizer/pull/1)
+merged the integrated Windows MRI conversion/GUI prototype into `main` at
+`b032a51cd369b428f201c6b0dd8d23a49f195eec` on **2026-11-07**.
+That later integration did **not** change the frozen R2 acceptance outcome:
+**27/27 obligations accepted within the non-clinical evaluation scope**,
+with the previously reported **888/888** regression as dated evidence.
+It did not turn the R1 BraTS demonstration into an R2 rerun, establish
+independent formal M8 acceptance, or close F8/F9, F10/F11 or the global
+Pre-M8 gate. For the integrated state and its separately reported Windows
+**961/961** test result, see the [canonical tracker](PRE-M8-FOUNDATION-TRACKER.md)
+and [test results](../testing/TEST-RESULTS.md). This postscript does not
+amend the EBO-1 R2 contract, execution record, qualification or approval.
