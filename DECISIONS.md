@@ -1,5 +1,32 @@
 # Architecture Decision Records
 
+## Decision navigation and later governance — 2026-11-07
+
+This file contains the **existing accepted ADR-001 through ADR-014
+records** (some listed out of numerical order). The entries below are a
+**navigation reconciliation**, not new ADRs or retroactive approval of
+later workstreams. All original ADR decisions, statuses, and wording
+remain unchanged.
+
+| Authority or topic | Where to read the operative record |
+| --- | --- |
+| Approved layered architecture, including AR-05 | [Architecture Revision 1.0](docs/architecture/ARCHITECTURE-REVISION-1.0.md); historical M5/M6 implementation descriptions do not rewrite its binding dependency rules |
+| M7 generic volume, scalar and LPS→RAS choices | ADR-009, ADR-010 and ADR-011 **in this file**; the later [domain-model reconciliation](docs/architecture/domain-model.md) distinguishes M4 history from implemented behavior |
+| Versioned JSON provenance and F0–F8 decisions | [Pre-M8 foundation tracker](docs/planning/PRE-M8-FOUNDATION-TRACKER.md), accepted scope-specific implementation/verification checkpoints and corresponding schemas; **not designated ADR-015 onward** |
+| Limited F9 implementation-start exception | [F9 submission-scope authorization](docs/planning/F9-SUBMISSION-SCOPE-AUTHORIZATION-20261023.md) and later tracker records; does not grant formal F8/F9 closure |
+| M8 independent NIfTI-to-derived-MR-DICOM path | [M8 implementation contract](docs/planning/M8-IMPLEMENTATION-CONTRACT-1.0.md), [start exception](docs/planning/M8-IMPLEMENTATION-START-EXCEPTION-01.md), and [candidate conformance profile](docs/architecture/M8-DICOM-CONFORMANCE-PROFILE.md); no universal DICOM conformance or independent formal M8 acceptance implied |
+| EBO-1 R2 / FBO and GUI integration | [EBO evaluation contract](docs/planning/EBO-1-EVALUATION-CONTRACT.md), [foundation tracker](docs/planning/PRE-M8-FOUNDATION-TRACKER.md), and [PR #1](https://github.com/nabojwal/CS5013-MRI-Volume-Normalizer/pull/1); EBO acceptance is limited to its nonclinical evaluation scope |
+| Outstanding presentation dependency reconciliation | [Unresolved decisions](docs/architecture/unresolved-decisions.md) documents the confirmed GUI-versus-AR-05 discrepancy; **no approved exception or successor ADR is asserted** |
+
+**Current implementation reference:** merged `main`
+`b032a51cd369b428f201c6b0dd8d23a49f195eec`
+(2026-11-07), with reported elevated-Windows **961/961**
+regression. This is **source integration/evidence**, not an
+architecture amendment, new acceptance decision or new Maven run.
+**M10 GUI integration** is distinct from **F10 foundation boundary
+reconciliation**. Later decisions should be assigned new ADR identifiers
+only upon explicit approval and with a traceable decision record.
+
 ## ADR-001 - Java 21
 
 Decision:
