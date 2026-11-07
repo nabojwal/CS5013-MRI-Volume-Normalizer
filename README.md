@@ -89,35 +89,37 @@ state. See [milestones](MILESTONES.md),
 Intensity normalization is optional and is not part of the required conversion
 MVP.
 
-## 3. Historical M7 Development Status (2026-10-03)
+## 3. Current Development Status
 
-This table preserves the M7-era snapshot reviewed on `feature/m7-dicom-to-nifti`.
-The M8/GUI `NOT STARTED` entries below describe that **date only**; consult
-§1 and [MILESTONES.md](MILESTONES.md) for the current integrated state.
+The following describes the **implemented source on merged `main`**
+(`b032a51`) as of 2026-11-07. An implemented feature is not automatically
+a formally accepted workstream; the foundation tracker governs acceptance
+obligations separately.
 
-| Milestone | Description | Status / checkpoint |
-|---|---|---|
-| M1 | Java/Maven/JUnit baseline | COMPLETE — `63fff6d` |
-| M2 | dcm4che integration | COMPLETE — `8e1580b` |
-| M3 | FlatLaf foundation | COMPLETE — `cf9013d` |
-| M4 | Initial architecture | COMPLETE — `7e50a9b` |
-| M5 | Content-based detection | COMPLETE — `88da522` |
-| M5.1 | Detection hardening | COMPLETE — `1989589` |
-| M6 | DICOM reconstruction | COMPLETE — protected checkpoint `cb7769e` |
-| M7-P01 | Format-neutral `ImageVolume` | COMPLETE — `1dd31fc` |
-| M7-P02 | DICOM LPS to NIfTI RAS affine | COMPLETE — `8fb2831` |
-| M7-P03 | NIfTI-1 writer | COMPLETE — `6924dd5` |
-| M7-P04 | End-to-end DICOM to NIfTI | COMPLETE — `a495699` |
-| M7-P05A | Safe output and structured failures | COMPLETE — `2bf1927` |
-| M7-P05B | Independent NIfTI interoperability validation | VERIFIED |
-| ADR-014 | Structured validation report and future JSON manifest | ACCEPTED — `b6bab40` |
-| M7-P05C | Conversion validation report | COMPLETE — `0976788` |
-| M7 | DICOM-to-NIfTI acceptance | COMPLETE — 2026-10-03 |
-| M8 | Controlled NIfTI-to-DICOM | NOT STARTED |
-| M10 | GUI integration | NOT STARTED |
+| Workstream | Present implementation | Evidence and acceptance boundary |
+| --- | --- | --- |
+| M6 — DICOM reconstruction | **COMPLETE** for the supported conventional MR profile | Earlier accepted M6 checkpoint and geometry/pixel verification |
+| M7 — DICOM → NIfTI | **COMPLETE** for the supported conversion profile | Historical M7 acceptance with independent NiBabel interoperability checks |
+| **M8 — Controlled NIfTI → DICOM** | **IMPLEMENTED**: independent 3D integer NIfTI-1 to derived MR DICOM conversion | Native Windows evaluation and integration tests exist; separate formal M8 acceptance is not established by PR #1 |
+| **M10 — Desktop GUI integration** | **IMPLEMENTED / INTEGRATED**: working Swing/FlatLaf DICOM ↔ NIfTI GUI | `GuiI1App`, `GuiI1Window`, `GuiI1Execution` and GUI tests are in merged `main`; no blanket separate milestone acceptance implied |
+| F1–F7 foundation | **ACCEPTED / CLOSED** within their recorded scope | Historical frozen acceptance evidence remains authoritative |
+| F8 — Reopened verification/provenance | **IMPLEMENTED / QUALIFIED** in its documented predecessor scope | Formal acceptance remains pending in the canonical tracker |
+| F9 — Selected-series forward orchestration | **IMPLEMENTED / WINDOWS-QUALIFIED SUBMISSION PATH** | Formal F9 acceptance remains pending |
+| FBO and EBO batch workflows | **IMPLEMENTED / INTEGRATED** | EBO-1 R2 is accepted within its bounded evaluation scope; other workflows retain their own limits |
+| F10 / F11 foundation workstreams | **No formal closure recorded** | These are *not* the original project's M10 GUI milestone |
+| Global Pre-M8 gate | **NOT FORMALLY CLOSED** | Integration does not replace the historical acceptance checklist |
 
-At this historical M7 checkpoint, the Java regression baseline contained
-129 passing tests with zero failures, errors or skips.
+**Current reported integrated regression:** 961 Windows tests passed,
+0 failures, 0 errors and 0 skips at the tested `454f8b5` source tree,
+which matches merged `main`. It was a user-executed, elevated Windows run
+with provisioned short-path fixtures, not GitHub CI or general cross-platform
+qualification; see [§8](#8-verification).
+
+The earlier **129 passing tests** belong solely to the
+**2026-10-03 M7 acceptance checkpoint**. The original M1–M7 checkpoint
+table and the historical M8/M10 `NOT STARTED` entries are retained in
+[MILESTONES.md](MILESTONES.md), where their date and scope are explicit.
+They are not current project status.
 
 ## 4. Supported DICOM Profile
 
@@ -363,21 +365,33 @@ Current implementation decisions are recorded in:
 - [Test strategy](docs/testing/TEST-STRATEGY.md)
 - [Verified test results](docs/testing/TEST-RESULTS.md)
 
-## 12. Remaining Work
+## 12. Outstanding Qualification and Acceptance Evidence
 
-- Reconcile the outstanding F8/F9/M8 formal acceptance obligations and
-  the global Pre-M8 gate from the canonical tracker; **do not infer closure**
-  from the GUI integration or the 961-test regression.
-- Extend and independently qualify destination reliability, path lengths,
-  external/removable media, ordinary-user Windows execution and other
-  operating systems before expanding support claims.
-- Add separate, evidence-backed round-trip and scientific-interoperability
-  evaluations where required; the two implemented directions are independent.
-- Complete stakeholder demonstration and submission documentation without
-  claiming normalization, universal format support, original acquisition
-  metadata recovery or clinical validation.
+**Core conversion implementation and the M10 desktop GUI are present.**
+The items below concern formal sign-off, broader validation or extension
+beyond the implemented submission profile—not instructions to start M8 or
+GUI development again.
 
+- **Formal acceptance:** Reconcile the remaining F8/F9/M8 obligations,
+  separate F10/F11 foundation milestones and the global Pre-M8 gate
+  against the [canonical tracker](docs/planning/PRE-M8-FOUNDATION-TRACKER.md).
+  These are not automatically closed by source integration or the
+  reported 961-test Windows regression.
+- **Storage and platform qualification:** Establish additional evidence
+  before claiming unrestricted removable-media, exFAT/FAT32, cloud/network,
+  long-path, ordinary-user Windows or other OS support. The existing
+  qualified local NTFS implementation is not a universal guarantee.
+- **Scientific/round-trip evaluation:** The two conversion directions
+  work independently under bounded profiles. Comprehensive bidirectional
+  round-trip equivalence and broader real-MRI interoperability require
+  their own documented acceptance evidence before such claims are made.
+- **Stakeholder sign-off:** The working desktop prototype is integrated;
+  a separately recorded F11 stakeholder acceptance or final submission
+  approval is not established by the repository evidence examined here.
 
+This distinction does not diminish completed engineering work and does
+not claim support for original acquisition-metadata recovery, universal
+DICOM/NIfTI interoperability or clinical applications.
 
 No patient datasets, DICOM studies, generated imaging outputs, secrets or
 runtime logs belong in Git. Tests construct synthetic temporary fixtures.
