@@ -34,7 +34,11 @@ final class GuiI1DicomPart10IntegrationTest {
         var scan = new GuiI1Scanner().scan(GuiI1Scanner.Direction.DICOM_TO_NIFTI, dir);
         assertEquals(1, scan.candidates().size());
         assertEquals(155, scan.candidates().getFirst().instanceCount());
-        assertFalse(scan.candidates().getFirst().eligible());
+        assertTrue(scan.candidates().getFirst().eligible());
+        assertEquals(
+                "Preview only; backend validation required",
+                scan.candidates().getFirst().finding()
+        );
     }
     @Test void realPart10SeriesUidDiscoveryAllowsPreparedTwoSeriesWithoutTypingUID() throws Exception {
         Path a = Files.createDirectory(temp.resolve("seriesA"));

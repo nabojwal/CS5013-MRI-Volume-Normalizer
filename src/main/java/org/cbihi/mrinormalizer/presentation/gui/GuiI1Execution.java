@@ -104,8 +104,6 @@ public final class GuiI1Execution {
             return scan.kind() == GuiI1Scanner.InputKind.NIFTI_FILE ? Route.EBO_ONE_NIFTI
                     : Route.EBO_NIFTI_DIRECTORY;
         }
-        if (scan.kind() == GuiI1Scanner.InputKind.DICOM_DISCOVERY_ONLY)
-            throw new IllegalArgumentException("Discovered series are not in a qualified prepared layout");
         for (int index : selected) {
             if (!scan.candidates().get(index).eligible())
                 throw new IllegalArgumentException("Selected DICOM series exceeds the current qualified profile");
@@ -136,15 +134,11 @@ public final class GuiI1Execution {
             if (!"NTFS".equalsIgnoreCase(filesystem) || output.toString().startsWith("\\\\"))
                 throw new IOException("Qualified local NTFS destination required");
             if (route == Route.F9_ONE_DICOM_SERIES || route == Route.FBO_SEQUENTIAL_DICOM_BATCH) {
-                String drive = System.getenv("SystemDrive");
-                if (drive == null || !output.getRoot().toString().equalsIgnoreCase(drive + "\\"))
-                    throw new IOException("DICOM-to-NIfTI output must be on the Windows system drive");
-                if (route == Route.FBO_SEQUENTIAL_DICOM_BATCH && output.toString().length() + 203 > 240)
-                    throw new IOException("Destination too deep for qualified FBO staging");
-                if (route == Route.F9_ONE_DICOM_SERIES && output.toString().length() + 128 > 240)
-                    throw new IOException("Destination too deep for conservative F9 staging");
+                org.cbihi.mrinormalizer.infrastructure.filesystem.DestinationQualification.requirePathCapacity(output,
+                        route == Route.FBO_SEQUENTIAL_DICOM_BATCH ? 203 : 128);
             }
         }
+        org.cbihi.mrinormalizer.infrastructure.filesystem.DestinationQualification.requireLocal(output);
         return output;
     }
 
@@ -157,6 +151,36 @@ public final class GuiI1Execution {
             case 130 -> new Outcome(State.INTERRUPTED, route, "Backend interrupted; verify the report before further processing.", root);
             default -> new Outcome(State.RECOVERY_REQUIRED, route, "Publication or reporting is uncertain. Preserve the output directory.", root);
         };
+    }
+
+    /** Swing-facing admission diagnostics. Only execute()'s admission step propagates IOException. */
+    public Outcome executeForGui(GuiI1Scanner.ScanResult scan, List<Integer> selected, Path output, Progress progress) {
+        try { return execute(scan, selected, output, progress); }
+        catch (IOException refusal) {
+            String message = refusal.getMessage();
+            if (refusal instanceof java.nio.file.FileSystemException || message == null)
+                message = refusal.getClass().getSimpleName();
+            boolean uncertain = refusal.getSuppressed().length != 0 || message.contains("UNCERTAIN");
+            return new Outcome(uncertain ? State.RECOVERY_REQUIRED : State.REJECTED, plan(scan,selected),
+                    "Destination admission: " + message, output);
+        }
+    }
+    /** Use the qualified C1/N1 route as-is when each selection is already an exact prepared folder. */
+    private static boolean alreadyPrepared(GuiI1Scanner.ScanResult scan, List<Integer> selected) throws IOException {
+        if (Files.isRegularFile(scan.input(),LinkOption.NOFOLLOW_LINKS)) return false;
+        for (int index : selected) {
+            var c = scan.candidates().get(index);
+            if (selected.size() > 1 && (c.childName() == null || !scan.input().equals(c.directory().getParent()))) return false;
+            Set<String> expected = new HashSet<>(c.memberNames());
+            if (expected.size() != c.instanceCount()) return false;
+            try (var children = Files.newDirectoryStream(c.directory())) {
+                for (Path p : children) {
+                    if (!Files.isRegularFile(p,LinkOption.NOFOLLOW_LINKS) || !expected.remove(p.getFileName().toString())) return false;
+                }
+            }
+            if (!expected.isEmpty()) return false;
+        }
+        return true;
     }
 
     @FunctionalInterface public interface Progress { void onEvent(String text); }
@@ -173,11 +197,28 @@ public final class GuiI1Execution {
         catch(IOException unverified) {return new Outcome(State.REJECTED,route,"Source identity could not be established.",output);}
         try {
             if(GuiI1CompletionLedger.exists(output,fingerprint))
-                return new Outcome(State.REJECTED,route,"Identical input and destination already VERIFIED; conversion blocked.",output);
+                return new Outcome(State.REJECTED,route,"A previous verified run is recorded here. If its output was moved, choose a new destination; the original history is preserved.",output);
         } catch(IOException unsafe) {
             return new Outcome(State.RECOVERY_REQUIRED,route,"Unable to read completion history; do not retry automatically.",output);
         }
         Outcome result;
+        GuiI1DicomPreparation preparation = null;
+        List<GuiI1Scanner.Candidate> forward = List.of();
+        if (scan.direction() == GuiI1Scanner.Direction.DICOM_TO_NIFTI) {
+            try {
+                if (scan.snapshot() != null) GuiI1DicomPreparation.revalidate(scan.snapshot());
+                if (alreadyPrepared(scan,selected)) {
+                    forward = selected.stream().map(i -> scan.candidates().get(i)).toList();
+                } else {
+                    progress.onEvent("Preparing private copies of the selected DICOM objects");
+                    preparation = GuiI1DicomPreparation.prepare(scan, selected, output);
+                    forward = preparation.candidates();
+                }
+            } catch (IOException invalid) {
+                return new Outcome(invalid.getSuppressed().length == 0 ? State.REJECTED : State.RECOVERY_REQUIRED,
+                        route, "Selection preparation failed: " + invalid.getMessage(), output);
+            }
+        }
         try {
             if(route==Route.EBO_ONE_NIFTI||route==Route.EBO_NIFTI_DIRECTORY) {
                 List<String> names=selected.stream().map(i->scan.candidates().get(i).memberNames().getFirst()).toList();
@@ -203,23 +244,22 @@ public final class GuiI1Execution {
                 result=new Outcome(aggregate,route,"Verified "+verified+" of "+names.size()+
                         " input(s); failed "+failed+", rejected "+rejected+".",output);
             } else if(route==Route.F9_ONE_DICOM_SERIES) {
-                var c=scan.candidates().get(selected.getFirst());
+                var c=forward.getFirst();
                 String targetName=niftiFilename(c.directory());
                 if(Files.exists(output.resolve(targetName),LinkOption.NOFOLLOW_LINKS))
-                    return new Outcome(State.REJECTED,route,"Named NIfTI output already exists; refusing replacement: "+targetName,output);
+                    throw new IllegalArgumentException("Named NIfTI output already exists: " + targetName);
                 progress.onEvent("Processing "+c.label()+" ("+c.instanceCount()+" instances) → "+targetName);
                 F9HeadlessResult f9=backend.f9(c.directory(),output,c.seriesUid(),c.memberNames());
                 result=switch(f9.status()) {
                     case VERIFIED_PUBLISHED -> new Outcome(State.VERIFIED,route,"F9 reopened, verified and published the selected series.",output);
-                    case FAILED -> new Outcome(State.FAILED,route,"F9 conversion or verification failed.",output);
-                    case RECOVERY_REQUIRED -> new Outcome(State.RECOVERY_REQUIRED,route,"F9 publication/cleanup uncertain; preserve output.",output);
+                    case FAILED -> new Outcome(State.FAILED,route,"F9 failed: " + f9.reasons(),output);
+                    case RECOVERY_REQUIRED -> new Outcome(State.RECOVERY_REQUIRED,route,"F9 recovery required: " + f9.reasons() + "; preserve output.",output);
                 };
                 progress.onEvent(c.label()+" — "+result.state());
             } else {
                 List<String> args=new ArrayList<>();
-                args.add("--input-root");args.add(scan.input().toString());args.add("--output-root");args.add(output.toString());
-                for(int index:selected) {
-                    var c=scan.candidates().get(index);
+                args.add("--input-root");args.add((preparation == null ? scan.input() : preparation.root()).toString());args.add("--output-root");args.add(output.toString());
+                for(var c:forward) {
                     if(c.childName()==null)throw new IllegalArgumentException("FBO requires prepared directories");
                     args.add("--series");args.add(c.childName());args.add(c.seriesUid());
                 }
@@ -227,13 +267,23 @@ public final class GuiI1Execution {
                 result=classify(backend.fbo(args.toArray(String[]::new)),route,output);
                 progress.onEvent("DICOM batch — "+result.state());
             }
+        } catch(F9WindowsComposition.InitializationFailure failure) {
+            result = new Outcome(failure.recoveryRequired() ? State.RECOVERY_REQUIRED : State.FAILED,
+                    route, failure.getMessage(), output);
         } catch(IllegalArgumentException invalid) {
-            return new Outcome(State.REJECTED,route,"Unsafe or colliding output names.",output);
+            result = new Outcome(State.REJECTED,route,"Invalid selection or output name: " + invalid.getMessage(),output);
         } catch(IOException | RuntimeException uncertain) {
-            return new Outcome(State.RECOVERY_REQUIRED,route,"Backend or publication state uncertain; preserve .pai-internal and output.",output);
+            result = new Outcome(State.RECOVERY_REQUIRED,route,"Backend or publication state uncertain; preserve .pai-internal and output.",output);
+        }
+        if (preparation != null) {
+            try { preparation.close(); }
+            catch (IOException cleanup) {
+                return new Outcome(State.RECOVERY_REQUIRED, route, "Preparation cleanup uncertain; preserve " + preparation.root(), output);
+            }
         }
         if(result.state()!=State.VERIFIED)return result;
         try {
+            if (scan.snapshot() != null) GuiI1DicomPreparation.revalidate(scan.snapshot());
             if(!fingerprint.equals(GuiI1CompletionLedger.fingerprint(scan,selected,output)))
                 return new Outcome(State.RECOVERY_REQUIRED,route,"Source changed during conversion; inspect published outputs.",output);
             GuiI1CompletionLedger.mark(output,fingerprint);

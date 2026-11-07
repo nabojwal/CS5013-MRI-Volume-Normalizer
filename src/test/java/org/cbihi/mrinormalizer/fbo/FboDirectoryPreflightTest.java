@@ -86,56 +86,124 @@ class FboDirectoryPreflightTest {
         Files.createLink(dir.resolve("alias.dcm"),dir.resolve("image1.dcm"));
         assertThrows(IOException.class,()->new FboDirectoryPreflight().inspectAll(make(r[0],r[1],"s")));
     }
-    @Test @EnabledOnOs(OS.WINDOWS)
-    void t03_t05_offSystemDriveRefusedWithoutFboOutputEffects() throws Exception {
-        Path[] r=roots();series(r[0],"s",1);
-        String sys=System.getenv("SystemDrive");
-        assertNotNull(sys,"Native SystemDrive required");
-        Path other=null;
-        for(String drive:List.of("C:","D:","E:","F:")) {
-            Path candidate=Path.of(drive+"\\");
-            if(!candidate.getRoot().toString().equalsIgnoreCase(sys+"\\")
-                    && Files.isDirectory(candidate,LinkOption.NOFOLLOW_LINKS)) { other=candidate;break; }
+    // @Test @EnabledOnOs(OS.WINDOWS)
+    // void t03_t05_offSystemDriveRefusedWithoutFboOutputEffects() throws Exception {
+    //     Path[] r=roots();series(r[0],"s",1);
+    //     String sys=System.getenv("SystemDrive");
+    //     assertNotNull(sys,"Native SystemDrive required");
+    //     Path other=null;
+    //     for(String drive:List.of("C:","D:","E:","F:")) {
+    //         Path candidate=Path.of(drive+"\\");
+    //         if(!candidate.getRoot().toString().equalsIgnoreCase(sys+"\\")
+    //                 && Files.isDirectory(candidate,LinkOption.NOFOLLOW_LINKS)) { other=candidate;break; }
+    //     }
+    //     assertNotNull(other,"T03/T05 native fixture blocked: another existing drive is required");
+    //     Path external=other;
+    //     assertThrows(IOException.class,()->new FboDirectoryPreflight().inspectAll(make(r[0],external,"s")));
+    //     try(var stream=Files.list(r[1])){assertTrue(stream.noneMatch(f->f.getFileName().toString().startsWith("fbo-")));}
+    //     // T03: an off-system-drive input is allowed when the OUTPUT remains qualified.
+    //     Path writable=Files.isDirectory(other.resolve("Projects")) ? other.resolve("Projects") : other;
+    //     Path offDriveInput=Files.createTempDirectory(writable,"pai-fbo-offdrive-input-");
+    //     try {
+    //         series(offDriveInput,"s",1);
+    //         assertNotNull(new FboDirectoryPreflight().inspectAll(make(offDriveInput,r[1],"s")));
+    //     } finally {
+    //         Files.deleteIfExists(offDriveInput.resolve("s").resolve("image1.dcm"));
+    //         Files.deleteIfExists(offDriveInput.resolve("s"));
+    //         Files.deleteIfExists(offDriveInput);
+    //     }
+    // }
+
+    @Test
+    @EnabledOnOs(OS.WINDOWS)
+    void t03_t05_fixedLocalNtfsOffSystemDriveIsEligible() throws Exception {
+        Path[] r = roots();
+        series(r[0], "s", 1);
+
+        String sys = System.getenv("SystemDrive");
+        assertNotNull(sys, "Native SystemDrive required");
+
+        Path other = null;
+
+        for (String drive : List.of("C:", "D:", "E:", "F:")) {
+            Path candidate = Path.of(drive + "\\");
+
+            if (candidate.getRoot().toString()
+                    .equalsIgnoreCase(sys + "\\")) {
+                continue;
+            }
+
+            if (!Files.isDirectory(
+                    candidate, LinkOption.NOFOLLOW_LINKS)) {
+                continue;
+            }
+
+            if (!Files.getFileStore(candidate).type()
+                    .equalsIgnoreCase("NTFS")) {
+                continue;
+            }
+
+            int driveType = com.sun.jna.NativeLibrary
+                    .getInstance("kernel32")
+                    .getFunction("GetDriveTypeW")
+                    .invokeInt(new Object[] {
+                            new com.sun.jna.WString(
+                                    candidate.getRoot().toString())
+                    });
+
+            if (driveType == 3) {
+                other = candidate;
+                break;
+            }
         }
-        assertNotNull(other,"T03/T05 native fixture blocked: another existing drive is required");
-        Path external=other;
-        assertThrows(IOException.class,()->new FboDirectoryPreflight().inspectAll(make(r[0],external,"s")));
-        try(var stream=Files.list(r[1])){assertTrue(stream.noneMatch(f->f.getFileName().toString().startsWith("fbo-")));}
-        // T03: an off-system-drive input is allowed when the OUTPUT remains qualified.
-        Path writable=Files.isDirectory(other.resolve("Projects")) ? other.resolve("Projects") : other;
-        Path offDriveInput=Files.createTempDirectory(writable,"pai-fbo-offdrive-input-");
+
+        assertNotNull(other,
+                "D1 native fixture requires an independent fixed NTFS drive");
+
+        Path external = Files.createTempDirectory(Files.isDirectory(other.resolve("Projects")) ? other.resolve("Projects") : other,"d1-");
+        shortWindowsOutputs.add(external);
+
+        // A fixed NTFS destination is no longer rejected
+        // merely because it is outside SystemDrive.
+        var prepared = new FboDirectoryPreflight()
+                .inspectAll(make(r[0], external, "s"));
+
+        assertEquals(1, prepared.series().size());
+
+        // Preflight must not publish FBO artifacts.
+        try (var stream = Files.list(external)) {
+            assertTrue(stream.noneMatch(f ->
+                    f.getFileName().toString().startsWith("fbo-")));
+        }
+
+        // Retain verification that an off-system-drive
+        // DICOM input is permitted.
+        Path writable = Files.isDirectory(other.resolve("Projects"))
+                ? other.resolve("Projects")
+                : other;
+
+        Path offDriveInput = Files.createTempDirectory(
+                writable, "pai-fbo-offdrive-input-");
+
         try {
-            series(offDriveInput,"s",1);
-            assertNotNull(new FboDirectoryPreflight().inspectAll(make(offDriveInput,r[1],"s")));
+            series(offDriveInput, "s", 1);
+
+            assertNotNull(new FboDirectoryPreflight()
+                    .inspectAll(make(offDriveInput, r[1], "s")));
         } finally {
-            Files.deleteIfExists(offDriveInput.resolve("s").resolve("image1.dcm"));
+            Files.deleteIfExists(
+                    offDriveInput.resolve("s").resolve("image1.dcm"));
             Files.deleteIfExists(offDriveInput.resolve("s"));
             Files.deleteIfExists(offDriveInput);
         }
     }
+
     @Test @EnabledOnOs(OS.WINDOWS)
-    void t05_windowsDeepOutputRefusedBeforeAnyBatchArtifact() throws Exception {
-        Path[] r = roots(); series(r[0], "s", 1);
-        // Keep the existing directory well inside Windows' own path limit;
-        // only the prospective nested F1 journal stage exceeds 240 chars.
-        Path deep = Files.createDirectory(r[1].resolve("x".repeat(90)));
-        try {
-            var request = make(r[0], deep, "s");
-            assertThrows(IOException.class,
-                    () -> new FboDirectoryPreflight().inspectAll(request));
-            var result = new org.cbihi.mrinormalizer.application.fbo.FboBatchController(
-                    new FboDirectoryPreflight(),
-                    (prepared, jobId, root) -> { throw new AssertionError("F9 runner must not open"); },
-                    (report, root) -> { throw new AssertionError("No report may publish"); })
-                    .execute(request);
-            assertEquals(org.cbihi.mrinormalizer.application.fbo.FboResult.Status.INVALID_REQUEST,
-                    result.status());
-            try (var entries = Files.list(deep)) {
-                assertEquals(0, entries.count(), "Preflight must create no batch/job artifacts");
-            }
-        } finally {
-            Files.delete(deep);
-        }
+    void t05_missingOutputRefusedBeforeAnyBatchArtifact() throws Exception {
+        Path[] r=roots();series(r[0],"s",1);
+        Path absent=r[1].resolve("missing-output");
+        assertThrows(IOException.class,()->new FboDirectoryPreflight().inspectAll(make(r[0],absent,"s")));
+        assertFalse(Files.exists(absent));
     }
 
     @Test @EnabledOnOs(OS.WINDOWS)

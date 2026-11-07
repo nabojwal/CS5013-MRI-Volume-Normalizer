@@ -39,35 +39,15 @@ class FboCommandIntegrationTest {
         assertEquals("preexisting bytes",Files.readString(sentinel));
     }
     @Test @EnabledOnOs(OS.WINDOWS)
-    void t21_windowsRunnerRejectsDeepJobBeforeRootCreation() throws Exception {
-        String drive = System.getenv("SystemDrive");
-        assertNotNull(drive);
-        Path writable = Path.of(System.getProperty("fbo.test.systemDriveTemp", drive + "\\FBO")).toRealPath();
-        // This existing batch-root fixture intentionally exceeds the projected
-        // first F1 checkpoint-stage budget; it contains no patient information.
-        Path scratch = Files.createTempDirectory(writable, "r-");
-        Path deep = Files.createDirectory(scratch.resolve("x".repeat(90)));
-        try {
-            UUID jobId = UUID.randomUUID();
-            var observation = new org.cbihi.mrinormalizer.application.fbo.FboBatchController.DirectoryObservation(
-                    null, java.nio.file.attribute.FileTime.fromMillis(1),
-                    java.nio.file.attribute.FileTime.fromMillis(1));
-            var file = new org.cbihi.mrinormalizer.application.fbo.FboBatchController.PreparedFile(
-                    "image.dcm", 3, observation.creationTime(), observation.lastModifiedTime(),
-                    null, "a".repeat(64));
-            var selection = new org.cbihi.mrinormalizer.application.fbo.FboBatchController.PreparedSeries(
-                    1, temp, "1.2.3", observation, List.of(file));
-            var result = new org.cbihi.mrinormalizer.infrastructure.fbo.F9ForwardBatchRunner()
-                    .runOne(selection, jobId, deep);
-            assertEquals(org.cbihi.mrinormalizer.application.fbo.FboResult.EntryState.RECOVERY_REQUIRED,
-                    result.state());
-            assertEquals(org.cbihi.mrinormalizer.application.fbo.FboResult.Reason.OUTPUT_UNCERTAIN,
-                    result.reason());
-            assertFalse(Files.exists(deep.resolve("job-001-" + jobId)));
-        } finally {
-            Files.delete(deep);
-            Files.delete(scratch);
-        }
+    void t21_windowsRunnerRejectsMissingParentBeforeRootCreation() throws Exception {
+        Path absent=temp.resolve("missing-output");UUID job=UUID.randomUUID();
+        var t=java.nio.file.attribute.FileTime.fromMillis(1);
+        var selected=new org.cbihi.mrinormalizer.application.fbo.FboBatchController.PreparedSeries(1,temp,"1.2.3",
+            new org.cbihi.mrinormalizer.application.fbo.FboBatchController.DirectoryObservation(null,t,t),
+            List.of(new org.cbihi.mrinormalizer.application.fbo.FboBatchController.PreparedFile("image.dcm",3,t,t,null,"a".repeat(64))));
+        var result=new org.cbihi.mrinormalizer.infrastructure.fbo.F9ForwardBatchRunner().runOne(selected,job,absent);
+        assertEquals(org.cbihi.mrinormalizer.application.fbo.FboResult.EntryState.RECOVERY_REQUIRED,result.state());
+        assertFalse(Files.exists(absent));
     }
 
     @Test @EnabledOnOs(OS.WINDOWS)

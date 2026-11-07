@@ -19,6 +19,18 @@ import org.cbihi.mrinormalizer.domain.model.GeometryValidationPolicy;
 /** Explicit composition of accepted adapters; adds no alternative writer or verifier. */
 public final class F9WindowsComposition {
     private F9WindowsComposition() {}
+    public enum InitializationStage { DESTINATION, PRIVATE_STAGE, MANIFEST, ADAPTERS }
+    /** Public-safe diagnosis before executeOne; paths, UIDs and raw native messages are omitted. */
+    public static final class InitializationFailure extends RuntimeException {
+        private final InitializationStage stage;
+        private final boolean recovery;
+        InitializationFailure(InitializationStage stage, String detail, boolean recovery) {
+            super("F9 initialization at " + stage + ": " + detail + (recovery ? "; recovery required" : "; no imaging output published"));
+            this.stage = stage; this.recovery = recovery;
+        }
+        public InitializationStage stage() { return stage; }
+        public boolean recoveryRequired() { return recovery; }
+    }
     /** Derive F2 inventory cardinality from the actual source folder, without slice-count constants. */
     private static int inventoryCount(Path source) throws java.io.IOException {
         long count = 0;
@@ -38,21 +50,28 @@ public final class F9WindowsComposition {
         Objects.requireNonNull(sourceRoot);
         Objects.requireNonNull(outputRoot);
         Objects.requireNonNull(jobId);
+        var trace = new JsonManifestStore.InitializationTrace();
+        InitializationStage phase = InitializationStage.DESTINATION;
         try {
             var source = sourceRoot.toRealPath();
-            var output = outputRoot.toRealPath();
+            var output = DestinationQualification.requireLocal(outputRoot);
             if (source.equals(output) || source.startsWith(output) || output.startsWith(source)
                     || !Files.isDirectory(source) || !Files.isDirectory(output))
                 throw new IllegalArgumentException("Invalid headless root configuration");
+            DestinationQualification.requirePathCapacity(output, 128);
+            phase = InitializationStage.PRIVATE_STAGE;
             var stage = output.resolve(".pai-f9-private-stage");
             if (Files.exists(stage, LinkOption.NOFOLLOW_LINKS)) {
                 if (!Files.isDirectory(stage, LinkOption.NOFOLLOW_LINKS)
                         || Files.isSymbolicLink(stage))
                     throw new IllegalArgumentException("Invalid private stage directory");
-            } else Files.createDirectory(stage);
-            // Store qualification is deliberately inherited, including Windows system-drive restrictions.
-            var store = new JsonManifestStore(source, output, output.resolve(".pai-f9-manifest"), jobId);
+                DestinationQualification.verifyPrivateDirectory(stage);
+            } else Files.createDirectory(stage, DestinationQualification.privateAttributes(output, true));
+            // Keep F1 publication/privacy qualification; only local-volume admission is shared.
+            phase = InitializationStage.MANIFEST;
+            var store = DestinationQualification.openForwardManifest(source, output, jobId, trace);
             try {
+                phase = InitializationStage.ADAPTERS;
                 var probe = new FormatDetectionService(List.of(new DicomFormatProbe(),new NiftiFormatProbe()));
                 var scanner = new NioDatasetScanner(source, output, new InventoryLimits(inventoryCount(source), 3, 32), probe);
                 var metadata = new Dcm4cheMetadataReader(source,new DicomMetadataLimits(1048576, 16));
@@ -67,9 +86,23 @@ public final class F9WindowsComposition {
                         new DicomSeriesDiscoveryService(),
                         new DefaultDicomSeriesService(new Dcm4cheInstanceReader(),GeometryValidationPolicy.defaults()),
                         store,verified,Clock.systemUTC());
-            } catch (RuntimeException exception) { store.close(); throw exception; }
-        } catch (java.io.IOException | SecurityException exception) {
-            throw new IllegalArgumentException("Invalid headless root configuration");
+            } catch (RuntimeException exception) {
+                try { store.close(); }
+                catch (RuntimeException close) { throw new InitializationFailure(phase, "ADAPTER_INITIALIZATION_AND_RELEASE_FAILED", true); }
+                throw new InitializationFailure(phase, exception.getClass().getSimpleName(), false);
+            }
+        } catch (InitializationFailure classified) { throw classified;
+        } catch (org.cbihi.mrinormalizer.application.provenance.manifest.ProvenancePersistenceException failure) {
+            boolean uncertain = failure.outcome() != org.cbihi.mrinormalizer.application.provenance.manifest.ProvenancePersistenceException.PublicationOutcome.NOT_PUBLISHED
+                    || failure.failures().stream().anyMatch(f -> f.code().name().equals("CLEANUP_FAILED") || f.code().name().equals("RECOVERY_REQUIRED"));
+            throw new InitializationFailure(phase, trace.summary() + " " + failure.failures().stream().map(f -> f.code().name()).toList().toString(), uncertain);
+        } catch (java.io.IOException | SecurityException | IllegalArgumentException exception) {
+            String detail = exception.getMessage();
+            if (detail == null || !detail.matches("[A-Z][A-Z0-9_]{1,95}"))
+                detail = exception instanceof java.nio.file.AccessDeniedException ? "ACCESS_DENIED" : exception.getClass().getSimpleName();
+            throw new InitializationFailure(phase, detail, exception.getSuppressed().length != 0 || detail.contains("UNCERTAIN"));
+        } catch (RuntimeException exception) {
+            throw new InitializationFailure(phase, exception.getClass().getSimpleName(), true);
         }
     }
 }

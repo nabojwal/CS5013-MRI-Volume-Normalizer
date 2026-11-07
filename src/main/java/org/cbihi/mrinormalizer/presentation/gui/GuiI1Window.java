@@ -170,9 +170,9 @@ public final class GuiI1Window extends JFrame {
         GridBagConstraints browse2 = gbc(2, 1, 0);
         browse2.insets.right = 0;
         fields.add(outputBrowse, browse2);
-        sourceField.setHint("Select prepared DICOM series directory...");
+        sourceField.setHint("Select DICOM file or folder...");
         outputField.setHint("Select a qualified output directory...");
-        sourceField.setToolTipText("Choose one prepared DICOM series or its parent containing 1–16 series directories");
+        sourceField.setToolTipText("Choose a DICOM folder, including nested or mixed conventional MR series; select up to 16 series");
         outputField.setToolTipText("Choose an existing separate destination directory");
         sourceBrowse.setPreferredSize(new Dimension(104, 29));
         outputBrowse.setPreferredSize(new Dimension(104, 29));
@@ -412,7 +412,7 @@ public final class GuiI1Window extends JFrame {
     private void browse(boolean isSource) {
         JFileChooser chooser = new JFileChooser();
         chooser.setDialogTitle(isSource ? "Select source" : "Select existing output folder");
-        chooser.setFileSelectionMode(isSource && reverse()
+        chooser.setFileSelectionMode(isSource
                 ? JFileChooser.FILES_AND_DIRECTORIES : JFileChooser.DIRECTORIES_ONLY);
         if (chooser.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) return;
         if (isSource) {
@@ -493,7 +493,7 @@ public final class GuiI1Window extends JFrame {
                 try {
                     GuiI1Scanner.ScanResult result = get();
                     scan = result;
-                    boolean checkboxSelected = result.kind() != GuiI1Scanner.InputKind.DICOM_PREPARED_PARENT;
+                    boolean checkboxSelected = reverse() || result.candidates().size() == 1;
                     rows.setRowCount(0);
                     for (var candidate : result.candidates()) {
                         String name = result.direction() == GuiI1Scanner.Direction.DICOM_TO_NIFTI
@@ -518,7 +518,7 @@ public final class GuiI1Window extends JFrame {
                 } catch (Exception unavailable) {
                     scan = null;
                     rows.setRowCount(0);
-                    activity.setText("Input inspection refused.\nCheck the supported files and prepared directory layout.");
+                    activity.setText("Input inspection refused.\nCheck the supported files and input access.");
                     status.setText("Input rejected");
                 } finally {
                     setBusy(false);
@@ -541,7 +541,7 @@ public final class GuiI1Window extends JFrame {
         status.setText("Converting");
         new SwingWorker<GuiI1Execution.Outcome, String>() {
             @Override protected GuiI1Execution.Outcome doInBackground() throws Exception {
-                return execution.execute(snapshot, selected, output, event -> publish(event));
+                return execution.executeForGui(snapshot, selected, output, event -> publish(event));
             }
             @Override protected void process(List<String> events) {
                 for(String line:events)activity.append(line+"\n");

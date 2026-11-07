@@ -38,7 +38,10 @@ public final class GuiI1Scanner {
                     memberNames.size(), true, "Preview only; backend validation required");
         }
     }
-    public record ScanResult(Direction direction, InputKind kind, Path input, List<Candidate> candidates) {
+    public record ScanResult(Direction direction, InputKind kind, Path input, List<Candidate> candidates, GuiI1DicomPreparation.Snapshot snapshot) {
+        public ScanResult(Direction direction, InputKind kind, Path input, List<Candidate> candidates) {
+            this(direction, kind, input, candidates, null);
+        }
         public ScanResult {
             Objects.requireNonNull(direction);
             Objects.requireNonNull(kind);
@@ -129,9 +132,11 @@ public final class GuiI1Scanner {
             }
             return new ScanResult(direction, InputKind.NIFTI_DIRECTORY, input, rows);
         }
-        if (!Files.isDirectory(input, LinkOption.NOFOLLOW_LINKS))
-            throw new IOException("Select a DICOM source folder");
+        if (!Files.isDirectory(input, LinkOption.NOFOLLOW_LINKS) && !Files.isRegularFile(input, LinkOption.NOFOLLOW_LINKS))
+            throw new IOException("Select a DICOM source file or folder");
+        var snapshot = GuiI1DicomPreparation.capture(input);
         GuiI1DicomDiscovery.Result found = dicom.discover(input);
+        GuiI1DicomPreparation.revalidate(snapshot);
         List<Candidate> candidates = new ArrayList<>();
         int ordinal = 0;
         for (GuiI1DicomDiscovery.Series series : found.series()) {
@@ -144,10 +149,10 @@ public final class GuiI1Scanner {
                     series.memberNames(), series.instances(), series.eligible(), series.finding()));
         }
         boolean direct = candidates.size() == 1 && candidates.getFirst().eligible()
-                && candidates.getFirst().directory().equals(input);
+                && (candidates.getFirst().directory().equals(input) || Files.isRegularFile(input, LinkOption.NOFOLLOW_LINKS));
         boolean anyPrepared = candidates.stream().anyMatch(c -> c.eligible() && c.childName() != null);
         InputKind kind = direct ? InputKind.DICOM_DIRECT
                 : anyPrepared ? InputKind.DICOM_PREPARED_PARENT : InputKind.DICOM_DISCOVERY_ONLY;
-        return new ScanResult(direction, kind, input, candidates);
+        return new ScanResult(direction, kind, input, candidates, snapshot);
     }
 }

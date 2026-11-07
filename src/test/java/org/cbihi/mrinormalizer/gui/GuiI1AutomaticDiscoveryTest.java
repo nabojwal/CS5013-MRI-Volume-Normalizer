@@ -49,22 +49,22 @@ final class GuiI1AutomaticDiscoveryTest {
         assertEquals(GuiI1Execution.Route.F9_ONE_DICOM_SERIES, GuiI1Execution.plan(r, List.of(0)));
         assertEquals(GuiI1Execution.Route.FBO_SEQUENTIAL_DICOM_BATCH, GuiI1Execution.plan(r, List.of(0, 1)));
     }
-    @Test void mixedFlatFolderDiscoversTwoSeriesButCannotMisrouteToF9() throws Exception {
+    @Test void mixedFlatFolderOffersExplicitSelectionForAutomaticPreparation() throws Exception {
         create(tmp, "A", 2); create(tmp, "B", 3);
         var r = scanner().scan(GuiI1Scanner.Direction.DICOM_TO_NIFTI, tmp);
         assertEquals(2, r.candidates().size());
         assertEquals(GuiI1Scanner.InputKind.DICOM_DISCOVERY_ONLY, r.kind());
         assertEquals(List.of(2, 3), r.candidates().stream().map(GuiI1Scanner.Candidate::instanceCount).toList());
-        assertThrows(IllegalArgumentException.class, () -> GuiI1Execution.plan(r, List.of(0)));
+        assertEquals(GuiI1Execution.Route.F9_ONE_DICOM_SERIES, GuiI1Execution.plan(r, List.of(0)));
     }
-    @Test void nestedFolderIsDiscoveredButNotPresentedAsPrepared() throws Exception {
+    @Test void nestedFolderIsEligibleForAutomaticPreparation() throws Exception {
         Path sub = Files.createDirectories(tmp.resolve("study").resolve("series"));
         create(sub, "A", 2);
         var r = scanner().scan(GuiI1Scanner.Direction.DICOM_TO_NIFTI, tmp);
         assertEquals(2, r.candidates().getFirst().instanceCount());
-        assertFalse(r.candidates().getFirst().eligible());
+        assertTrue(r.candidates().getFirst().eligible());
     }
-    @Test void ignoresNonDicomOnlyForPreviewAndDisablesAffectedFolder() throws Exception {
+    @Test void nonDicomFilesAreNotSelectedForReconstruction() throws Exception {
         create(tmp, "A", 3);
         Files.writeString(tmp.resolve("notes.txt"), "not a DICOM file");
         var found = new GuiI1DicomDiscovery(path -> {
@@ -74,7 +74,7 @@ final class GuiI1AutomaticDiscoveryTest {
         }).discover(tmp);
         assertEquals(1, found.unidentifiedFiles());
         assertEquals(3, found.series().getFirst().instances());
-        assertFalse(found.series().getFirst().eligible());
+        assertTrue(found.series().getFirst().eligible());
     }
     @Test void discoveryStopsRatherThanPartiallyReportingBeyondFileBudget() throws Exception {
         Path nested = tmp;

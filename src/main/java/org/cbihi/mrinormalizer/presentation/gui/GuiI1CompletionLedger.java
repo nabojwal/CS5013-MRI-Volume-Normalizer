@@ -59,7 +59,11 @@ public final class GuiI1CompletionLedger {
         if (Files.notExists(record,LinkOption.NOFOLLOW_LINKS)) return false;
         if (!Files.isRegularFile(record,LinkOption.NOFOLLOW_LINKS)||Files.isSymbolicLink(record))
             throw new IOException("Corrupt completion record");
-        return Files.readString(record,StandardCharsets.US_ASCII).equals("VERIFIED "+id+"\n");
+        byte[] expected=("VERIFIED "+id+"\n").getBytes(StandardCharsets.US_ASCII);
+        try (var stream=Files.newInputStream(record,LinkOption.NOFOLLOW_LINKS)) {
+            if (!Arrays.equals(expected,stream.readNBytes(expected.length+1))) throw new IOException("Corrupt completion record");
+        }
+        return true;
     }
     public static void mark(Path output,String id) throws IOException {
         Path dir=root(output,true), target=dir.resolve(id+".record");

@@ -43,6 +43,10 @@ public final class F9ForwardBatchRunner implements JobRunner {
             opened = true;
             actual = session.executeOne(new F9HeadlessRequest(jobId, prepared.selectedSeriesInstanceUid(),
                     selected, new RelativePath(RelativePath.Root.OUTPUT, "selected.nii")));
+        } catch (F9WindowsComposition.InitializationFailure initialization) {
+            return initialization.recoveryRequired()
+                    ? FboResult.Entry.recovery(ordinal, jobId, FboResult.Reason.F9_EXECUTION_UNCERTAIN)
+                    : FboResult.Entry.failed(ordinal, jobId, FboResult.Reason.F9_FAILED);
         } catch (RuntimeException uncertain) {
             // Session construction can create private stage/journal; never assume no effect.
             return FboResult.Entry.recovery(ordinal, jobId, FboResult.Reason.F9_EXECUTION_UNCERTAIN);

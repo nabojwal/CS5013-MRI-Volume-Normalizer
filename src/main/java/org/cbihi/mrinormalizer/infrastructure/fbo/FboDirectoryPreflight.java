@@ -36,26 +36,11 @@ public final class FboDirectoryPreflight implements Preflight {
         return p;
     }
     static void outputQualified(Path p) throws IOException {
-        String provider = p.getFileSystem().provider().getClass().getName();
-        String type = Files.getFileStore(p).type().toLowerCase(Locale.ROOT);
-        if (System.getProperty("os.name", "").toLowerCase(Locale.ROOT).contains("win")) {
-            String drive = System.getenv("SystemDrive");
-            if (!provider.equals("sun.nio.fs.WindowsFileSystemProvider") || !type.equals("ntfs")
-                    || drive == null || !p.getRoot().toString().equalsIgnoreCase(drive + "\\"))
-                throw new IOException("Unsupported Windows publication root");
-        } else if (!(provider.equals("sun.nio.fs.LinuxFileSystemProvider")
-                || provider.equals("sun.nio.fs.MacOSXFileSystemProvider")
-                || provider.equals("sun.nio.fs.BsdFileSystemProvider")) || !UNIX_TYPES.contains(type)) {
-            throw new IOException("Unsupported publication provider");
-        }
+        org.cbihi.mrinormalizer.infrastructure.filesystem.DestinationQualification.requireLocal(p);
     }
-    // Windows qualification is intentionally conservative, independent of the
-    // host's long-path registry setting: F1's first journal checkpoint uses a
-    // nested .stage-<uuid>.tmp under this exact job-output layout. A 252-character
-    // native path failed the actual FBO integration, whereas a shortened fixture
-    // succeeded. Reserve headroom below legacy MAX_PATH rather than relying on
-    // an unverified per-process long-path capability.
-    private static final int WINDOWS_F1_STAGE_PATH_LIMIT = 240;
+
+    // Probe actual Java create/link/readback capability at the projected path length.
+    // The native backend remains authoritative; there is no drive-letter or 240-character whitelist.
     private static final String UUID_SHAPE = "00000000-0000-0000-0000-000000000000";
 
     static void qualifyF9StageDepth(Path futureJobRoot, UUID jobId) throws IOException {
@@ -65,8 +50,10 @@ public final class FboDirectoryPreflight implements Preflight {
                     .resolve(jobId.toString())
                     .resolve("records").resolve("000000")
                     .resolve(".stage-" + UUID_SHAPE + ".tmp");
-            if (firstStage.toString().length() > WINDOWS_F1_STAGE_PATH_LIMIT)
-                throw new IOException("Windows F1 checkpoint staging path exceeds qualified depth");
+            Path existing = futureJobRoot.toAbsolutePath().normalize();
+            while (!Files.exists(existing, LinkOption.NOFOLLOW_LINKS)) existing = existing.getParent();
+            org.cbihi.mrinormalizer.infrastructure.filesystem.DestinationQualification.requirePathCapacity(existing,
+                    firstStage.toString().length() - existing.toString().length());
         }
     }
 
@@ -149,7 +136,7 @@ public final class FboDirectoryPreflight implements Preflight {
         Path output = strictDirectory(request.outputParent());
         if (input.startsWith(output) || output.startsWith(input) || Files.isSameFile(input, output))
             throw new IOException("Overlapping roots");
-        outputQualified(output); // refuse off-SystemDrive BEFORE any batch output I/O
+        outputQualified(output); // qualify the local destination BEFORE any batch output I/O
         qualifyBatchStageDepth(output); // refuse unqualified Windows path depth BEFORE batch creation
         List<PreparedSeries> prepared = new ArrayList<>();
         List<Path> knownMembers = new ArrayList<>();

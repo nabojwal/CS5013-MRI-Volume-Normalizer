@@ -78,6 +78,7 @@ public final class JsonManifestStore implements ManifestStore {
     private Path jobDirectory;
     private Path recordsDirectory;
     private UserPrincipal owner;
+    private UserPrincipal rootOwner;
     private boolean posix;
     private boolean windowsNtfs;
     private FileStore qualifiedStore;
@@ -100,6 +101,16 @@ public final class JsonManifestStore implements ManifestStore {
     private long prefixPasses;
     private long publishedRecords;
 
+    /** Per-open tracing, carrying only fixed stage and guard names. */
+    public static final class InitializationTrace {
+        private String stage = "ROOTS", guard = "NONE";
+        public String summary() { return stage + "/" + guard; }
+    }
+    private final InitializationTrace trace;
+    private ProvenancePersistenceException refusal(Code code, String guard) {
+        trace.guard = guard;
+        return error(code);
+    }
     public JsonManifestStore(Path sourceRoot, Path outputRoot, Path manifestDirectory, UUID jobId) {
         this(sourceRoot, outputRoot, manifestDirectory, jobId, NO_FAULT, Limits.DEFAULT);
     }
@@ -107,6 +118,16 @@ public final class JsonManifestStore implements ManifestStore {
     // Test-local faults and smaller limits do not expand the public API or approved limits.
     JsonManifestStore(Path sourceRoot, Path outputRoot, Path manifestDirectory, UUID jobId,
             Hooks hooks, Limits limits) {
+        this(sourceRoot, outputRoot, manifestDirectory, jobId, hooks, limits, new InitializationTrace());
+    }
+
+    JsonManifestStore(Path sourceRoot, Path outputRoot, Path manifestDirectory, UUID jobId, InitializationTrace trace) {
+        this(sourceRoot, outputRoot, manifestDirectory, jobId, NO_FAULT, Limits.DEFAULT, trace);
+    }
+
+    private JsonManifestStore(Path sourceRoot, Path outputRoot, Path manifestDirectory, UUID jobId,
+            Hooks hooks, Limits limits, InitializationTrace trace) {
+        this.trace = java.util.Objects.requireNonNull(trace);
         if (sourceRoot == null || outputRoot == null || manifestDirectory == null || jobId == null
                 || hooks == null || limits == null) throw error(Code.INVALID_REFERENCE);
         this.jobId = jobId;
@@ -114,13 +135,19 @@ public final class JsonManifestStore implements ManifestStore {
         this.limits = limits;
         try {
             establishRoots(sourceRoot, outputRoot, manifestDirectory);
+            trace.stage = "NAMESPACE";
             ensurePrivateDirectory(namespace);
             jobDirectory = namespace.resolve(jobId.toString());
+            trace.stage = "JOB_DIRECTORY";
             ensurePrivateDirectory(jobDirectory);
+            trace.stage = "LEASE";
             obtainLease();
             recordsDirectory = jobDirectory.resolve("records");
+            trace.stage = "RECORDS";
             ensurePrivateDirectory(recordsDirectory);
+            trace.stage = "HARD_LINK_PROBE";
             qualifyPublication();
+            trace.stage = "REPLAY";
             initialize();
         } catch (ProvenancePersistenceException primary) {
             boolean cleanup = releaseResources(false);
@@ -256,19 +283,13 @@ public final class JsonManifestStore implements ManifestStore {
             boolean windows = provider.equals("sun.nio.fs.WindowsFileSystemProvider");
             if (!supportedLocalProvider(provider, type, windows)) throw error(Code.PUBLICATION_UNAVAILABLE);
             windowsNtfs = windows;
-            // The standard NIO API does not identify arbitrary mapped drives as
-            // local. Restrict Windows to its local OS volume; UNC/mapped/other
-            // drives require separate qualification, with no remote fallback.
-            if (windows) {
-                String systemDrive = System.getenv("SystemDrive");
-                if (systemDrive == null || !outputRoot.getRoot().toString().equalsIgnoreCase(systemDrive + "\\"))
-                    throw error(Code.PUBLICATION_UNAVAILABLE);
-            }
+            DestinationQualification.requireLocal(outputRoot);
             qualifiedStore = Files.getFileStore(outputRoot);
             posix = Files.getFileAttributeView(outputRoot, PosixFileAttributeView.class, NOFOLLOW) != null;
             if (!posix && (!windows || Files.getFileAttributeView(outputRoot, AclFileAttributeView.class, NOFOLLOW) == null))
                 throw error(Code.ACCESS_CONTROL_UNAVAILABLE);
-            owner = Files.getOwner(outputRoot, NOFOLLOW);
+            rootOwner = Files.getOwner(outputRoot, NOFOLLOW);
+            owner = DestinationQualification.privateOwner(outputRoot);
             rememberDirectory(outputRoot, false);
         } catch (IOException failure) {
             throw error(Code.CONTAINMENT_UNPROVEN);
@@ -301,6 +322,10 @@ public final class JsonManifestStore implements ManifestStore {
         return known && Set.of("ext2", "ext3", "ext4", "xfs", "btrfs", "overlay", "apfs", "hfs", "ufs", "zfs").contains(type);
     }
 
+    static boolean isWindowsFixedLocalRoot(Path path) {
+        return path != null && path.isAbsolute() && DestinationQualification.windowsDriveType(path) == 3;
+    }
+
     private void ensurePrivateDirectory(Path path) throws IOException {
         if (!path.startsWith(outputRoot) || path.equals(outputRoot)) throw error(Code.CONTAINMENT_UNPROVEN);
         if (!Files.exists(path, NOFOLLOW)) {
@@ -331,7 +356,7 @@ public final class JsonManifestStore implements ManifestStore {
         var attributes = Files.readAttributes(path, BasicFileAttributes.class, NOFOLLOW);
         if (attributes.isSymbolicLink() || (directory ? !attributes.isDirectory() : !attributes.isRegularFile())
                 || !usableObservation(attributes) || !path.toRealPath().equals(path)) throw error(Code.CONTAINMENT_UNPROVEN);
-        if (!Files.getOwner(path, NOFOLLOW).equals(owner)) throw error(Code.ACCESS_CONTROL_UNAVAILABLE);
+        if (!Files.getOwner(path, NOFOLLOW).equals(owner)) throw refusal(Code.ACCESS_CONTROL_UNAVAILABLE, "PRIVATE_OWNER_MISMATCH");
         if (!Files.getFileStore(path).equals(qualifiedStore)) throw error(Code.PUBLICATION_UNAVAILABLE);
         try {
             if (posix) {
@@ -344,13 +369,13 @@ public final class JsonManifestStore implements ManifestStore {
                 boolean ownerFull = false;
                 for (var entry : view.getAcl()) {
                     if (entry.type() == AclEntryType.ALLOW) {
-                        if (!entry.principal().equals(owner)) throw error(Code.ACCESS_CONTROL_UNAVAILABLE);
+                        if (!entry.principal().equals(owner)) throw refusal(Code.ACCESS_CONTROL_UNAVAILABLE, "PRIVATE_ACL_OTHER_ALLOW");
                         if (!entry.flags().contains(AclEntryFlag.INHERIT_ONLY)
                                 && entry.permissions().containsAll(EnumSet.allOf(AclEntryPermission.class))) ownerFull = true;
                     }
                     if (entry.type() == AclEntryType.DENY && entry.principal().equals(owner)) throw error(Code.ACCESS_CONTROL_UNAVAILABLE);
                 }
-                if (!ownerFull) throw error(Code.ACCESS_CONTROL_UNAVAILABLE);
+                if (!ownerFull) throw refusal(Code.ACCESS_CONTROL_UNAVAILABLE, "PRIVATE_ACL_OWNER_NOT_FULL");
             }
         } catch (UnsupportedOperationException failure) { throw error(Code.ACCESS_CONTROL_UNAVAILABLE); }
         return attributes;
@@ -378,7 +403,8 @@ public final class JsonManifestStore implements ManifestStore {
     }
 
     private void verifyRootAccessAndStore(Path path) throws IOException {
-        if (!Files.getOwner(path, NOFOLLOW).equals(owner)) throw error(Code.ACCESS_CONTROL_UNAVAILABLE);
+        if (!Files.getOwner(path, NOFOLLOW).equals(path.equals(outputRoot) ? rootOwner : owner))
+            throw error(Code.ACCESS_CONTROL_UNAVAILABLE);
         if (!Files.getFileStore(path).equals(qualifiedStore)) throw error(Code.PUBLICATION_UNAVAILABLE);
     }
 

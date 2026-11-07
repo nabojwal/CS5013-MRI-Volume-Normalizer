@@ -66,6 +66,7 @@ public final class JsonPublicReportWriter implements PublicReportWriter {
     private final Path configuredNamespace;
     private final FileStore store;
     private final UserPrincipal owner;
+    private final UserPrincipal rootOwner;
     private final Observation rootObservation;
     private final boolean windowsNtfs;
     private final boolean posix;
@@ -96,15 +97,12 @@ public final class JsonPublicReportWriter implements PublicReportWriter {
                     && Set.of("ext2", "ext3", "ext4", "xfs", "btrfs", "overlay", "apfs", "hfs", "ufs", "zfs")
                     .contains(store.type().toLowerCase(Locale.ROOT));
             if (!windowsNtfs && !localPosix) throw error(Code.PUBLICATION_UNAVAILABLE);
-            if (windowsNtfs) {
-                String systemDrive = System.getenv("SystemDrive");
-                if (systemDrive == null || !outputRoot.getRoot().toString().equalsIgnoreCase(systemDrive + "\\"))
-                    throw error(Code.PUBLICATION_UNAVAILABLE);
-            }
+            DestinationQualification.requireLocal(outputRoot);
             posix = Files.getFileAttributeView(outputRoot, PosixFileAttributeView.class, NOFOLLOW) != null;
             if (!posix && (!windowsNtfs || Files.getFileAttributeView(outputRoot, AclFileAttributeView.class, NOFOLLOW) == null))
                 throw error(Code.ACCESS_CONTROL_UNAVAILABLE);
-            owner = Files.getOwner(outputRoot, NOFOLLOW);
+            rootOwner = Files.getOwner(outputRoot, NOFOLLOW);
+            owner = DestinationQualification.privateOwner(outputRoot);
             rootObservation = observe(directory(outputRoot));
         } catch (IOException | SecurityException unavailable) { throw error(Code.CONTAINMENT_UNPROVEN); }
         catch (UnsupportedOperationException unavailable) { throw error(Code.PUBLICATION_UNAVAILABLE); }
@@ -235,7 +233,8 @@ public final class JsonPublicReportWriter implements PublicReportWriter {
 
     private void accessAndStore(Path path) throws IOException {
         if (!Files.getFileStore(path).equals(store)) throw error(Code.PUBLICATION_UNAVAILABLE);
-        if (!Files.getOwner(path, NOFOLLOW).equals(owner)) throw error(Code.ACCESS_CONTROL_UNAVAILABLE);
+        if (!Files.getOwner(path, NOFOLLOW).equals(path.equals(outputRoot) ? rootOwner : owner))
+            throw error(Code.ACCESS_CONTROL_UNAVAILABLE);
     }
 
     private void verifyPrivate(Path path) throws IOException {

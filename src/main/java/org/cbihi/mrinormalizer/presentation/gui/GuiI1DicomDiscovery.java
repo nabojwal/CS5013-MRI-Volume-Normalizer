@@ -17,11 +17,12 @@ import java.util.Map;
 import java.util.Set;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
+import org.dcm4che3.data.UID;
 import org.dcm4che3.io.DicomInputStream;
 
 /**
  * Bounded, read-only metadata discovery. A discovered series is NOT a backend-validated volume.
- * Never infer a usable F9/FBO request from an interleaved or nested folder layout.
+ * D2 creates immutable per-series copies before an interleaved or nested selection reaches F9/FBO.
  */
 public final class GuiI1DicomDiscovery {
     public static final int MAX_DISCOVERY_FILES = 10_000;
@@ -31,7 +32,11 @@ public final class GuiI1DicomDiscovery {
 
     /** One distinct SOP instance (not one frame); no patient attributes are retained. */
     public record Metadata(String studyUid, String seriesUid, String sopUid, String modality,
-                           int numberOfFrames) {}
+                           int numberOfFrames, String sopClass) {
+        public Metadata(String studyUid, String seriesUid, String sopUid, String modality, int numberOfFrames) {
+            this(studyUid, seriesUid, sopUid, modality, numberOfFrames, UID.MRImageStorage);
+        }
+    }
     @FunctionalInterface public interface MetadataProbe {
         Metadata read(Path file) throws IOException;
     }
@@ -79,7 +84,7 @@ public final class GuiI1DicomDiscovery {
             if (modality == null || modality.isBlank()) throw new IOException("Missing DICOM modality");
             int frames = a.getInt(Tag.NumberOfFrames, 1);
             if (frames < 1) throw new IOException("Invalid frame count");
-            return new Metadata(study, series, sop, modality, frames);
+            return new Metadata(study, series, sop, modality, frames, a.getString(Tag.SOPClassUID));
         } catch (RuntimeException bad) { throw new IOException("DICOM metadata cannot be read", bad); }
     }
     private static Path checkedChild(Path root, Path child) throws IOException {
@@ -121,14 +126,16 @@ public final class GuiI1DicomDiscovery {
         return Normalizer.normalize(path.toString(), Normalizer.Form.NFC).toLowerCase(Locale.ROOT);
     }
     public Result discover(Path root) throws IOException {
-        if (root == null || !Files.isDirectory(root, LinkOption.NOFOLLOW_LINKS)
+        if (root == null || !(Files.isDirectory(root, LinkOption.NOFOLLOW_LINKS) || Files.isRegularFile(root, LinkOption.NOFOLLOW_LINKS))
                 || Files.isSymbolicLink(root)) throw new IOException("Select an existing DICOM folder");
-        Path input = root.toAbsolutePath().normalize();
+        boolean oneFile = Files.isRegularFile(root, LinkOption.NOFOLLOW_LINKS);
+        Path input = (oneFile ? root.toAbsolutePath().getParent() : root).toAbsolutePath().normalize();
         if (!input.toRealPath(LinkOption.NOFOLLOW_LINKS).equals(input))
             throw new IOException("Unstable DICOM folder path");
         // The GUI scans on a worker thread; an incomplete scan is never represented as complete.
         List<Path> files = new ArrayList<>();
-        collect(input, input, 0, files, new HashSet<>());
+        if (oneFile) files.add(checkedChild(input,root.toAbsolutePath().normalize()));
+        else collect(input, input, 0, files, new HashSet<>());
         if (files.isEmpty()) throw new IOException("No DICOM input files were found");
         Map<Key, Group> groups = new LinkedHashMap<>();
         Map<Path, Integer> unidentified = new HashMap<>();
@@ -161,7 +168,7 @@ public final class GuiI1DicomDiscovery {
             }
             Group group = groups.computeIfAbsent(key, Group::new);
             if (!group.sops.add(m.sopUid())) group.duplicate = true;
-            if (m.numberOfFrames() != 1) group.multiFrame = true;
+            if (m.numberOfFrames() != 1 || !UID.MRImageStorage.equals(m.sopClass())) group.multiFrame = true;
             group.members.add(new Member(file, m.sopUid(), Files.size(file), m.numberOfFrames()));
         }
         if (groups.isEmpty()) throw new IOException("No conventional MR DICOM series could be identified");
@@ -185,7 +192,7 @@ public final class GuiI1DicomDiscovery {
                     sizeQualified = false;
                 if (sizeQualified) bytes += m.bytes;
             }
-            List<Path> actualChildren = oneFolder ? list(input, folder) : List.of();
+            List<Path> actualChildren = oneFile ? List.copyOf(files) : oneFolder ? list(input, folder) : List.of();
             boolean plainFolder = oneFolder && actualChildren.size() == members.size()
                     && actualChildren.stream().allMatch(p -> Files.isRegularFile(p, LinkOption.NOFOLLOW_LINKS));
             boolean pure = plainFolder && folderGroups.getOrDefault(folder, Set.of()).size() == 1
@@ -196,20 +203,19 @@ public final class GuiI1DicomDiscovery {
                     && files.stream().allMatch(f -> f.getParent().equals(input));
             boolean immediate = folder.getParent() != null && folder.getParent().equals(input);
             boolean layout = (direct || immediate) && pure;
-            boolean eligible = layout && !group.duplicate
+            boolean eligible = !group.duplicate
                     && !group.multiFrame && sizeQualified;
             String finding = group.duplicate ? "Duplicate SOP Instance UID; cannot dispatch"
                     : group.multiFrame ? "Enhanced/multiframe DICOM is not in current execution profile"
-                    : !layout ? "Discovery only: mixed or nested layout; prepare a separate series folder"
+                    : !layout ? "Selected series will be prepared automatically; backend validation required"
                     : !sizeQualified ? "Over current byte budget"
                     : "Preview only; backend validation required";
             List<String> names = new ArrayList<>();
-            if (oneFolder) {
-                for (Member m : members) names.add(m.file.getFileName().toString());
-                names.sort(String::compareTo);
-            }
+            Path selectionBase = oneFolder ? folder : input;
+            for (Member m : members) names.add(selectionBase.relativize(m.file).toString());
+            names.sort(String::compareTo);
             String relative = oneFolder ? input.relativize(folder).toString() : "(multiple folders)";
-            results.add(new Series(folder, relative, group.key.series, names, n, eligible, finding));
+            results.add(new Series(selectionBase, relative, group.key.series, names, n, eligible, finding));
         }
         return new Result(results, files.size(), unidentifiedCount);
     }
