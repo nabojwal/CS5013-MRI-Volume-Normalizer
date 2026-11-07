@@ -18,6 +18,7 @@ import org.cbihi.mrinormalizer.application.service.DefaultDicomSeriesService;
 import org.cbihi.mrinormalizer.domain.error.DicomProcessingError;
 import org.cbihi.mrinormalizer.domain.model.GeometryValidationPolicy;
 import org.cbihi.mrinormalizer.domain.model.InputSource;
+import org.cbihi.mrinormalizer.domain.model.ScalarType;
 import org.cbihi.mrinormalizer.infrastructure.dicom.Dcm4cheInstanceReader;
 import org.dcm4che3.data.Attributes;
 import org.dcm4che3.data.Tag;
@@ -48,8 +49,8 @@ class DicomSeriesServiceTest {
         assertEquals(2, result.volume().geometry().height());
         assertEquals(1, result.volume().geometry().depth());
         assertEquals(65535L, result.volume().voxels().rawValueAt(1, 0, 0));
-        assertTrue(result.volume().rescaleTransform().declared());
-        assertEquals(2.5, result.volume().rescaleTransform().slope());
+        assertTrue(result.volume().intensityTransform().declared());
+        assertEquals(2.5, result.volume().intensityTransform().slope());
         assertFalse(result.provenance().inputFingerprint().contains(input.toString()));
     }
 
@@ -69,7 +70,7 @@ class DicomSeriesServiceTest {
     }
 
     @Test
-    void preservesSignedStoredValuesAndBitsStoredSemantics() throws IOException {
+    void preservesSignedStoredValuesWithGenericInt16Semantics() throws IOException {
         Path input = dicom("signed.dcm", spec(0, new long[] {-2048, -1, 0, 2047}).signed().allocated(16).stored(12));
 
         var result = service().process(request(SERIES, input));
@@ -77,8 +78,41 @@ class DicomSeriesServiceTest {
         assertTrue(result.successful());
         assertEquals(-2048L, result.volume().voxels().rawValueAt(0, 0, 0));
         assertEquals(-1L, result.volume().voxels().rawValueAt(1, 0, 0));
-        assertEquals(12, result.volume().voxels().encoding().bitsStored());
-        assertEquals(11, result.volume().voxels().encoding().highBit());
+        assertEquals(ScalarType.INT16, result.volume().voxels().scalarType());
+    }
+
+    @Test
+    void exposesUint16AsFormatNeutralScalarType() throws IOException {
+        Path input = dicom("uint16.dcm", spec(0, new long[] {0, 65535, 1, 2}).allocated(16).stored(16));
+        var result = service().process(request(SERIES, input));
+        assertTrue(result.successful());
+        assertEquals(ScalarType.UINT16, result.volume().voxels().scalarType());
+    }
+
+    @Test
+    void exposesSignedTwelveBitDicomAsInt16ScalarType() throws IOException {
+        Path input = dicom("int16.dcm", spec(0, new long[] {-2048, -1, 0, 2047}).signed().allocated(16).stored(12));
+        var result = service().process(request(SERIES, input));
+        assertTrue(result.successful());
+        assertEquals(ScalarType.INT16, result.volume().voxels().scalarType());
+        assertEquals(-2048L, result.volume().voxels().rawValueAt(0, 0, 0));
+    }
+
+    @Test
+    void exposesUint8AsFormatNeutralScalarType() throws IOException {
+        Path input = dicom("uint8.dcm", spec(0, new long[] {0, 255, 1, 2}).allocated(8).stored(8));
+        var result = service().process(request(SERIES, input));
+        assertTrue(result.successful());
+        assertEquals(ScalarType.UINT8, result.volume().voxels().scalarType());
+    }
+
+    @Test
+    void exposesInt8AsFormatNeutralScalarType() throws IOException {
+        Path input = dicom("int8.dcm", spec(0, new long[] {-128, -1, 0, 127}).signed().allocated(8).stored(8));
+        var result = service().process(request(SERIES, input));
+        assertTrue(result.successful());
+        assertEquals(ScalarType.INT8, result.volume().voxels().scalarType());
+        assertEquals(-128L, result.volume().voxels().rawValueAt(0, 0, 0));
     }
 
     @Test
@@ -577,7 +611,7 @@ class DicomSeriesServiceTest {
         return new Path[] {low, middle, high};
     }
 
-    private void assertSliceValues(org.cbihi.mrinormalizer.domain.model.NativeVolume volume, long... expected) {
+    private void assertSliceValues(org.cbihi.mrinormalizer.domain.model.ImageVolume volume, long... expected) {
         assertEquals(expected.length, volume.voxels().depth());
         for (int z = 0; z < expected.length; z++) {
             for (int y = 0; y < volume.voxels().height(); y++) {

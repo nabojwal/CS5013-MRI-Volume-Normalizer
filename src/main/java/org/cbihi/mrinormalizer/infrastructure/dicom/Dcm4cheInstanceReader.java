@@ -14,6 +14,7 @@ import org.cbihi.mrinormalizer.domain.model.InputSource;
 import org.cbihi.mrinormalizer.domain.model.PixelEncoding;
 import org.cbihi.mrinormalizer.domain.model.PixelValueType;
 import org.cbihi.mrinormalizer.domain.model.RescaleTransform;
+import org.cbihi.mrinormalizer.domain.model.ScalarType;
 import org.cbihi.mrinormalizer.domain.model.SliceGeometry;
 import org.cbihi.mrinormalizer.domain.port.DicomInstanceReader;
 import org.dcm4che3.data.Attributes;
@@ -169,13 +170,24 @@ public final class Dcm4cheInstanceReader implements DicomInstanceReader {
                         : Short.toUnsignedInt(buffer.getShort());
                 values[index] = decodeStored(cell, encoding);
             }
-            return new ImmutableVoxelData(columns, rows, 1, encoding, values);
+            return new ImmutableVoxelData(columns, rows, 1, scalarType(encoding), values);
         } catch (DicomProcessingException exception) {
             throw exception;
         } catch (IOException | RuntimeException exception) {
             throw new DicomProcessingException(DicomProcessingError.PIXEL_DATA_UNAVAILABLE,
                     "Pixel Data cannot be decoded", exception);
         }
+    }
+
+    private ScalarType scalarType(PixelEncoding encoding) {
+        if (encoding.bitsAllocated() == 8) {
+            return encoding.valueType() == PixelValueType.UNSIGNED_INTEGER ? ScalarType.UINT8 : ScalarType.INT8;
+        }
+        if (encoding.bitsAllocated() == 16) {
+            return encoding.valueType() == PixelValueType.UNSIGNED_INTEGER ? ScalarType.UINT16 : ScalarType.INT16;
+        }
+        throw new DicomProcessingException(DicomProcessingError.UNSUPPORTED_PIXEL_REPRESENTATION,
+                "DICOM pixel encoding cannot be represented by the generic scalar model");
     }
 
     private long decodeStored(long cell, PixelEncoding encoding) {

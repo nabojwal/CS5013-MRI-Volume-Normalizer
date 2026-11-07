@@ -7,11 +7,11 @@ public final class ImmutableVoxelData implements VoxelData {
     private final int width;
     private final int height;
     private final int depth;
-    private final PixelEncoding encoding;
+    private final ScalarType scalarType;
     private final long[] values;
 
     public ImmutableVoxelData(int width, int height, int depth,
-                              PixelEncoding encoding, long[] values) {
+                              ScalarType scalarType, long[] values) {
         int voxelCount = checkedVoxelCount(width, height, depth);
         if (values.length != voxelCount) {
             throw new IllegalArgumentException("voxel data length does not match dimensions");
@@ -19,7 +19,7 @@ public final class ImmutableVoxelData implements VoxelData {
         this.width = width;
         this.height = height;
         this.depth = depth;
-        this.encoding = java.util.Objects.requireNonNull(encoding, "encoding");
+        this.scalarType = java.util.Objects.requireNonNull(scalarType, "scalarType");
         this.values = values.clone();
     }
 
@@ -45,7 +45,7 @@ public final class ImmutableVoxelData implements VoxelData {
     public int depth() { return depth; }
 
     @Override
-    public PixelEncoding encoding() { return encoding; }
+    public ScalarType scalarType() { return scalarType; }
 
     @Override
     public long rawValueAt(int x, int y, int z) {

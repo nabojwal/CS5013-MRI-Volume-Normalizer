@@ -30,6 +30,13 @@
 	</properties>
 
 	<dependencies>
+		<!-- Native Windows NTFS file identity (Win32 handle query) -->
+		<dependency>
+			<groupId>net.java.dev.jna</groupId>
+			<artifactId>jna</artifactId>
+			<version>5.17.0</version>
+		</dependency>
+
 
 		<!-- dcm4che core DICOM library -->
 		<dependency>

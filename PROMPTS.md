@@ -599,3 +599,455 @@ during the existing parse/hash workflow; atomic snapshots are outside this task.
 ### Related Commit
 
 Pending at verification time.
+
+## M7-P01 - Format-Neutral ImageVolume Migration
+
+**Evidence type:** Current structured implementation task. **Date:** 2026-10-02. **Baseline:** `cb7769e` on `feature/m7-dicom-to-nifti`.
+
+### Role
+
+Perform the minimum architecture migration required before DICOM-to-NIfTI conversion.
+
+### Context
+
+The existing `NativeVolume` was close to a generic image aggregate, but `VoxelData.encoding()` exposed DICOM `PixelEncoding`. This made the future NIfTI writer depend on DICOM storage semantics.
+
+### Objective
+
+Create a format-neutral `ImageVolume` boundary with generic scalar semantics while preserving all verified M6 reconstruction behavior.
+
+### Requirements
+
+- introduce `ImageVolume`;
+- introduce `ScalarType` = UINT8, INT8, UINT16, INT16;
+- expose `VoxelData.scalarType()` rather than `PixelEncoding`;
+- retain DICOM `PixelEncoding` separately on DICOM metadata;
+- preserve raw decoded values, geometry, x-fastest indexing and linear intensity semantics;
+- migrate `DicomProcessingResult` to `ImageVolume`;
+- remove the parallel `NativeVolume` aggregate;
+- add architecture regression coverage preventing DICOM encoding leakage.
+
+### Negative Prompt
+
+Do not implement the NIfTI writer, affine conversion, qform/sform, package-wide AR-1 cleanup, reverse conversion, GUI work, new dependencies, value resampling, voxel reordering, or changes to validated M6 geometry/profile/provenance behavior.
+
+### Verification
+
+- `git diff --check`: clean.
+- `mvn clean test`: BUILD SUCCESS; 92 tests, 0 failures, 0 errors, 0 skipped.
+- `DicomSeriesServiceTest`: 47/0/0/0.
+- `ImageVolumeTest`: 3/0/0/0.
+- `ImmutableVoxelDataTest`: 9/0/0/0.
+- Architecture tests: 6/0/0/0.
+
+### Related Commit
+
+`1dd31fc` - `refactor: introduce format-neutral image volume`
+
+## M7-P02 - DICOM LPS to NIfTI RAS Affine
+
+**Evidence type:** Current structured implementation task. **Date:** 2026-10-02. **Baseline:** `1dd31fc` on `feature/m7-dicom-to-nifti`.
+
+### Role
+
+Implement and verify the explicit spatial-affine boundary required before NIfTI serialization.
+
+### Context
+
+M7-P01 established a format-neutral `ImageVolume`. The approved architecture requires an immutable 4x4 voxel-to-world affine and an explicit DICOM patient LPS to NIfTI RAS conversion before writing NIfTI output.
+
+### Objective
+
+Represent voxel-to-world geometry explicitly and convert the validated DICOM LPS geometry to NIfTI RAS without changing voxel indexing, ordering, or values.
+
+### Requirements
+
+- introduce immutable `AffineMatrix4`;
+- use column-vector affine semantics;
+- preserve x=column index, y=row index, z=slice index;
+- derive the LPS affine from `VolumeGeometry`;
+- affine column 0 = column direction × column spacing;
+- affine column 1 = row direction × row spacing;
+- affine column 2 = slice direction × slice spacing;
+- affine column 3 = voxel-(0,0,0) origin;
+- convert LPS to RAS by left multiplication with `diag(-1,-1,1,1)`;
+- do not flip or reorder voxel data;
+- cover nonzero origins, unequal spacing, oblique geometry and representative voxel/world mappings;
+- reject use of the DICOM-to-NIfTI mapper with unsupported source coordinate systems;
+- record the affine policy in ADR-011.
+
+### Negative Prompt
+
+Do not implement NIfTI byte serialization, qform quaternion encoding, resampling, interpolation, voxel-axis permutation, reverse conversion, GUI work, or change validated DICOM reconstruction geometry.
+
+### Verification
+
+- `git apply --check`: clean for the corrected patch.
+- `git diff --check`: clean after application.
+- `mvn "-Dtest=AffineMatrix4Test,NiftiAffineMapperTest" test`: BUILD SUCCESS; 10 tests, 0 failures, 0 errors, 0 skipped.
+- `mvn clean test`: BUILD SUCCESS; 102 tests, 0 failures, 0 errors, 0 skipped.
+- `AffineMatrix4Test`: 5/0/0/0.
+- `NiftiAffineMapperTest`: 5/0/0/0.
+- Existing `DicomSeriesServiceTest`: 47/0/0/0.
+
+### Results
+
+M7-P02 affine mapping COMPLETE. DICOM reconstruction remains in patient LPS coordinates. NIfTI RAS conversion occurs explicitly at the conversion boundary, with no voxel-array reordering or resampling. NIfTI serialization remains pending.
+
+### Related Commit
+
+8fb2831 - feat: add nifti ras affine mapping
+
+## M7-P03 - NIfTI-1 Volume Writer
+
+**Evidence type:** Current structured implementation task. **Date:** 2026-10-02. **Baseline:** `8fb2831` on `feature/m7-dicom-to-nifti`.
+
+### Role
+
+Implement the project-owned NIfTI-1 serialization adapter required for the
+DICOM-to-NIfTI vertical slice.
+
+### Context
+
+M7-P01 established a format-neutral `ImageVolume`. M7-P02 established explicit
+voxel-to-world affine semantics and DICOM patient LPS to NIfTI RAS conversion.
+The next boundary is deterministic serialization of a generic image volume and
+an already-computed RAS affine into NIfTI-1 single-file output.
+
+### Objective
+
+Write supported integer `ImageVolume` data to `.nii` and `.nii.gz` while
+preserving dimensions, raw voxel values, scalar representation, intensity
+metadata and spatial geometry.
+
+### Requirements
+
+- introduce an application output port for NIfTI volume writing;
+- implement a project-owned NIfTI-1 writer without adding a new dependency;
+- accept an already-computed voxel-to-world RAS affine rather than performing
+  DICOM coordinate conversion inside infrastructure;
+- support `UINT8`, `INT8`, `UINT16`, and `INT16`;
+- write the NIfTI-1 348-byte header plus extension indicator;
+- use single-file `n+1` format with voxel data beginning at offset 352;
+- serialize voxel data in x-fastest order without interpolation, resampling,
+  flipping or permutation;
+- preserve explicitly declared linear intensity transforms;
+- preserve identity/no-declared-transform semantics;
+- write millimetre spatial units;
+- write scanner-anatomical sform metadata;
+- write equivalent qform metadata where representable;
+- use `qform_code = 0` rather than silently approximating an affine that cannot
+  be represented by the NIfTI quaternion model;
+- support `.nii` and gzip-wrapped `.nii.gz`;
+- reject raw values outside the selected scalar type's legal range;
+- verify generated `.nii` output with the existing NIfTI format detector.
+
+### Architecture Correction
+
+The initial writer draft performed `NiftiAffineMapper` conversion inside the
+infrastructure adapter. This was corrected before commit.
+
+The final boundary is:
+
+`application geometry conversion -> RAS affine -> NiftiVolumeWriter port -> infrastructure serializer`
+
+Therefore the infrastructure writer serializes a supplied RAS affine and does
+not depend on the application conversion implementation.
+
+### Verification
+
+- Initial test compilation exposed a test-only API mismatch:
+  `DetectionResult.isRecognized()` does not exist.
+- The test was corrected to assert
+  `DetectionOutcome.NIFTI` through `DetectionResult.outcome()`.
+- `mvn "-Dtest=Nifti1VolumeWriterTest" test`: BUILD SUCCESS;
+  11 tests, 0 failures, 0 errors, 0 skipped.
+- `mvn clean test`: BUILD SUCCESS;
+  113 tests, 0 failures, 0 errors, 0 skipped.
+- The non-qform-representable affine regression verifies exact sform retention
+  with `qform_code = 0`.
+
+### Results
+
+M7-P03 NIfTI-1 serialization COMPLETE. The writer is ready to be composed with
+the verified DICOM reconstruction service and M7-P02 affine mapper. End-to-end
+DICOM-to-NIfTI orchestration remains pending.
+
+### Related Commit
+
+6924dd5 - feat: add nifti-1 volume writer
+
+
+## M7-P04 - End-to-End DICOM to NIfTI Conversion
+
+**Evidence type:** Current structured implementation task. **Date:** 2026-10-02. **Baseline:** `6924dd5` on `feature/m7-dicom-to-nifti`.
+
+### Role
+
+Compose the verified DICOM reconstruction, spatial conversion and NIfTI writer
+into one application-level DICOM-to-NIfTI use case.
+
+### Objective
+
+Convert an explicitly selected supported DICOM MR series directly to NIfTI-1
+without resampling, interpolation, voxel reordering or unintended numerical change.
+
+### Implementation
+
+The implemented pipeline is:
+
+`DicomToNiftiRequest -> DicomSeriesService -> ImageVolume -> NiftiAffineMapper -> NiftiVolumeWriter`
+
+Added:
+
+- `DicomToNiftiRequest`;
+- `DicomToNiftiResult`;
+- `DicomToNiftiService`;
+- `DefaultDicomToNiftiService`;
+- end-to-end `DicomToNiftiServiceTest`.
+
+The application service delegates DICOM parsing/reconstruction to the existing
+verified DICOM service, converts the resulting DICOM-LPS geometry to a NIfTI-RAS
+affine and supplies both the generic image volume and the RAS affine to the NIfTI
+writer.
+
+### Verified Behaviors
+
+- multi-slice DICOM to `.nii`;
+- single-slice DICOM to `.nii.gz`;
+- dimensions preserved;
+- supported datatype preserved;
+- complete raw voxel values preserved;
+- voxel spacing preserved;
+- declared linear scaling metadata preserved;
+- DICOM LPS origin/orientation mapped to NIfTI RAS sform;
+- input-file ordering does not alter the resulting NIfTI bytes;
+- signed INT16 values remain numerically unchanged;
+- DICOM reconstruction failures propagate as structured errors;
+- failed reconstruction does not create an output NIfTI file.
+
+### Negative Prompt
+
+Do not add resampling, interpolation, normalization, GUI integration, reverse
+NIfTI-to-DICOM conversion, dataset scanning, broad architecture refactoring or
+new dependencies.
+
+### Verification
+
+- `mvn "-Dtest=DicomToNiftiServiceTest" test`: BUILD SUCCESS;
+  5 tests, 0 failures, 0 errors, 0 skipped.
+- `mvn clean test`: BUILD SUCCESS;
+  118 tests, 0 failures, 0 errors, 0 skipped.
+
+### Results
+
+The first executable DICOM-to-NIfTI vertical slice is COMPLETE for the supported
+profile. Output-I/O failure normalization, broader independent interoperability
+validation and final M7 exit-criteria review remain separate hardening work.
+
+### Related Commit
+
+a495699 - feat: add end-to-end dicom to nifti conversion; c38ff6d - follow-up governance cleanup
+
+## M7-P05 - Acceptance Hardening and Independent Interoperability
+
+**Evidence type:** Hardening and independent acceptance validation. **Date:** 2026-10-02. **Baseline:** `c38ff6d` on `feature/m7-dicom-to-nifti`.
+
+### M7-P05A - Fail-Safe Output Handling
+
+The DICOM-to-NIfTI path was hardened so output-side failures are represented
+separately from DICOM reconstruction failures and existing output files are never
+silently overwritten.
+
+Implemented:
+
+- introduced `DicomToNiftiError` with `INVALID_OUTPUT`,
+  `OUTPUT_ALREADY_EXISTS`, and `OUTPUT_WRITE_FAILED`;
+- extended `DicomToNiftiResult` with structured conversion errors;
+- conversion success now requires both DICOM and conversion error lists to be empty;
+- output failures produce unsuccessful overall provenance;
+- the NIfTI writer uses create-new semantics rather than overwrite semantics;
+- an existing destination remains unchanged;
+- a newly created partial output is deleted when serialization subsequently fails;
+- invalid output targets and general write failures are normalized into structured
+  application-level conversion errors.
+
+### M7-P05A Verification
+
+- focused hardening tests: 5 tests, 0 failures, 0 errors, 0 skipped;
+- combined NIfTI writer/conversion regression: 21 tests, 0 failures, 0 errors, 0 skipped;
+- `mvn clean test`: 123 tests, 0 failures, 0 errors, 0 skipped;
+- BUILD SUCCESS.
+
+### M7-P05B - Independent NIfTI Interoperability Validation
+
+A temporary acceptance harness generated `.nii` and `.nii.gz` files through the
+production `Nifti1VolumeWriter`. The generated files were then read independently
+with NiBabel 5.4.2. NiBabel is not a Maven dependency and is not part of the
+deployed Java application.
+
+The synthetic validation volume used:
+
+- dimensions: `2 x 2 x 2`;
+- scalar type: `UINT16`;
+- raw stored voxel values: `1..8`;
+- column spacing: `0.5 mm`;
+- row spacing: `0.75 mm`;
+- slice spacing: `2.0 mm`;
+- DICOM-LPS origin: `[10, 20, 30]`;
+- declared intensity slope/intercept: `2.5 / -100`.
+
+Independent validation confirmed:
+
+- `.nii` parsed successfully;
+- `.nii.gz` parsed successfully;
+- shape `(2, 2, 2)`;
+- datatype `uint16`;
+- spacing `(0.5, 0.75, 2.0)`;
+- exact raw voxel-array preservation;
+- identical raw arrays between `.nii` and `.nii.gz`;
+- equivalent spatial affines between `.nii` and `.nii.gz`;
+- `qform_code = 1`;
+- `sform_code = 1`;
+- declared slope/intercept preserved;
+- expected DICOM-LPS to NIfTI-RAS world mapping;
+- affine comparisons within absolute tolerance `1e-5`.
+
+### M7 Exit-Criteria State
+
+The focused M7 acceptance evidence now verifies independent parsing, shape,
+supported integer voxel preservation, spacing, world-coordinate mapping and
+qform/sform consistency.
+
+M7 remains IN PROGRESS because the architecture also requires explicit
+conversion provenance/validation output. Reconstruction provenance is already
+carried through `DicomToNiftiResult`; a dedicated conversion validation-report
+model remains the final M7 acceptance item.
+
+### Related Commit
+
+M7-P05A: `2bf1927` - `fix: harden nifti output handling`
+
+M7-P05B: validation-only acceptance evidence; no production-code change.
+## M7-P05C - Conversion Validation Report and Final M7 Acceptance
+
+**Evidence type:** Structured implementation and acceptance closure. **Date:** 2026-10-03. **Baseline:** `b6bab40` on `feature/m7-dicom-to-nifti`.
+
+### Architectural Decision
+
+ADR-014 established that M7 exposes provenance and conversion validation as
+structured application-level models.
+
+For M7:
+
+- a successful DICOM-to-NIfTI conversion exposes a dedicated
+  `ConversionValidationReport`;
+- the report is created only after the NIfTI writer completes successfully;
+- the report records factual conversion invariants known from the validated
+  in-memory volume, explicit NIfTI-RAS affine and conversion path;
+- the report does not claim that the written NIfTI file was reopened, reparsed
+  or independently validated at runtime;
+- M7 does not create an additional persisted provenance/validation sidecar;
+- future persisted provenance/validation manifests use UTF-8 JSON as their
+  canonical serialization format.
+
+### Objective
+
+Close the final Architecture Revision 1.0 M7 exit criterion:
+
+`conversion produces provenance/validation output`
+
+without adding runtime NIfTI rereading, a JSON dependency, a persisted sidecar,
+resampling, interpolation, GUI integration or unrelated dataset-workflow code.
+
+### Implementation Sequence
+
+The implementation followed the approved sequence:
+
+1. M7-P05C.0 - record ADR-014;
+2. M7-P05C.1 - add `ConversionValidationReport`;
+3. M7-P05C.2 - add the report to `DicomToNiftiResult`;
+4. M7-P05C.3 - populate the report only after successful NIfTI writing;
+5. M7-P05C.4 - add focused report and failure-path tests;
+6. M7-P05C.5 - run the full regression;
+7. M7-P05C.6 - perform the final M7 acceptance review.
+
+### Implementation
+
+Added the application-level
+`org.cbihi.mrinormalizer.application.validation.ConversionValidationReport`.
+
+The report records:
+
+- output target;
+- width, height and depth;
+- scalar type;
+- voxel count;
+- row, column and slice spacing;
+- NIfTI-RAS voxel-to-world affine;
+- intensity transform;
+- stored-voxel preservation state;
+- resampling state;
+- interpolation state;
+- voxel-order-change state.
+
+For the supported M7 integer-preserving conversion path:
+
+- stored voxel values are preserved;
+- resampling is false;
+- interpolation is false;
+- voxel ordering is unchanged.
+
+`DicomToNiftiResult` now carries the validation report on successful conversion.
+Its result contract rejects a successful output without a report, rejects a
+report on a failed conversion and requires the result output target to match the
+report output target.
+
+`DefaultDicomToNiftiService` constructs the report only after
+`NiftiVolumeWriter.write(...)` returns successfully.
+
+Reconstruction failures and output-write failures do not produce a validation
+report.
+
+### Verification
+
+Focused report suite:
+
+`mvn "-Dtest=ConversionValidationReportTest" test`
+
+Result: BUILD SUCCESS; 6 tests, 0 failures, 0 errors, 0 skipped.
+
+Combined report/conversion regression:
+
+`mvn "-Dtest=ConversionValidationReportTest,DicomToNiftiServiceTest,DicomToNiftiServiceHardeningTest" test`
+
+Result: BUILD SUCCESS; 14 tests, 0 failures, 0 errors, 0 skipped.
+
+Full regression:
+
+`mvn clean test`
+
+Result: BUILD SUCCESS; 129 tests, 0 failures, 0 errors, 0 skipped.
+
+### Final M7 Acceptance
+
+All Architecture Revision 1.0 M7 exit criteria are satisfied:
+
+- independent NIfTI parsing: PASS;
+- output shape preservation: PASS;
+- supported integer voxel-array preservation: PASS;
+- spacing preservation within tolerance: PASS;
+- world-coordinate mapping within tolerance: PASS;
+- qform/sform consistency: PASS;
+- explicit provenance/validation output: PASS.
+
+M7 DICOM-to-NIfTI acceptance is COMPLETE for the supported profile.
+
+GUI integration was not required for M7 completion. NiBabel remains an external
+acceptance-validation tool only and is not a Maven or runtime dependency.
+
+### Related Commits
+
+ADR-014: `b6bab40` - `docs: define m7 conversion validation report`
+
+M7-P05C: `0976788` - `feat: add conversion validation report`
