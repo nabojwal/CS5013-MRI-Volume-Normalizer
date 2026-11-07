@@ -1,15 +1,59 @@
 # Test Strategy
 
+## Current integrated verification scope — 2026-11-07
+
+**Audited source:** `main` merge commit
+[`b032a51cd369b428f201c6b0dd8d23a49f195eec`](https://github.com/nabojwal/CS5013-MRI-Volume-Normalizer/commit/b032a51cd369b428f201c6b0dd8d23a49f195eec),
+corresponding to PR [#1](https://github.com/nabojwal/CS5013-MRI-Volume-Normalizer/pull/1).
+The tested feature head `454f8b58275583b0137d03a88d025c13523013eb`
+has the same tracked source tree. **M8 reverse conversion and M10 GUI
+integration are implemented and have associated executable tests**;
+the historic M6/M7-only strategy is no longer the complete test inventory.
+
+| Implemented area | Representative executable test coverage | Evidence boundary |
+| --- | --- | --- |
+| M6 / M7 forward imaging | `DicomSeriesServiceTest`, `ImageVolumeTest`, `NiftiAffineMapperTest`, `DicomToNiftiServiceTest`, `Nifti1VolumeWriterTest` | Supported conventional MR profile; historic independent NiBabel and selected real-MRI checks |
+| F1–F8 foundations and verification | `JsonManifestCodecTest`, `ManifestStoreTest`, `VerifiedConversionEvidenceServiceTest`, `NiftiOutputComparatorTest` | Restricted manifest, source/output identity, reopened comparison and publication semantics; F8 formal acceptance separately pending |
+| F9 / FBO DICOM → NIfTI | `F9HeadlessConversionServiceTest`, `F9HeadlessIntegrationTest`, `FboCommandIntegrationTest`, `FboDirectoryPreflightTest` | Selected supported series and qualified sequential batch; F9 formal acceptance separately pending |
+| **M8 NIfTI → derived MR DICOM** | `M8ConversionIntegrationTest`, `M8DicomEncodingTest`, `M8GeometryTest`, `M8RecoveryTest`, `M8CommandTest` | Implemented independent 3D integer NIfTI-1 conversion; separate formal M8 acceptance is not inferred |
+| EBO-1 R2 reverse evaluation batch | `EboCommandTest`, `EboBatchControllerTest`, `EboAcceptanceClosureTest` | Accepted under the bounded non-clinical EBO-1 R2 evaluation contract |
+| **M10 / GUI-I1 desktop** | `GuiI1ScannerTest`, `GuiI1ExecutionTest`, `GuiI1AutomaticDiscoveryTest`, `GuiI1DicomPreparationTest`, `GuiI1WorkflowE1Test` | Implemented Swing/FlatLaf workflow with backend-authoritative dispatch; separate F10/F11 foundation acceptance is not implied |
+| Destination and recovery guards | `DestinationQualificationTest`, `JsonManifestStoreD1DestinationTest`, `M8WorkspaceTest`, `FboDirectoryPreflightTest` | Windows/local filesystem and failure controls are conditional on platform, permissions and capabilities |
+
+**Current reported integrated regression:** PR #1 records **961/961 tests
+passing (zero failures, errors or skips)** on an **elevated native Windows
+workstation**, with provisioned filesystem fixtures and
+`java.io.tmpdir=C:\PT`, `d1.test.destination=C:\PD`. A targeted mixed-series
+GUI conversion test also passed. This is **user-provided workstation
+evidence**, not a newly executed test, a GitHub-hosted CI run, or proof of
+ordinary-user Windows/native Linux GUI qualification.
+
+The M7 **129-test** (2026-10-03), F8 **795-test** and EBO-1 R2 **888-test**
+results are **historical checkpoint-specific evidence**; they must not be
+presented as today's full integrated regression count. The separate F8/F9/M8
+formal acceptance obligations, F10/F11 foundation workstreams, comprehensive
+bidirectional round-trip acceptance and the global Pre-M8 gate remain
+governed by the [canonical tracker](../planning/PRE-M8-FOUNDATION-TRACKER.md).
+**M10 (the desktop GUI milestone) is not F10 (foundation boundary
+reconciliation).** This documentation update does not execute Maven or
+change acceptance decisions.
+
 ## 1. Purpose
 
-Correctness means reconstructing the selected supported MR series without silent
-changes to stored pixels or physical geometry, with stable failures for inconsistent
-input. [Architecture 1.0](../architecture/ARCHITECTURE-REVISION-1.0.md) governs acceptance.
-Executable JUnit tests are evidence of covered behavior, not proof of all requirements.
-This file originated as an M6-focused test strategy. Sections 4–6 preserve
-the M6-era fixture inventory and historically identified gaps; they are not
-a fresh exhaustive coverage audit of the 2026-11-07 integrated `main` tree.
-The newer F1–F9, M8, EBO/FBO and GUI suites require their own bounded mapping.
+Correctness spans both implemented conversion directions: supported DICOM
+reconstruction and NIfTI output, independent bounded NIfTI-to-derived-DICOM
+generation, provenance-backed verification/publication, sequential batch
+orchestration and the Swing desktop workflow. In each route, tests must
+establish supported voxel and geometry semantics, explicit rejection of
+unsupported inputs, and non-verified handling of uncertain publication.
+[Architecture 1.0](../architecture/ARCHITECTURE-REVISION-1.0.md) and
+later approved scope-specific contracts govern their respective obligations.
+
+Executable JUnit tests establish only the cases actually asserted. This
+document began as an M6-focused strategy; sections 4–6 retain dated M6
+fixture details, not a current exhaustive gap inventory. The current
+integrated test mapping appears above and in §8; [test results](TEST-RESULTS.md)
+separate executed evidence by exact source checkpoint and environment.
 
 ## 2. Testing Principles
 
@@ -34,9 +78,14 @@ and rescale behaviors are covered through service tests.
 ### Application / service tests
 
 `DicomSeriesServiceTest` runs `DefaultDicomSeriesService` with the real
-`Dcm4cheInstanceReader`: selection, compatibility, assembly, raw values, rescale,
-ordering, geometry rejection and stable errors. `FormatDetectionServiceTest`
-exercises the detection service with real probes.
+`Dcm4cheInstanceReader`: selection, compatibility, assembly, raw values,
+rescale, ordering, geometry rejection and stable errors.
+`FormatDetectionServiceTest` exercises format probing.
+Additional implemented routes have separate suites for F9 headless
+verification, FBO sequential batch, M8 conversion/verification, EBO
+evaluation batch and GUI execution/discovery; see the current mapping
+and §8. These suites are not interchangeable with an end-to-end
+cross-direction round-trip acceptance test.
 
 ### Infrastructure tests
 
@@ -51,10 +100,14 @@ separate implemented GUI workflows.
 
 ### Architecture / boundary tests
 
-`DependencyDirectionTest`, `PackageStructureTest`, `PresentationBoundaryTest` and
-`M6BoundaryTest` inspect selected types/packages using reflection. They do not scan
-all classes, method bodies or nested generic arguments, or enforce all AR-1 rules.
-AR-1 must preserve behavior while updating these boundary expectations.
+`DependencyDirectionTest`, `PackageStructureTest`,
+`PresentationBoundaryTest`, `M6BoundaryTest`,
+`FoundationContractBoundaryTest`, `F9HeadlessBoundaryTest`,
+`M8BoundaryTest` and `VerifiedConversionBoundaryTest` enforce
+selected dependency and contract boundaries. These executable checks
+are not a proof that every class, method body, nested generic argument
+or Architecture Revision 1.0 rule is statically enforced.
+Preserve earlier invariant tests when updating the boundary architecture.
 
 ### Regression tests
 
@@ -62,9 +115,9 @@ Geometry (`32b4bc1`) and allocation (`fc1ad46`) regressions have recorded pre-fi
 failures in [DEVELOPMENT_LOG.md](../../DEVELOPMENT_LOG.md). The [results audit](TEST-RESULTS.md)
 separates historical records from fresh runs. Do not infer failures from test names.
 
-## 4. DICOM Geometry Test Strategy
+## 4. Historical M6 DICOM Geometry Test Strategy
 
-Existing tests cover mandatory/unknown series, mixed studies, duplicate SOPs,
+At the historical M6 fixture checkpoint, tests covered mandatory/unknown series, mixed studies, duplicate SOPs,
 incompatible dimensions/spacing/orientation, missing IOP/IPP, duplicate positions,
 irregular spacing and ordering shuffled slices by physical position.
 The common-normal fixture varies orientations at x=200 mm: separate normals can
@@ -77,24 +130,30 @@ Whole-grid fixtures distinguish locally acceptable gaps with cumulative drift
 1e-4 for direction cosines and 1e-3 mm for position, pixel spacing, slice spacing
 and duplicate position. Do not change these merely to pass tests.
 
-Dedicated nonfinite/unit/orthogonality, in-plane displacement, conflicting
-InstanceNumber, FrameOfReferenceUID/anatomical orientation and single-slice-policy
-tests remain gaps. Shuffled-file coverage is not an explicit InstanceNumber test.
+The original M6 audit flagged dedicated nonfinite/unit/orthogonality,
+in-plane displacement, conflicting `InstanceNumber`,
+`FrameOfReferenceUID`/anatomical orientation and single-slice-policy
+tests for further review. Those are **historical audit observations**,
+not a verified claim that every gap remains in the merged suite.
+Shuffled-file ordering alone is not an explicit `InstanceNumber` test.
 
-## 5. Pixel / Voxel Test Strategy
+## 5. Historical M6 Pixel / Voxel Test Strategy
 
-Existing DICOM assertions include unsigned 16-bit 65535, signed 12-bit -2048/-1,
+At the M6 checkpoint, DICOM assertions included unsigned 16-bit 65535, signed 12-bit -2048/-1,
 BitsStored/HighBit metadata, rescale declaration/slope, slice placement and three
 approved syntaxes. RGB/multiple samples and deflated syntax are rejected.
-Dedicated 8-bit boundaries, missing Pixel Data, payload-length failures, invalid HighBit, rescale
-mismatch/partial declarations and explicit multiframe fixtures remain gaps.
-M6 never applies rescale metadata to stored samples.
+The original M6 audit listed dedicated 8-bit boundaries, missing Pixel
+Data, payload-length failures, invalid HighBit, rescale mismatch/partial
+declarations and multiframe fixtures as gap candidates. Their **present**
+coverage needs a source-level assertion inventory, not a blanket
+unimplemented claim. The supported M6 reconstruction path does not apply
+rescale metadata to stored samples.
 
 Allocation regressions cover int wraparound, counts above int/long capacity,
 nonpositive dimensions and length mismatch using tiny arrays. Checked counts do
 not guarantee sufficient heap for every theoretically valid volume.
 
-## 6. Format Detection Test Strategy
+## 6. Historical Format Detection Fixture Strategy
 
 Tests cover DICOM correct/missing/wrong extensions and preamble-less input;
 NIfTI-1/2 magic/header length and big-endian recognition; gzip NIfTI versus unrelated
@@ -102,17 +161,30 @@ gzip; corrupt/truncated input; image-pair rejection; invalid/missing paths,
 directories, empty/unknown content and the 1 MiB DICOM detection budget.
 
 The budget test asserts UNKNOWN/INPUT_TOO_LARGE, not rejection by the full reader.
-A valid >1 MiB reconstruction test remains needed. NIfTI field-validation helpers
-are uncalled; dimension/datatype/bitpix validation is an implementation/test gap.
-Gzip is consumed through EOF up to a 16 MiB decompressed cap, retaining at most
-4096 header bytes. Exceeding the cap currently maps to INVALID_GZIP.
+The original format-detection audit separately flagged a valid >1 MiB
+reconstruction case and uncalled field-validation helpers. Those notes
+apply to the **detection subsystem at that checkpoint** and must not be
+misread as saying that later `Nifti1VolumeReader` field, geometry,
+bounds and gzip tests are absent. The 16 MiB decompression budget and
+`INVALID_GZIP` mapping cited above were recorded for the historical
+detector; verify the relevant implementation before claiming the same
+limit for another reader or workflow.
 
 ## 7. Test Data
 
-Fixtures use `@TempDir`, generated DICOM Attributes, byte buffers and gzip streams.
-No real patient data or external imaging installation is required. Ordinary fixture
-UIDs may use clock/random generation; assertions do not depend on those exact values.
-Geometry-reference regressions fix relevant UIDs. Never commit studies or generated data.
+Synthetic unit and integration suites use `@TempDir`, generated DICOM
+Attributes, byte buffers and gzip streams; they do not require real
+patient data or an external imaging installation. Ordinary fixture UIDs
+may use clock/random generation when assertions do not depend on their
+exact values; geometry-reference regressions fix relevant UIDs.
+
+Separately, historic bounded **real-MRI** and independent NIfTI-parser
+checks have been reported, including a selected 15-image slab and
+NiBabel interoperability. These are **not** the synthetic JUnit
+fixtures and are not equivalent to unrestricted real-volume or
+clinical validation. Preserve input identities and private evidence
+outside the repository. Never commit DICOM studies, imaging outputs,
+patient data, local execution logs or secrets.
 
 ## 8. Integrated prototype test design (2026-11-07)
 
@@ -147,8 +219,9 @@ single successful imaging conversion:
 - **Real MRI and independent interchange:** maintain separately documented
   source identity, selected-series completeness, voxel-level comparisons,
   spatial transforms and profiles of the external parser. Historical
-  15-slice M6/M7/F7 evidence must not be presented as a general 155-slice
-  or arbitrary DICOM-series acceptance claim.
+  selected-15-image real-MRI evidence (at the relevant M6/M7/F7/F9
+  checkpoints) must not be presented as validation of arbitrary DICOM
+  series, an entire study or unrestricted round-trip equivalence.
 
 **Environment and negative cases:** Native Windows regression qualification
 may require appropriately provisioned NTFS fixtures, user privileges and
@@ -164,7 +237,7 @@ a passing targeted mixed-series GUI test; there was **no GitHub CI run** in
 that record. The date of this document update is not a new Maven execution
 date. Respect the unchanged formal F8/F9/M8 and global Pre-M8 gates.
 
-## 9. Commands
+## 9. Commands (Java 21; execute on the target workstation)
 
 ```shell
 mvn --version
@@ -179,9 +252,20 @@ mvn "-Dtest=GuiI1ExecutionTest,GuiI1ScannerTest,GuiI1DicomPart10IntegrationTest"
 git diff --check
 ```
 
-For historical reproduction, use `git archive` in a temporary directory and
-`mvn clean test -f <export>/pom.xml`; do not reset the user's tree. Read Surefire XML
-for counts/names only after fresh execution. Stale reports do not prove success.
+The commands above are **reproduction examples**, not assertions that
+they were run during this documentation update. Run a full clean suite
+under the exact environment required by the relevant acceptance gate.
+On native Windows, prepare supported NTFS test destinations and
+privileges; the reported PR #1 full run was elevated and used the
+short-path fixture properties listed above. Do not equate a passing
+subset, or an environment-dependent skip, with the qualified full run.
+
+For historical reproduction, use `git archive` in a temporary
+directory and `mvn clean test -f <export>/pom.xml`; do not reset a user's
+working tree. Read Surefire XML only after fresh execution, recording
+the exact Git tree, Java/Maven versions, operating system, command,
+fixture paths, privileges, counts and any skips. Stale reports do not
+prove success.
 
 ## 10. Acceptance Discipline
 
@@ -199,6 +283,7 @@ negative cases, and independent review/owner approval where required.
 **Do not** promote pending F8/F9/M8 obligations, F10/F11 or the global
 Pre-M8 gate based solely on the 961-test GUI integration run. Documentation
 updates do not constitute an executable regression or acceptance decision.
-Record changes in the development log only after the relevant activity
-has actually occurred. This documentation task explicitly
-forbids staging and committing.
+Record development-log changes only after the corresponding activity
+has actually occurred. Documentation-only PR changes may be committed
+for review, but such commits are **not** executable test evidence or
+a formal acceptance authorization.
