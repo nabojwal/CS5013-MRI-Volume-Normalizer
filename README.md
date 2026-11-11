@@ -193,12 +193,6 @@ which matches merged `main`. It was a user-executed, elevated Windows run
 with provisioned short-path fixtures, not GitHub CI or general cross-platform
 qualification; see [§8](#8-verification).
 
-The earlier **129 passing tests** belong solely to the
-**2026-10-03 M7 acceptance checkpoint**. The original M1–M7 checkpoint
-table and the historical M8/M10 `NOT STARTED` entries are retained in
-[MILESTONES.md](MILESTONES.md), where their date and scope are explicit.
-They are not current project status.
-
 ## 4. Supported DICOM Profile
 
 `DefaultDicomSeriesService` accepts explicit file inputs and an explicitly
