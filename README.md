@@ -273,30 +273,31 @@ The project-owned writer supports:
 
 The writer uses no third-party NIfTI runtime dependency.
 
-## 7. DICOM-to-NIfTI Workflow
+## 7. Bidirectional DICOM–NIfTI Conversion Workflows
 
-The following is the original **M7 application-level path**, not the complete
-subsequent F9/FBO/GUI publication pipeline:
+Project PAI implements two conversion directions using a shared format-neutral `ImageVolume` model. The **M7 forward path** establishes DICOM-to-NIfTI conversion, while the **M8 reverse path** generates derived MR DICOM series with staged verification and controlled publication. Subsequent F9/FBO/EBO services provide authoritative orchestration and integrate with the desktop GUI.
 
-The implemented M7 application path is:
+### 7.1 DICOM-to-NIfTI Workflow (M7)
+
+The original M7 application-level conversion path is:
 
 ```text
-explicit DICOM inputs
+Explicit DICOM inputs
         |
         v
 Dcm4cheInstanceReader
         |
         v
-validated DICOM series
+Validated DICOM series
         |
         v
-ImageVolume in DICOM patient LPS
+ImageVolume (DICOM patient LPS)
         |
         v
 NiftiAffineMapper
         |
         v
-voxel-to-world RAS affine
+Voxel-to-world RAS affine
         |
         v
 Nifti1VolumeWriter
@@ -304,42 +305,138 @@ Nifti1VolumeWriter
         +--> .nii / .nii.gz
         |
         v
-writer returns successfully
+Successful writer completion
         |
         v
 ConversionValidationReport
 ```
 
-Output failures are represented separately from DICOM reconstruction errors.
+The application reconstructs a validated 3D MRI volume and maps DICOM patient LPS geometry into NIfTI RAS coordinates.
 
-The `ConversionValidationReport` is created only after the NIfTI writer
-completes successfully. It records factual conversion invariants and does not
-claim that the written output was reopened, reparsed or independently validated
-at runtime.
+The `ConversionValidationReport` records conversion invariants only after successful writing. It does not independently establish that the output has been reopened or verified. Output-writing failures are distinguished from DICOM reconstruction failures.
 
-### 7.1 Integrated GUI and authoritative backend workflows
+The subsequent **F8/F9 pipeline** extends this workflow with reopened-output comparison, provenance acknowledgment and verified publication.
 
-The desktop entry point is
-`org.cbihi.mrinormalizer.presentation.gui.GuiI1App` (Java 21 with the
-project runtime dependencies). The two tabs are **DICOM → NIfTI** and
-**NIfTI → DICOM**. The GUI scans candidate inputs, allows the supported
-selection, validates a selected existing output directory, and calls
-`GuiI1Execution`.
+### 7.2 NIfTI-to-DICOM Workflow (M8)
 
-`GuiI1Execution` routes one DICOM series through `F9WindowsComposition`,
-a multi-series DICOM batch through `FboCommand`, and supported NIfTI
-single-file/directory input through `EboCommand`. The underlying F9/FBO/EBO
-services decide conversion validity and publication; metadata-only preview is
-not a proof of executability. Results distinguish `VERIFIED`, `PARTIAL`,
-`REJECTED`, `FAILED`, `RECOVERY_REQUIRED` and `INTERRUPTED`.
-`RECOVERY_REQUIRED` must not be described as successful output.
+The implemented M8 reverse-conversion workflow is:
 
-For the qualified F9 path, verified publication is coupled to the backend
-reopen/compare/provenance workflow, which is distinct from the earlier M7
-writer-return `ConversionValidationReport`. A separate GUI completion ledger
-prevents identical input/destination replay after acknowledgment. Do not
-delete internal evidence, assume a directory is safely reusable, or treat
-successful byte writing alone as a verified conversion.
+```text
+Explicit NIfTI input (.nii / .nii.gz)
+        |
+        v
+NioM8Workspace
+(Source validation and snapshot integrity)
+        |
+        v
+Nifti1VolumeReader (F7)
+        |
+        v
+Validated 3D ImageVolume
+(Voxels, RAS affine, intensity scaling)
+        |
+        v
+M8GeometryPolicy
+(RAS → DICOM patient LPS)
+        |
+        v
+DICOM conversion plan
+(Geometry, metadata, generated UIDs)
+        |
+        v
+M8ConversionService
+        |
+        v
+Dcm4cheMrSliceWriter
+        |
+        v
+Private staging of DICOM slices
+        |
+        v
+Dcm4cheMrSliceVerifier
+(Reopen and verify pixels, geometry,
+ intensity scaling and metadata)
+        |
+        v
+Staged verification acknowledged
+        |
+        v
+Collision-safe DICOM publication
+        |
+        v
+Published output verified
+        |
+        v
+Completion checkpoint recorded
+        |
+        v
+M8Result
+(SUCCESS / REJECTED / FAILED /
+ RECOVERY_REQUIRED)
+```
+
+M8 reads supported 3D NIfTI-1 integer volumes, converts their spatial geometry from RAS to DICOM patient LPS, and generates new research-use MR DICOM instances using explicitly defined metadata assumptions.
+
+Each staged DICOM slice is reopened and verified before publication. Successful completion additionally requires published-output verification and completion acknowledgment. Consequently, an `M8Result` reports `SUCCESS` only when the publication state is `COMPLETE_BYTES_VERIFIED`.
+
+Generated DICOM instances do not imply recovery of the original scanner acquisition metadata.
+
+### 7.3 Integrated GUI and Authoritative Backend Workflows
+
+The desktop application starts through `org.cbihi.mrinormalizer.presentation.gui.GuiI1App` using Java 21 and its runtime dependencies.
+
+The Swing/FlatLaf interface provides two conversion tabs:
+
+- **DICOM → NIfTI:** Converts supported DICOM series into NIfTI volumes.
+- **NIfTI → DICOM:** Converts supported NIfTI volumes into derived MR DICOM series.
+
+The GUI supports input browsing, candidate inspection, series selection, output-directory selection, and conversion-status reporting.
+
+`GuiI1Execution` delegates conversion to the authoritative backend:
+
+```text
+                 Swing/FlatLaf GUI
+                     GuiI1App
+                         |
+                         v
+                   GuiI1Execution
+                         |
+             +-----------+-----------+
+             |                       |
+             v                       v
+       DICOM → NIfTI           NIfTI → DICOM
+             |                       |
+       +-----+-----+                 |
+       |           |                 |
+       v           v                 v
+    Single      Multiple       EboCommand
+    series      series              |
+       |           |                 v
+       v           v          EboBatchController
+F9Windows-   FboCommand             |
+Composition       |                 v
+       |           v        M8ConversionService
+       |     FBO sequential          |
+       |       batch                 v
+       v           v          Verified derived
+    F9 verified NIfTI             MR DICOM
+      conversion
+             |
+             v
+      Backend verification
+      and publication results
+             |
+             v
+       GUI completion status
+```
+
+The FBO and EBO controllers process supported batch inputs sequentially. Backend validation remains authoritative; GUI input previews do not guarantee conversion eligibility.
+
+The interface distinguishes `VERIFIED`, `PARTIAL`, `REJECTED`, `FAILED`, `RECOVERY_REQUIRED`, and `INTERRUPTED` outcomes. A `RECOVERY_REQUIRED` result must never be represented as successful conversion.
+
+For F9, verified publication depends on reopened-output comparison and provenance acknowledgment, beyond the original M7 writer-return report. For M8, verification and publication are governed by the M8 workspace, evidence and completion checkpoints.
+
+The GUI additionally maintains a completion ledger to prevent replay of an acknowledged identical input/destination operation. Successful byte writing alone is insufficient to establish verified conversion.
 
 ## 8. Verification
 
