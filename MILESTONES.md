@@ -1,6 +1,27 @@
 # Project Milestones
 
-## Current integrated submission state — 2026-11-07
+## Current owner/stakeholder acceptance status — 2026-11-19
+
+The project owner has confirmed completion and acceptance of F8, F9, and F10.
+A stakeholder email dated **2026-11-08**, supplied by the owner and reviewed
+as a PDF, accepts the demonstrated final project deliverable within its scope.
+See the [dated acceptance record](docs/planning/OWNER-STAKEHOLDER-ACCEPTANCE-20261119.md)
+for the exact evidence classes and retained limitations.
+
+| Workstream | Current submission disposition |
+| --- | --- |
+| F8 | **COMPLETE - PROJECT-OWNER ACCEPTED** |
+| F9 | **COMPLETE - PROJECT-OWNER SIGNED OFF** (qualified Windows submission profile) |
+| F10 | **DONE - PROJECT-OWNER ACCEPTED** (documented architectural deviation accepted for submission; no code/architecture amendment claimed) |
+| F11 | **COMPLETE - STAKEHOLDER ACCEPTED** (written verdict dated 2026-11-08) |
+
+This is a dated acceptance/status declaration, not a new execution of JUnit
+tests or an independent closure audit of every previously partial contractual
+obligation. Historical audit results, M8's separately unestablished formal
+acceptance, broader M9 validation, and the global Pre-M8 gate retain their
+own evidence boundaries. The private stakeholder email is not in the repository.
+
+## Historical integrated submission state — 2026-11-07
 
 **GitHub main:** `b032a51cd369b428f201c6b0dd8d23a49f195eec`
 (PR [#1](https://github.com/nabojwal/CS5013-MRI-Volume-Normalizer/pull/1),

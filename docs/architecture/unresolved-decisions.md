@@ -12,6 +12,15 @@ subsequent contracts and [decision records](../../DECISIONS.md) retain
 their authority; this file is a navigation/status reconciliation, not an
 architectural amendment or an acceptance decision.
 
+**Owner disposition added 2026-11-19:** The project owner marked the
+separate F10 boundary-reconciliation workstream **done/accepted for the
+submission**, explicitly retaining the GUI-to-infrastructure discrepancy
+below as a documented technical limitation. This owner acceptance is
+recorded in the [dated acceptance record](../planning/OWNER-STAKEHOLDER-ACCEPTANCE-20261119.md);
+no source refactor or amendment to AR-05 was made. F8/F9 owner acceptance
+and F11 stakeholder approval were also recorded separately; this document
+continues to enumerate technical issues rather than imply they disappeared.
+
 ## Disposition of the original M4 open items
 
 | Original M4 question | Integrated source/decision evidence | Present qualification |
@@ -45,12 +54,14 @@ M4 design questions:
   architectural reconciliation or implementation change; they do **not**
   demonstrate incorrect conversion results or independently establish that
   an architectural exception was approved.
-- Complete outstanding formal F8/F9/M8 acceptance decisions and the
-  independently gated F10/F11 and global Pre-M8 obligations. **M10 desktop
-  GUI integration is implemented/integrated**, whereas **F10 is the distinct
-  foundation boundary-reconciliation workstream** and has no recorded formal
-  closure. Implemented GUI functionality and 961 user-reported passing
-  Windows tests do not automatically close these acceptance gates.
+- Historical F8/F9 independent qualification, formal M8 acceptance and the
+  global Pre-M8 gate remain distinguishable from the **2026-11-19
+  owner/stakeholder submission acceptances**. **M10 desktop GUI integration
+  is implemented/integrated**, whereas **F10 is the distinct foundation
+  boundary-reconciliation workstream**. The owner marked F10 complete by
+  accepting the documented deviation for submission, without claiming that
+  the source/AR-05 difference had been refactored away. The 961 user-reported
+  Windows tests do not constitute a new architectural amendment.
 - Independently evaluate broader bidirectional round-trip invariants,
   supported profiles and appropriate clinical/interoperability limits
   before making stronger claims. Evaluation-generated DICOM metadata must

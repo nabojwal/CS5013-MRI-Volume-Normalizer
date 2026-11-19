@@ -53,10 +53,17 @@ The reported native-Windows **961/961** test regression was run on an
 elevated workstation with provisioned short-path fixtures; it is
 not GitHub CI or ordinary-user/cross-platform acceptance. The
 [foundation tracker](docs/planning/PRE-M8-FOUNDATION-TRACKER.md)
-distinguishes implemented M10 GUI functionality from the separate,
-unclosed F10/F11 and formal F8/F9/M8 acceptance obligations.
+distinguishes implemented M10 GUI functionality from separate F8-F11
+foundation obligations. On 2026-11-19, F8/F9/F10 were declared complete
+and accepted/signed off by the project owner, and the stakeholder's
+2026-11-08 written verdict was reviewed as F11 acceptance evidence.
+Those decisions do not create new cross-platform test evidence or close
+M8's separate formal acceptance or the global Pre-M8 gate. See the
+[acceptance record](docs/planning/OWNER-STAKEHOLDER-ACCEPTANCE-20261119.md).
 The approved architecture's presentation-layer boundary discrepancy
-is documented in [unresolved decisions](docs/architecture/unresolved-decisions.md).
+remains documented in [unresolved decisions](docs/architecture/unresolved-decisions.md);
+the owner accepted this documented deviation for the submission, not a
+change in the implementation or the original architectural rule.
 
 ## Technology
 
