@@ -1244,3 +1244,27 @@ checkpoints and limitations are recorded in
 [the tracker](docs/planning/PRE-M8-FOUNDATION-TRACKER.md) and
 [the project milestones](MILESTONES.md). Historical M7 observations
 above remain unchanged.
+
+## 2026-11-19 — Project-owner closure and stakeholder acceptance reconciliation
+
+**Change class:** Documentation-only status reconciliation; no Java source,
+test logic, architecture contract, or medical-imaging dataset modified.
+
+- The project owner declared F8 **complete/accepted**, F9 **complete/signed
+  off** for its qualified Windows submission profile, and F10 **done/accepted**
+  for submission with the documented GUI/AR-05 boundary discrepancy retained.
+- The owner supplied a PDF printout of a stakeholder email exchange. Its
+  2026-11-08 reply accepts the demonstrated final MRI organization and
+  bidirectional DICOM-NIfTI deliverable and acknowledges future work on wider
+  validation and batch processing. The PDF was visually/textually reviewed,
+  not authenticated against the email service, and not committed to Git.
+- F11 is therefore recorded **stakeholder accepted**. The email subject uses
+  a different course number from the project described in the email body;
+  the project identity was matched to the described MRI application.
+- The F8 historical partial acceptance audit, bounded F9 qualification,
+  unchanged F10 source-level divergence, M8 formal acceptance, M9 broader
+  validation and global Pre-M8 gate retain their separate evidence limits.
+
+See [the new acceptance record](docs/planning/OWNER-STAKEHOLDER-ACCEPTANCE-20261119.md)
+for the exact declared dispositions and evidence boundaries. No new Maven,
+JUnit, or independent verification was executed for this documentation change.

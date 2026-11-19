@@ -2,7 +2,23 @@
 
 > **A workstream is not complete because its classes exist. It is complete only when its behavioral contracts are implemented, negative cases are tested, integration evidence passes, and the tracker records the verified checkpoint.**
 
-## Current development and acceptance status — 2026-11-07
+## Latest owner/stakeholder submission disposition — 2026-11-19
+
+The project owner has declared **F8 COMPLETE/ACCEPTED**, **F9 COMPLETE/SIGNED
+OFF**, and **F10 DONE/ACCEPTED** for the implemented submission scope. A
+stakeholder's written 2026-11-08 verdict, supplied by the owner and reviewed
+as a PDF, establishes documented **F11 stakeholder acceptance** of the
+demonstrated deliverable. See the [dated acceptance record](OWNER-STAKEHOLDER-ACCEPTANCE-20261119.md)
+for provenance, limits, and the distinction between owner acceptance and
+independent contractual verification.
+
+This owner/stakeholder disposition supersedes the 2026-11-07 *current-status*
+labels below for those four workstreams. It does not erase the historical
+F8 18/42-plus-24/42 audit finding, claim new F9 cross-platform runs, rewrite
+AR-05, or independently close M8, M9, or the global Pre-M8 gate. No source
+or test code was changed for this status reconciliation.
+
+## Historical development and acceptance status — 2026-11-07
 
 **Current implementation checkpoint:** GitHub `main` at
 [`b032a51cd369b428f201c6b0dd8d23a49f195eec`](https://github.com/nabojwal/CS5013-MRI-Volume-Normalizer/commit/b032a51cd369b428f201c6b0dd8d23a49f195eec),

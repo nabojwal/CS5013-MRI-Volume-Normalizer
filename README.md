@@ -15,7 +15,18 @@ implemented in separate, constrained workstreams. A Swing/FlatLaf desktop GUI
 now integrates the supported forward and reverse workflows. This is a
 non-clinical research and course-submission prototype, not a clinical or PACS product.
 
-### Current integrated submission checkpoint — 2026-11-07
+### Latest owner/stakeholder disposition — 2026-11-19
+
+The project owner has **accepted F8**, **signed off F9**, and **accepted F10**
+for the bounded submission scope. **F11 stakeholder acceptance is documented**
+by a written verdict dated 2026-11-08. The owner accepted the existing
+GUI/architecture boundary deviation for this submission; the underlying
+technical discrepancy remains documented. These are dated owner/stakeholder
+dispositions, not newly executed tests or independent re-audits of all
+historical contractual obligations. See the
+[acceptance record](docs/planning/OWNER-STAKEHOLDER-ACCEPTANCE-20261119.md).
+
+### Source integration checkpoint — 2026-11-07
 
 Pull request [#1](https://github.com/nabojwal/CS5013-MRI-Volume-Normalizer/pull/1)
 merged `feature/gui-i1-windows` at tested source commit
@@ -63,8 +74,9 @@ folders and long paths are not universally qualified. The documented D1
 destination-reliability investigation after PR #1 is **not** part of this merged
 source checkpoint.
 
-**Acceptance distinction:** F0–F7 retain their recorded bounded acceptance.
-F8 and F9 formal acceptance remain pending; M8 has an implemented, separately
+**Acceptance distinction at the November 7 integration checkpoint:** F0–F7
+retain their recorded bounded acceptance. At that checkpoint F8 and F9 formal
+acceptance were pending; M8 has an implemented, separately
 qualified Windows evaluation path without blanket formal acceptance. EBO-1 R2
 is accepted for its bounded evaluation contract. The GUI is an integrated
 submission prototype **without inferring F10/F11 or global Pre-M8 closure**.
@@ -169,10 +181,13 @@ MVP.
 
 ## 3. Current Development Status
 
-The following describes the **implemented source on merged `main`**
-(`b032a51`) as of 2026-11-07. An implemented feature is not automatically
-a formally accepted workstream; the foundation tracker governs acceptance
-obligations separately.
+The implementation column describes the **source integrated into `main`**
+(`b032a51`) on 2026-11-07. The F8-F11 disposition incorporates the subsequent
+owner/stakeholder confirmation of 2026-11-19. An implemented feature is not
+automatically a formally accepted workstream; the
+[acceptance record](docs/planning/OWNER-STAKEHOLDER-ACCEPTANCE-20261119.md)
+identifies which decisions are owner/stakeholder acknowledgments and which
+prior qualification limits remain.
 
 | Workstream | Present implementation | Evidence and acceptance boundary |
 | --- | --- | --- |
@@ -181,10 +196,11 @@ obligations separately.
 | **M8 — Controlled NIfTI → DICOM** | **IMPLEMENTED**: independent 3D integer NIfTI-1 to derived MR DICOM conversion | Native Windows evaluation and integration tests exist; separate formal M8 acceptance is not established by PR #1 |
 | **M10 — Desktop GUI integration** | **IMPLEMENTED / INTEGRATED**: working Swing/FlatLaf DICOM ↔ NIfTI GUI | `GuiI1App`, `GuiI1Window`, `GuiI1Execution` and GUI tests are in merged `main`; no blanket separate milestone acceptance implied |
 | F1–F7 foundation | **ACCEPTED / CLOSED** within their recorded scope | Historical frozen acceptance evidence remains authoritative |
-| F8 — Reopened verification/provenance | **IMPLEMENTED / QUALIFIED** in its documented predecessor scope | Formal acceptance remains pending in the canonical tracker |
-| F9 — Selected-series forward orchestration | **IMPLEMENTED / WINDOWS-QUALIFIED SUBMISSION PATH** | Formal F9 acceptance remains pending |
+| F8 — Reopened verification/provenance | **COMPLETE / PROJECT-OWNER ACCEPTED** | Earlier 18/42 + 24/42 acceptance audit retained; no new independent audit of every partial obligation |
+| F9 — Selected-series forward orchestration | **COMPLETE / PROJECT-OWNER SIGNED OFF** | Windows-qualified submission profile; no new ordinary-user/native-Linux qualification |
 | FBO and EBO batch workflows | **IMPLEMENTED / INTEGRATED** | EBO-1 R2 is accepted within its bounded evaluation scope; other workflows retain their own limits |
-| F10 / F11 foundation workstreams | **No formal closure recorded** | These are *not* the original project's M10 GUI milestone |
+| F10 — Boundary reconciliation | **DONE / PROJECT-OWNER ACCEPTED FOR SUBMISSION** | Documented AR-05 GUI boundary deviation remains a technical limitation; distinct from M10 GUI integration |
+| F11 — Stakeholder acceptance | **COMPLETE / STAKEHOLDER ACCEPTED** | Written 2026-11-08 feedback reviewed from owner-supplied PDF; private email not stored in Git |
 | Global Pre-M8 gate | **NOT FORMALLY CLOSED** | Integration does not replace the historical acceptance checklist |
 
 **Current reported integrated regression:** 961 Windows tests passed,
@@ -541,11 +557,13 @@ The items below concern formal sign-off, broader validation or extension
 beyond the implemented submission profile—not instructions to start M8 or
 GUI development again.
 
-- **Formal acceptance:** Reconcile the remaining F8/F9/M8 obligations,
-  separate F10/F11 foundation milestones and the global Pre-M8 gate
-  against the [canonical tracker](docs/planning/PRE-M8-FOUNDATION-TRACKER.md).
-  These are not automatically closed by source integration or the
-  reported 961-test Windows regression.
+- **Remaining independent qualification:** F8/F9 have since received
+  project-owner acceptance, F10 has an owner-accepted submission disposition,
+  and F11 has a stakeholder verdict. A fresh independent audit of earlier
+  partial F8 obligations, expanded F9 environments, formal M8 acceptance,
+  and the global Pre-M8 gate is **not** implied by those decisions or the
+  reported 961-test Windows regression. See the
+  [dated acceptance record](docs/planning/OWNER-STAKEHOLDER-ACCEPTANCE-20261119.md).
 - **Storage and platform qualification:** Establish additional evidence
   before claiming unrestricted removable-media, exFAT/FAT32, cloud/network,
   long-path, ordinary-user Windows or other OS support. The existing
